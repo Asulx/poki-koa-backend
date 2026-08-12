@@ -4,7 +4,6 @@
 - Git
 - Python 3.14
 - `uv` para manejar el entorno del backend
-- Node.js 20 o superior con `npm`
 
 Si `uv` no está instalado, puedes obtenerlo desde https://docs.astral.sh/uv/getting-started/installation/.
 
