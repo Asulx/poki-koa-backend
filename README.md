@@ -15,8 +15,8 @@ Si `uv` no está instalado, puedes obtenerlo desde https://docs.astral.sh/uv/get
 ## Clonar el repositorio
 
 ```bash
-git clone https://github.com/Asulx/sistema-monitoreo-cuna-inteligente
-cd sistema-monitoreo-cuna-inteligente
+git clone https://github.com/Asulx/poki-koa-backend.git
+cd poki-koa-backend
 ```
 
 ## Inicializar el backend
