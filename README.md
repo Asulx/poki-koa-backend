@@ -1,4 +1,4 @@
-# Mamoru - Lectura y manejo de datos
+## Poki Koa  - Lectura y manejo de datos
 ## Descripcion
 "El nombre elegido para nuestro sistema es Poki Koa, utilizando palabras pertenecientes a la lengua Rapa Nui. La eleccion de este nombre busca entregar una identidad nacionalal proyecto.
 La palabra Poki hace referencia a in niño o hijo, mientras que Koa se relaciona con la alegria y el estar contento. Por esta razon el nombre representa la idea de un sitema orientado al cuidado, acompañamiento y bienestar.
