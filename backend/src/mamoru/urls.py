@@ -3,5 +3,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('cunas.urls')),
+    # Aquí conectamos nuestra API. Todas las rutas empezarán con /api/
+    path('api/', include('cunas.urls')), 
 ]
