@@ -1,0 +1,13 @@
+# Entornos virtuales de Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Dependencias de Node / React
+node_modules/
+dist/
+
+# Archivos de entorno y logs
+.env
+*.log
