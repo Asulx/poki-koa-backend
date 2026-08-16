@@ -49,7 +49,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
 ]
 
-ROOT_URLCONF = 'mamoru.urls'
+ROOT_URLCONF = 'poki_koa.urls'
 
 # CONFIGURACIÓN DE PLANTILLAS (Requerido por la app 'admin' de Django)
 TEMPLATES = [
@@ -68,7 +68,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'mamoru.wsgi.application'
+WSGI_APPLICATION = 'poki_koa.wsgi.application'
 
 # BASE DE DATOS
 DATABASES = {

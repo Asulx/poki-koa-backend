@@ -2,6 +2,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mamoru.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'poki_koa.settings')
 
 application = get_wsgi_application()
