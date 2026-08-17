@@ -1,0 +1,31 @@
+# Proyecto: Mamoru / Poki Koa — Backend de monitoreo neonatal
+# Gestión de dependencias y empaquetado con uv + hatchling
+
+[project]
+name = "mamoru-backend"
+version = "0.1.0"
+description = "Backend Django REST para el sistema de monitoreo de cunas neonatales Poki Koa"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    # Framework web principal
+    "django>=5.2.17",
+    # Soporte para solicitudes cross-origin (necesario para conectar con el frontend React/Vite)
+    "django-cors-headers>=4.9.0",
+    # API REST: serialización, vistas y router automático
+    "djangorestframework>=3.18.0",
+]
+
+# Define el comando `mamoru` disponible tras ejecutar `uv sync`
+# Uso: uv run mamoru [comando django]
+[project.scripts]
+mamoru = "poki_koa.main:main"
+
+# Sistema de construcción del paquete (requerido por uv para instalar el proyecto)
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# Indica a hatchling dónde están los paquetes Python del proyecto
+[tool.hatch.build.targets.wheel]
+packages = ["src/poki_koa", "src/cunas"]

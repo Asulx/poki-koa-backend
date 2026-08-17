@@ -1,40 +1,107 @@
-## Poki Koa  - Lectura y manejo de datos
-## Descripcion
-"El nombre elegido para nuestro sistema es Poki Koa, utilizando palabras pertenecientes a la lengua Rapa Nui. La eleccion de este nombre busca entregar una identidad nacionalal proyecto.
-La palabra Poki hace referencia a in niño o hijo, mientras que Koa se relaciona con la alegria y el estar contento. Por esta razon el nombre representa la idea de un sitema orientado al cuidado, acompañamiento y bienestar.
-Como elemento visual principal elgimos la figura de un Moai, debido a que queremos asociarlo con conceptos como proteccion, cuidado, presencia, y vigilancia. El Moai funciona como una representacion de un sistema que permanece atento y acompaña al usuario, reforzando visualmente el proposito de la aplicacion."
+# Poki Koa — Sistema de Monitoreo Neonatal
+
+> **Poki** (niño/hijo) · **Koa** (alegría, estar contento) — Lengua Rapa Nui
+
+Sistema de monitoreo inteligente de cunas neonatales. El nombre **Poki Koa** busca entregar una identidad nacional al proyecto usando palabras de la lengua Rapa Nui, mientras que el **Moai** como elemento visual refuerza conceptos de protección, cuidado y vigilancia permanente.
+
+## Arquitectura
+
+```
+Backend (este repositorio)       Frontend (repositorio aparte)
+┌─────────────────────────┐      ┌────────────────────────┐
+│  Django REST Framework  │◄────►│  React + Vite          │
+│  SQLite (desarrollo)    │      │  Puerto: 5173          │
+│  Puerto: 8000           │      └────────────────────────┘
+└─────────────────────────┘
+
+API REST disponible en: http://127.0.0.1:8000/api/
+  GET/POST  /api/medicos/
+  GET/POST  /api/bebes/
+  GET/POST  /api/cunas/
+  (+ endpoints de detalle /{id}/ para cada uno)
+```
 
 ## Requisitos
 
-- Git
-- Python 3.14
-- `uv` para manejar el entorno del backend
+- [Git](https://git-scm.com/)
+- Python 3.10 o superior
+- [`uv`](https://docs.astral.sh/uv/getting-started/installation/) para gestionar el entorno virtual y las dependencias
 
-Si `uv` no está instalado, puedes obtenerlo desde https://docs.astral.sh/uv/getting-started/installation/.
+> Si `uv` no está instalado, puedes obtenerlo con:
+> ```bash
+> curl -LsSf https://astral.sh/uv/install.sh | sh
+> ```
 
-## Clonar el repositorio
+## Instalación y ejecución
+
+### 1. Clonar el repositorio
 
 ```bash
 git clone https://github.com/Asulx/poki-koa-backend.git
 cd poki-koa-backend
 ```
 
-## Inicializar el backend
-
-1. Verifica la versión de Python instalada.
+### 2. Verificar la versión de Python
 
 ```bash
 python --version
 ```
 
-2. Sincroniza las dependencias del proyecto.
+### 3. Sincronizar las dependencias del proyecto
+
+Esto crea el entorno virtual `.venv/` e instala todas las dependencias automáticamente:
 
 ```bash
 uv sync
 ```
 
-3. Ejecuta el punto de entrada del backend.
+### 4. Aplicar las migraciones de base de datos
+
+Solo es necesario la primera vez o cuando se agregan nuevos modelos:
+
+```bash
+uv run mamoru migrate
+```
+
+### 5. Ejecutar el servidor de desarrollo
 
 ```bash
 uv run mamoru
+```
+
+El servidor estará disponible en: **http://127.0.0.1:8000/**
+
+## Otros comandos útiles
+
+| Comando | Descripción |
+|---|---|
+| `uv run mamoru` | Inicia el servidor de desarrollo en el puerto 8000 |
+| `uv run mamoru migrate` | Aplica migraciones pendientes a la base de datos |
+| `uv run mamoru test` | Ejecuta la suite de pruebas unitarias |
+| `uv run mamoru makemigrations` | Genera nuevas migraciones tras modificar modelos |
+| `uv run mamoru createsuperuser` | Crea un usuario administrador para el panel `/admin/` |
+
+## Estructura del proyecto
+
+```
+.
+├── pyproject.toml          # Dependencias, versión del proyecto y comando `mamoru`
+├── uv.lock                 # Versiones exactas de dependencias (no editar manualmente)
+├── .python-version         # Versión de Python gestionada por uv
+└── src/
+    ├── manage.py           # CLI alternativa de Django (uso directo sin uv)
+    ├── db.sqlite3          # Base de datos SQLite (desarrollo)
+    ├── poki_koa/           # Configuración central del proyecto Django
+    │   ├── settings.py     # Ajustes globales (BD, apps, CORS, etc.)
+    │   ├── urls.py         # Rutas raíz: /admin/ y /api/
+    │   ├── wsgi.py         # Punto de entrada para servidores WSGI (producción)
+    │   └── main.py         # Función `main()` que activa el comando `mamoru`
+    └── cunas/              # App principal del sistema
+        ├── models.py       # Modelos: Medico, Bebe, Cuna
+        ├── serializers.py  # Serializadores JSON para la API REST
+        ├── views.py        # ViewSets: endpoints CRUD automáticos
+        ├── urls.py         # Router con rutas /api/medicos/, /api/bebes/, /api/cunas/
+        ├── admin.py        # Registro de modelos en el panel de administración
+        ├── tests.py        # Pruebas unitarias de los modelos
+        └── migrations/     # Migraciones de base de datos (generadas automáticamente)
 ```

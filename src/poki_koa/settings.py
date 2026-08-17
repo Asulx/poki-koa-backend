@@ -1,40 +1,56 @@
+"""
+Configuración del proyecto Django para Poki Koa (Mamoru).
+
+Este archivo centraliza todos los ajustes del proyecto:
+- Base de datos (SQLite para desarrollo)
+- Apps instaladas (Django + DRF + CORS + cunas)
+- CORS para permitir conexiones desde el frontend en Vite/React
+- Internacionalización en español (zona horaria: América/Santiago)
+
+Para producción, este archivo debe reemplazarse o extenderse con
+variables de entorno y configuraciones seguras (DEBUG=False, etc.).
+"""
+
 from pathlib import Path
 import os
 import sys
 
-# Ruta base del proyecto
+# Directorio raíz del proyecto: apunta a src/ (donde viven manage.py y las apps)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Agrega la carpeta src al PYTHONPATH
+# Agrega src/ al PYTHONPATH para que Django pueda importar las apps (cunas, poki_koa)
 sys.path.append(str(BASE_DIR))
 
-# CLAVE DE SEGURIDAD (Solo para desarrollo local)
+# CLAVE SECRETA — Solo válida para desarrollo local.
+# En producción debe definirse como variable de entorno y nunca subirse al repositorio.
 SECRET_KEY = 'django-insecure-mamoru-clave-de-desarrollo-local'
 
-# MODO DEBUG (True para desarrollo, False en producción)
+# Modo depuración: muestra errores detallados. Debe ser False en producción.
 DEBUG = True
 
+# Hosts permitidos. En desarrollo aceptamos cualquier host.
 ALLOWED_HOSTS = ['*']
 
 # APLICACIONES INSTALADAS
 INSTALLED_APPS = [
+    # Apps nativas de Django
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Aplicaciones de terceros
-    'rest_framework',
-    'corsheaders',
-    # Tus aplicaciones
-    'cunas', 
+    # Librerías de terceros
+    'rest_framework',   # API REST (Django REST Framework)
+    'corsheaders',      # Permite conexiones cross-origin desde el frontend
+    # Apps del proyecto
+    'cunas',            # App principal: modelos, vistas y API del sistema de cunas
 ]
 
-# MIDDLEWARES
+# MIDDLEWARES — Se procesan en orden para cada request/response
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware', # <-- Permite la conexión con React
+    'corsheaders.middleware.CorsMiddleware',      # Debe ir antes de CommonMiddleware para CORS
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -43,7 +59,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# CONFIGURACIÓN DE CORS (Orígenes permitidos para Vite/React)
+# CORS — Orígenes autorizados para hacer peticiones al backend.
+# El puerto 5173 es el servidor de desarrollo de Vite (frontend React).
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
@@ -51,7 +68,7 @@ CORS_ALLOWED_ORIGINS = [
 
 ROOT_URLCONF = 'poki_koa.urls'
 
-# CONFIGURACIÓN DE PLANTILLAS (Requerido por la app 'admin' de Django)
+# PLANTILLAS — Requerido por la app 'admin' de Django para renderizar su interfaz
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -71,6 +88,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'poki_koa.wsgi.application'
 
 # BASE DE DATOS
+# SQLite es suficiente para desarrollo. En producción se recomienda PostgreSQL.
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -78,7 +96,7 @@ DATABASES = {
     }
 }
 
-# CONTRASEÑAS Y VALIDACIÓN (Por defecto)
+# VALIDADORES DE CONTRASEÑA — Reglas mínimas de seguridad para usuarios del sistema
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
@@ -86,14 +104,14 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
 ]
 
-# INTERNACIONALIZACIÓN (Idioma y zona horaria)
+# INTERNACIONALIZACIÓN — Idioma y zona horaria del proyecto
 LANGUAGE_CODE = 'es-es'
-TIME_ZONE = 'America/Santiago' 
+TIME_ZONE = 'America/Santiago'
 USE_I18N = True
 USE_TZ = True
 
-# ARCHIVOS ESTÁTICOS (CSS, JavaScript, Imágenes)
+# ARCHIVOS ESTÁTICOS (CSS, JavaScript, imágenes del panel admin)
 STATIC_URL = 'static/'
 
-# TIPO DE CAMPO AUTOMÁTICO POR DEFECTO
+# Tipo de campo de clave primaria por defecto para todos los modelos nuevos
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
