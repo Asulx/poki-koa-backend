@@ -25,14 +25,14 @@ API REST disponible en: http://127.0.0.1:8000/api/
 
 - [Git](https://git-scm.com/)
 - Python 3.10 o superior
-- [`uv`](https://docs.astral.sh/uv/getting-started/installation/) para gestionar el entorno virtual y las dependencias
+- [`uv`](https://docs.astral.sh/uv/getting-started/installation/) para gestionar el entorno virtual y las dependencias.
 
 > Si `uv` no está instalado, puedes obtenerlo con:
 > ```bash
 > curl -LsSf https://astral.sh/uv/install.sh | sh
 > ```
-- [`Django`] es un framework web de Python
-- [`Django`](https://www.djangoproject.com/download/) ver las versiones de Python compatibles con cada versión de Django
+- [`Django`](https://www.djangoproject.com/download/) es un framework web de Python.
+- [`Django`](https://www.djangoproject.com/download/) ver las versiones de Python compatibles con cada versión de Django.
 
 > Si `Django` no está instalado, puedes obtenerlo para Linux / macOS con:
 > ```bash
