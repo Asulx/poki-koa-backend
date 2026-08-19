@@ -11,7 +11,10 @@ Cada serializador corresponde a un modelo:
 - CunaSerializer    → modelo Cuna (anida BebeSerializer para respuestas detalladas)
 """
 
+from django.utils import timezone
+
 from rest_framework import serializers
+
 from .models import Medico, Bebe, Cuna
 
 
@@ -29,6 +32,10 @@ class BebeSerializer(serializers.ModelSerializer):
 
     Agrega el campo `medico_nombre` (solo lectura) para que el frontend
     reciba directamente el nombre del médico en lugar de solo su ID numérico.
+
+    Validaciones de campo:
+    - `peso`: debe ser mayor a 0 (no se admiten valores nulos, negativos ni cero).
+    - `fecha_nacimiento`: no puede ser una fecha posterior a hoy.
     """
 
     # Campo extra derivado de la relación ForeignKey con Medico.
@@ -41,6 +48,32 @@ class BebeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bebe
         fields = '__all__'
+
+    def validate_peso(self, value):
+        """
+        Valida que el peso sea mayor a 0.
+
+        Un peso de 0 o negativo no es fisiológicamente válido para un
+        paciente registrado en el sistema.
+        """
+        if value <= 0:
+            raise serializers.ValidationError(
+                "El peso debe ser mayor a 0."
+            )
+        return value
+
+    def validate_fecha_nacimiento(self, value):
+        """
+        Valida que la fecha de nacimiento no sea futura.
+
+        Usa timezone.now().date() para respetar la zona horaria configurada
+        en Django (settings.TIME_ZONE) en lugar de datetime.date.today().
+        """
+        if value > timezone.now().date():
+            raise serializers.ValidationError(
+                "La fecha de nacimiento no puede ser una fecha futura."
+            )
+        return value
 
 
 class CunaSerializer(serializers.ModelSerializer):

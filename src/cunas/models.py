@@ -7,6 +7,8 @@ Define las tres entidades principales del sistema de monitoreo neonatal:
 - Cuna: la unidad física de monitoreo con sus signos vitales en tiempo real.
 """
 
+import datetime
+
 from django.db import models
 
 
@@ -55,6 +57,16 @@ class Bebe(models.Model):
     sexo = models.CharField(
         max_length=1,
         choices=SEXO_CHOICES
+    )
+    peso = models.FloatField(
+        null=True,
+        blank=True,
+        help_text="Peso del bebé en kilogramos (debe ser mayor a 0)"
+    )
+    fecha_nacimiento = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Fecha de nacimiento del bebé (no puede ser futura)"
     )
     # Si el médico es eliminado del sistema, el campo queda vacío (SET_NULL)
     # en lugar de borrar también al bebé (CASCADE)
