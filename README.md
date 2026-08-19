@@ -45,8 +45,8 @@ API REST disponible en: http://127.0.0.1:8000/api/
 > Para verificar que Python puede ver Django, escribe python desde tu terminal. Luego, en el indicador de Python, intenta importar Django:
 > ```bash
 > >>> importar django
->>> print(django.get_version())
-6.1
+>>>> print(django.get_version())
+>6.1
 > ```
 
 ## Instalación y ejecución
