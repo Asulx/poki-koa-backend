@@ -31,6 +31,23 @@ API REST disponible en: http://127.0.0.1:8000/api/
 > ```bash
 > curl -LsSf https://astral.sh/uv/install.sh | sh
 > ```
+- [`Django`] es un framework web de Python
+- [`Django`](https://docs.astral.sh/uv/getting-started/installation/) ver las versiones de Python compatibles con cada versión de Django
+
+> Si `Django` no está instalado, puedes obtenerlo para Linux / macOS con:
+> ```bash
+> python -m pip install Django==6.1
+> ```
+> Puedes obtenerlo para Windows con:
+> ```bash
+> py -m pip install Django==6.1
+> ```
+> Para verificar que Python puede ver Django, escribe python desde tu terminal. Luego, en el indicador de Python, intenta importar Django:
+> ```bash
+> >>> importar django
+>>> print(django.get_version())
+6.1
+> ```
 
 ## Instalación y ejecución
 
