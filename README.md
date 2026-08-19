@@ -32,7 +32,7 @@ API REST disponible en: http://127.0.0.1:8000/api/
 > curl -LsSf https://astral.sh/uv/install.sh | sh
 > ```
 - [`Django`](https://www.djangoproject.com/download/) es un framework web de Python.
-- [`Django`](https://www.djangoproject.com/download/) ver las versiones de Python compatibles con cada versión de Django.
+- Ver las versiones de Python compatibles con cada versión de Django.
 
 > Si `Django` no está instalado, puedes obtenerlo para Linux / macOS con:
 > ```bash
