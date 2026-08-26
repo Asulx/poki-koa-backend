@@ -1,10 +1,11 @@
 """
 Modelos de base de datos para la aplicación 'cunas'.
 
-Define las tres entidades principales del sistema de monitoreo neonatal:
+Define las entidades principales del sistema de monitoreo neonatal:
 - Medico: el profesional de salud a cargo de uno o más bebés.
 - Bebe: el paciente (recién nacido) que ocupa la cuna.
 - Cuna: la unidad física de monitoreo con sus signos vitales en tiempo real.
+- Medicamento: fármacos asignados a un bebé para control de administración.
 """
 
 import datetime
@@ -104,7 +105,7 @@ class Cuna(models.Model):
     identificador = models.CharField(
         max_length=20,
         unique=True,
-        help_text="Identificador único de la cuna, ej: 'Cuna 01'"
+        help_text="Identificador único de la cuna, ej: 'C01'"
     )
     # OneToOneField: un bebé solo puede ocupar una cuna a la vez
     paciente = models.OneToOneField(
@@ -151,10 +152,66 @@ class Cuna(models.Model):
     )
 
     def __str__(self):
-        # Muestra "Cuna 01 - Sofía García" si hay bebé, o "Cuna 01 - Vacía"
+        # Muestra "C01 - Sofía García" si hay bebé, o "C01 - Vacía"
         nombre_bebe = self.paciente.nombre_completo if self.paciente else 'Vacía'
         return f"{self.identificador} - {nombre_bebe}"
 
     class Meta:
         verbose_name = "Cuna"
         verbose_name_plural = "Cunas"
+
+
+class Medicamento(models.Model):
+    """
+    Representa el control de administración de fármacos para un paciente específico.
+    """
+    ESTADO_CHOICES = [
+        ('Administrado', 'Administrado'),
+        ('Pendiente', 'Pendiente'),
+    ]
+
+    VIA_CHOICES = [
+        ('IV', 'Intravenosa (IV)'),
+        ('IM', 'Intramuscular (IM)'),
+        ('ET', 'Endotraqueal (ET)'),
+        ('VO', 'Vía Oral (VO)'),
+    ]
+
+    # Relacionado al paciente. Usamos CASCADE porque si se elimina el bebé, 
+    # probablemente se deban borrar sus registros médicos asociados a la internación actual.
+    paciente = models.ForeignKey(
+        Bebe,
+        on_delete=models.CASCADE,
+        related_name='medicamentos',
+        help_text="Paciente al que se le administra el fármaco"
+    )
+
+    nombre = models.CharField(
+        max_length=150,
+        help_text="Nombre del medicamento (ej: Fenobarbital, Vitamina K)"
+    )
+    dosis = models.CharField(
+        max_length=50,
+        help_text="Cantidad y unidad de la dosis (ej: 5 mg/kg)"
+    )
+    via = models.CharField(
+        max_length=2,
+        choices=VIA_CHOICES,
+        help_text="Vía de administración del fármaco"
+    )
+    hora = models.TimeField(
+        help_text="Hora programada o en la que se administró el medicamento"
+    )
+    estado = models.CharField(
+        max_length=20,
+        choices=ESTADO_CHOICES,
+        default='Pendiente',
+        help_text="Estado actual de la administración"
+    )
+
+    def __str__(self):
+        return f"{self.nombre} - {self.paciente.nombre_completo} ({self.estado})"
+
+    class Meta:
+        verbose_name = "Medicamento"
+        verbose_name_plural = "Medicamentos"
