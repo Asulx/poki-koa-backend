@@ -69,7 +69,7 @@ uv run mamoru migrate
 uv run mamoru
 ```
 
-El servidor estará disponible en: **http://127.0.0.1:8000/**
+Para acceder se usa la dirección: **http://127.0.0.1:8000/api** o **http://127.0.0.1:8000/admin**
 
 ## Otros comandos útiles
 
