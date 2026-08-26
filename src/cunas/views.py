@@ -1,8 +1,10 @@
 """
 Vistas (controladores) de la API REST para la aplicación 'cunas'.
 
+
 Cada ViewSet expone automáticamente los endpoints CRUD completos
 para su modelo correspondiente gracias a Django REST Framework:
+
 
     GET    /api/medicos/         → lista todos los médicos
     POST   /api/medicos/         → crea un nuevo médico
@@ -10,12 +12,21 @@ para su modelo correspondiente gracias a Django REST Framework:
     PUT    /api/medicos/{id}/    → actualiza un médico
     DELETE /api/medicos/{id}/    → elimina un médico
 
-(Las mismas operaciones aplican para /api/bebes/ y /api/cunas/)
+
+(Las mismas operaciones aplican para /api/bebes/, /api/cunas/ y /api/medicamentos/)
 """
 
+
 from rest_framework import viewsets
-from .models import Medico, Bebe, Cuna
-from .serializers import MedicoSerializer, BebeSerializer, CunaSerializer
+from .models import Medico, Bebe, Cuna, Medicamento
+from .serializers import (
+    MedicoSerializer, 
+    BebeSerializer, 
+    CunaSerializer, 
+    MedicamentoSerializer
+)
+
+
 
 
 class MedicoViewSet(viewsets.ModelViewSet):
@@ -27,6 +38,8 @@ class MedicoViewSet(viewsets.ModelViewSet):
     serializer_class = MedicoSerializer
 
 
+
+
 class BebeViewSet(viewsets.ModelViewSet):
     """
     ViewSet para el modelo Bebe.
@@ -34,6 +47,8 @@ class BebeViewSet(viewsets.ModelViewSet):
     """
     queryset = Bebe.objects.all()
     serializer_class = BebeSerializer
+
+
 
 
 class CunaViewSet(viewsets.ModelViewSet):
@@ -44,3 +59,20 @@ class CunaViewSet(viewsets.ModelViewSet):
     """
     queryset = Cuna.objects.all()
     serializer_class = CunaSerializer
+
+
+
+
+class MedicamentoViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para el modelo Medicamento.
+    Proporciona operaciones CRUD completas sobre el control y 
+    administración de fármacos a los pacientes.
+    """
+    # Si quieres que la API envíe los datos ordenados por hora por defecto,
+    # puedes cambiar .all() por .all().order_by('hora')
+    queryset = Medicamento.objects.all()
+    serializer_class = MedicamentoSerializer
+
+
+
