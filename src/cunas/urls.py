@@ -22,7 +22,7 @@ Rutas generadas bajo el prefijo /api/ (definido en poki_koa/urls.py):
 
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import MedicoViewSet, BebeViewSet, CunaViewSet, MedicamentoViewSet
+from .views import MedicoViewSet, BebeViewSet, CunaViewSet, MedicamentoViewSet, AlertaViewSet
 
 
 # El router genera automáticamente todas las URLs a partir de los ViewSets registrados
@@ -31,6 +31,7 @@ router.register(r'medicos', MedicoViewSet)
 router.register(r'bebes', BebeViewSet)
 router.register(r'cunas', CunaViewSet)
 router.register(r'medicamentos', MedicamentoViewSet)
+router.register(r'alertas', AlertaViewSet)
 
 
 urlpatterns = [
