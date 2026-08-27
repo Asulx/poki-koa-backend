@@ -77,6 +77,32 @@ Para acceder se usa la dirección: **http://127.0.0.1:8000/api** o **http://127.
 | `uv run poki_koa test` | Ejecuta la suite de pruebas unitarias |
 | `uv run poki_koa makemigrations` | Genera nuevas migraciones tras modificar modelos |
 | `uv run poki_koa createsuperuser` | Crea un usuario administrador para el panel `/admin/` |
+| `uv run make-crud <Modelo>` | Genera automáticamente Model, Serializer, ViewSet y URL para una entidad |
+
+## Automatización de nuevos recursos (make-crud)
+
+Para acelerar la creación de nuevas entidades y evitar escribir repetitivamente en `serializers.py`, `views.py` y `urls.py`:
+
+```bash
+uv run make-crud <NombreModelo>
+```
+
+**Ejemplo:**
+```bash
+uv run make-crud Diagnostico
+```
+
+Este comando automatiza el flujo completo:
+1. **`models.py`**: Crea una estructura base si el modelo no existe (si ya lo creaste tú, respeta tu código).
+2. **`serializers.py`**: Importa el modelo y crea su `ModelSerializer`.
+3. **`views.py`**: Importa el modelo y serializer, y crea su `ModelViewSet`.
+4. **`urls.py`**: Registra la ruta de la API REST (ej: `/api/diagnosticos/`).
+
+> **Nota:** Tras crear o editar tu modelo, recuerda generar y aplicar la migración:
+> ```bash
+> uv run poki_koa makemigrations
+> uv run poki_koa migrate
+> ```
 
 ## Estructura del proyecto
 
