@@ -20,6 +20,7 @@ dependencies = [
 # Uso: uv run mamoru [comando django]
 [project.scripts]
 poki_koa = "poki_koa.main:main"
+make-crud = "cunas.management.commands.make_crud:main"
 
 # Sistema de construcción del paquete (requerido por uv para instalar el proyecto)
 [build-system]

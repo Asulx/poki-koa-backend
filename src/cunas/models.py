@@ -11,6 +11,7 @@ Define las entidades principales del sistema de monitoreo neonatal:
 import datetime
 
 from django.db import models
+from django.utils import timezone
 
 
 class Medico(models.Model):
@@ -68,6 +69,20 @@ class Bebe(models.Model):
         null=True,
         blank=True,
         help_text="Fecha de nacimiento del bebé (no puede ser futura)"
+    )
+    fecha_ingreso = models.DateTimeField(
+        default=timezone.now,
+        help_text="Fecha y hora de ingreso del bebé a la unidad neonatal"
+    )
+    diagnostico = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Diagnóstico médico principal o motivo de ingreso"
+    )
+    plan_cuidados = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Plan de cuidados médicos y de enfermería asignado"
     )
     # Si el médico es eliminado del sistema, el campo queda vacío (SET_NULL)
     # en lugar de borrar también al bebé (CASCADE)
@@ -127,6 +142,11 @@ class Cuna(models.Model):
         null=True,
         blank=True,
         help_text="Saturación de oxígeno en sangre (%)"
+    )
+    temperatura = models.FloatField(
+        null=True,
+        blank=True,
+        help_text="Temperatura corporal en grados Celsius (°C)"
     )
 
     # --- Estado de sensores y dispositivos ---
@@ -215,3 +235,58 @@ class Medicamento(models.Model):
     class Meta:
         verbose_name = "Medicamento"
         verbose_name_plural = "Medicamentos"
+
+
+class Alerta(models.Model):
+    """
+    Representa una alerta o evento registrado en el historial de monitoreo
+    de los signos vitales de un recién nacido.
+    """
+    NIVEL_CHOICES = [
+        ('Info', 'Información'),
+        ('Advertencia', 'Advertencia'),
+        ('Critica', 'Crítica'),
+    ]
+
+    TIPO_CHOICES = [
+        ('ritmo_cardiaco', 'Frecuencia Cardíaca'),
+        ('spo2', 'Saturación de Oxígeno (SPO2)'),
+        ('temperatura', 'Temperatura'),
+        ('canula', 'Desconexión de Cánula'),
+        ('otra', 'Otra Alerta'),
+    ]
+
+    paciente = models.ForeignKey(
+        Bebe,
+        on_delete=models.CASCADE,
+        related_name='alertas',
+        help_text="Bebé al que pertenece la alerta"
+    )
+    tipo = models.CharField(
+        max_length=30,
+        choices=TIPO_CHOICES,
+        default='otra',
+        help_text="Tipo de signo vital o sensor comprometido"
+    )
+    mensaje = models.CharField(
+        max_length=255,
+        help_text="Descripción o mensaje detallado de la alerta"
+    )
+    nivel = models.CharField(
+        max_length=20,
+        choices=NIVEL_CHOICES,
+        default='Info',
+        help_text="Severidad de la alerta"
+    )
+    fecha_hora = models.DateTimeField(
+        default=timezone.now,
+        help_text="Fecha y hora en que se generó la alerta"
+    )
+
+    def __str__(self):
+        return f"[{self.nivel}] {self.paciente.nombre_completo}: {self.mensaje}"
+
+    class Meta:
+        verbose_name = "Alerta"
+        verbose_name_plural = "Alertas"
+
