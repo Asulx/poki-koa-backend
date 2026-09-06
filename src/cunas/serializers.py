@@ -21,7 +21,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 
-from .models import Medico, Bebe, Cuna, Medicamento
+from .models import Medico, Bebe, Cuna, Medicamento, PlanCuidado
 
 
 
@@ -156,4 +156,35 @@ class MedicamentoSerializer(serializers.ModelSerializer):
         # Verificamos si el bebé tiene la relación inversa 'cuna_asignada'
         if hasattr(obj.paciente, 'cuna_asignada') and obj.paciente.cuna_asignada:
             return obj.paciente.cuna_asignada.identificador
+        return "Sin cuna"
+
+class PlanCuidadoSerializer(serializers.ModelSerializer):
+    """
+    Serializa todos los campos del modelo PlanCuidado.
+
+    Agrega campos calculados (solo lectura) para que el frontend pueda
+    mostrar el nombre del paciente y la cuna asignada directamente en 
+    la tabla de protocolos de atención.
+    """
+
+    # Extrae el nombre del bebé a través de la relación ForeignKey (campo 'bebe')
+    paciente_nombre = serializers.CharField(
+        source='bebe.nombre_completo',
+        read_only=True
+    )
+    
+    # Campo calculado dinámicamente para obtener la cuna
+    cuna = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PlanCuidado
+        fields = '__all__'
+
+    def get_cuna(self, obj):
+        """
+        Obtiene el identificador de la cuna asociada al paciente.
+        Retorna 'Sin cuna' si el bebé no está asignado a ninguna.
+        """
+        if hasattr(obj.bebe, 'cuna_asignada') and obj.bebe.cuna_asignada:
+            return obj.bebe.cuna_asignada.identificador
         return "Sin cuna"

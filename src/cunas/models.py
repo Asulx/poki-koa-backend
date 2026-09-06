@@ -215,3 +215,48 @@ class Medicamento(models.Model):
     class Meta:
         verbose_name = "Medicamento"
         verbose_name_plural = "Medicamentos"
+
+class PlanCuidado(models.Model):
+    """
+    Representa los protocolos de atención y cuidado específicos asignados a un bebé.
+    """
+    ESTADO_CHOICES = [
+        ('Activo', 'Activo'),
+        ('Suspendido', 'Suspendido'),
+        ('Finalizado', 'Finalizado'),
+    ]
+
+    # Relacionado al paciente. Usamos CASCADE porque si se elimina el bebé, 
+    # también se eliminan sus planes de cuidado.
+    bebe = models.ForeignKey(
+        Bebe, # Como Bebe está definido arriba, podemos usar la clase directamente
+        on_delete=models.CASCADE,
+        related_name='planes_cuidado',
+        help_text="Paciente al que aplica este plan de cuidado"
+    )
+
+    area_cuidado = models.CharField(
+        max_length=100,
+        help_text="Ej: Respiratorio, Nutricional, Farmacológico, Monitoreo"
+    )
+    intervencion = models.CharField(
+        max_length=255,
+        help_text="Ej: Monitoreo continuo de SpO2, Soporte ventilatorio CPAP"
+    )
+    frecuencia = models.CharField(
+        max_length=50,
+        help_text="Ej: Continuo, c/3h, c/24h"
+    )
+    estado = models.CharField(
+        max_length=20,
+        choices=ESTADO_CHOICES,
+        default='Activo',
+        help_text="Estado actual de este plan"
+    )
+
+    def __str__(self):
+        return f"Plan {self.area_cuidado} - {self.bebe.nombre_completo} ({self.estado})"
+
+    class Meta:
+        verbose_name = "Plan de Cuidado"
+        verbose_name_plural = "Planes de Cuidado"
