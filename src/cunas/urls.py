@@ -22,6 +22,8 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 # 1. Agrega PlanCuidadoViewSet a esta importación
 from .views import MedicoViewSet, BebeViewSet, CunaViewSet, MedicamentoViewSet, PlanCuidadoViewSet
+from .views import MedicoViewSet, BebeViewSet, CunaViewSet, MedicamentoViewSet, AlertaViewSet
+
 
 # El router genera automáticamente todas las URLs a partir de los ViewSets registrados
 router = DefaultRouter()
@@ -31,6 +33,8 @@ router.register(r'cunas', CunaViewSet)
 router.register(r'medicamentos', MedicamentoViewSet)
 # 2. Registra la nueva ruta aquí
 router.register(r'planes-cuidado', PlanCuidadoViewSet)
+router.register(r'alertas', AlertaViewSet)
+
 
 urlpatterns = [
     path('', include(router.urls)),
