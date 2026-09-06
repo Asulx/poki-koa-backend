@@ -7,11 +7,11 @@ Define dos grupos de rutas:
 """
 
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import include, path
 
 urlpatterns = [
     # Panel de administración de Django (interfaz web para gestionar la base de datos)
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
     # Rutas de la API REST: delega a cunas/urls.py todo lo que empiece con /api/
-    path('api/', include('cunas.urls')),
+    path("api/", include("cunas.urls")),
 ]

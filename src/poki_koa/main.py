@@ -10,8 +10,9 @@ comando de gestión de Django directamente desde la raíz del proyecto usando:
     uv run mamoru test        → Ejecuta la suite de pruebas unitarias
 """
 
-import sys
 import os
+import sys
+
 from django.core.management import execute_from_command_line
 
 
@@ -26,7 +27,7 @@ def main():
       para que el descubridor automático de tests encuentre los módulos.
     """
     # Configura el módulo de ajustes de Django si no está ya definido
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'poki_koa.settings')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "poki_koa.settings")
 
     args = sys.argv.copy()
 
@@ -36,12 +37,11 @@ def main():
 
     # Si se ejecuta 'test' sin especificar una app, moverse a src/ para que
     # Django pueda descubrir automáticamente los archivos tests.py de cada app
-    if len(args) == 2 and args[1] == "test":
-        if os.path.exists("src"):
-            os.chdir("src")
+    if len(args) == 2 and args[1] == "test" and os.path.exists("src"):
+        os.chdir("src")
 
     execute_from_command_line(args)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
