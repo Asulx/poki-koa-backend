@@ -2,48 +2,55 @@ import os
 import re
 import sys
 from pathlib import Path
+
 from django.core.management.base import BaseCommand, CommandError
 
 
 def spanish_plural(name: str) -> tuple[str, str]:
     """Retorna (plural_slug, plural_snake) para rutas e identificadores."""
-    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
-    snake = re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+    s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
+    snake = re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
-    words = snake.split('_')
+    words = snake.split("_")
     last_word = words[-1]
-    if last_word.endswith(('a', 'e', 'i', 'o', 'u')):
-        words[-1] = last_word + 's'
-    elif last_word.endswith('z'):
-        words[-1] = last_word[:-1] + 'ces'
+    if last_word.endswith(("a", "e", "i", "o", "u")):
+        words[-1] = last_word + "s"
+    elif last_word.endswith("z"):
+        words[-1] = last_word[:-1] + "ces"
     else:
-        words[-1] = last_word + 'es'
+        words[-1] = last_word + "es"
 
-    plural_snake = '_'.join(words)
-    plural_slug = plural_snake.replace('_', '-')
+    plural_snake = "_".join(words)
+    plural_slug = plural_snake.replace("_", "-")
     return plural_slug, plural_snake
 
 
 def add_to_import(content: str, import_prefix: str, new_item: str) -> str:
     """Añade `new_item` a la sentencia `from ... import ...` si no está presente."""
-    if re.search(r'\b' + re.escape(new_item) + r'\b', content):
+    if re.search(r"\b" + re.escape(new_item) + r"\b", content):
         return content
 
     # Patrón para importaciones multilínea: from .models import (\n ... \n)
-    pattern_multi = re.escape(import_prefix) + r'\s*\(([^)]+)\)'
+    pattern_multi = re.escape(import_prefix) + r"\s*\(([^)]+)\)"
     match_multi = re.search(pattern_multi, content, re.DOTALL)
     if match_multi:
         existing = match_multi.group(1).rstrip()
         replacement = f"{import_prefix} ({existing},\n    {new_item}\n)"
-        return content[:match_multi.start()] + replacement + content[match_multi.end():]
+        return (
+            content[: match_multi.start()] + replacement + content[match_multi.end() :]
+        )
 
     # Patrón para importaciones en una sola línea: from .models import A, B
-    pattern_single = re.escape(import_prefix) + r'([^\n]+)'
+    pattern_single = re.escape(import_prefix) + r"([^\n]+)"
     match_single = re.search(pattern_single, content)
     if match_single:
         existing = match_single.group(1).strip()
         replacement = f"{import_prefix} {existing}, {new_item}"
-        return content[:match_single.start()] + replacement + content[match_single.end():]
+        return (
+            content[: match_single.start()]
+            + replacement
+            + content[match_single.end() :]
+        )
 
     # Si no existe la sentencia, agregamos la importación
     return f"{import_prefix} {new_item}\n" + content
@@ -54,33 +61,40 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'model_name',
+            "model_name",
             type=str,
-            help='Nombre del modelo en PascalCase (ej: Diagnostico, ExamenMedico)'
+            help="Nombre del modelo en PascalCase (ej: Diagnostico, ExamenMedico)",
         )
         parser.add_argument(
-            '--app',
+            "--app",
             type=str,
-            default='cunas',
-            help='Nombre de la aplicación Django (por defecto: cunas)'
+            default="cunas",
+            help="Nombre de la aplicación Django (por defecto: cunas)",
         )
 
     def handle(self, *args, **options):
-        raw_name = options['model_name'].strip()
+        raw_name = options["model_name"].strip()
         model_name = raw_name[0].upper() + raw_name[1:]
-        app_name = options['app']
+        app_name = options["app"]
 
         # Encontrar directorio del proyecto
         from django.conf import settings
+
         base_dir = Path(settings.BASE_DIR)
         app_dir = base_dir / app_name
 
         if not app_dir.exists():
-            raise CommandError(f"No se encontró la aplicación '{app_name}' en {base_dir}")
+            raise CommandError(
+                f"No se encontró la aplicación '{app_name}' en {base_dir}"
+            )
 
         plural_slug, _ = spanish_plural(model_name)
 
-        self.stdout.write(self.style.NOTICE(f"⚡ Automatizando CRUD para '{model_name}' en '{app_name}'..."))
+        self.stdout.write(
+            self.style.NOTICE(
+                f"⚡ Automatizando CRUD para '{model_name}' en '{app_name}'..."
+            )
+        )
 
         # 1. Actualizar models.py
         models_file = app_dir / "models.py"
@@ -109,9 +123,11 @@ class Command(BaseCommand):
         )
 
     def _process_models(self, file_path: Path, model_name: str):
-        content = file_path.read_text(encoding='utf-8')
+        content = file_path.read_text(encoding="utf-8")
         if f"class {model_name}(" in content:
-            self.stdout.write(f"  [models.py] La clase '{model_name}' ya existe. (Omitiendo creación de modelo)")
+            self.stdout.write(
+                f"  [models.py] La clase '{model_name}' ya existe. (Omitiendo creación de modelo)"
+            )
             return
 
         model_code = f"""
@@ -142,11 +158,13 @@ class {model_name}(models.Model):
         verbose_name_plural = "{model_name}s"
 """
         content += model_code
-        file_path.write_text(content, encoding='utf-8')
-        self.stdout.write(self.style.SUCCESS(f"  [models.py] Modelo '{model_name}' añadido."))
+        file_path.write_text(content, encoding="utf-8")
+        self.stdout.write(
+            self.style.SUCCESS(f"  [models.py] Modelo '{model_name}' añadido.")
+        )
 
     def _process_serializers(self, file_path: Path, model_name: str):
-        content = file_path.read_text(encoding='utf-8')
+        content = file_path.read_text(encoding="utf-8")
         serializer_name = f"{model_name}Serializer"
 
         content = add_to_import(content, "from .models import", model_name)
@@ -162,14 +180,16 @@ class {serializer_name}(serializers.ModelSerializer):
         fields = '__all__'
 """
             content += serializer_code
-            self.stdout.write(self.style.SUCCESS(f"  [serializers.py] '{serializer_name}' añadido."))
+            self.stdout.write(
+                self.style.SUCCESS(f"  [serializers.py] '{serializer_name}' añadido.")
+            )
         else:
             self.stdout.write(f"  [serializers.py] '{serializer_name}' ya existe.")
 
-        file_path.write_text(content, encoding='utf-8')
+        file_path.write_text(content, encoding="utf-8")
 
     def _process_views(self, file_path: Path, model_name: str):
-        content = file_path.read_text(encoding='utf-8')
+        content = file_path.read_text(encoding="utf-8")
         viewset_name = f"{model_name}ViewSet"
         serializer_name = f"{model_name}Serializer"
 
@@ -188,14 +208,16 @@ class {viewset_name}(viewsets.ModelViewSet):
     serializer_class = {serializer_name}
 """
             content += viewset_code
-            self.stdout.write(self.style.SUCCESS(f"  [views.py] '{viewset_name}' añadido."))
+            self.stdout.write(
+                self.style.SUCCESS(f"  [views.py] '{viewset_name}' añadido.")
+            )
         else:
             self.stdout.write(f"  [views.py] '{viewset_name}' ya existe.")
 
-        file_path.write_text(content, encoding='utf-8')
+        file_path.write_text(content, encoding="utf-8")
 
     def _process_urls(self, file_path: Path, model_name: str, plural_slug: str):
-        content = file_path.read_text(encoding='utf-8')
+        content = file_path.read_text(encoding="utf-8")
         viewset_name = f"{model_name}ViewSet"
 
         content = add_to_import(content, "from .views import", viewset_name)
@@ -209,18 +231,26 @@ class {viewset_name}(viewsets.ModelViewSet):
             if matches:
                 last_match = matches[-1]
                 insert_pos = last_match.end()
-                content = content[:insert_pos] + f"{route_register}\n" + content[insert_pos:]
+                content = (
+                    content[:insert_pos] + f"{route_register}\n" + content[insert_pos:]
+                )
             else:
                 # Si no encuentra router.register previo, insertar antes de urlpatterns
                 if "urlpatterns = [" in content:
-                    content = content.replace("urlpatterns = [", f"{route_register}\n\nurlpatterns = [")
+                    content = content.replace(
+                        "urlpatterns = [", f"{route_register}\n\nurlpatterns = ["
+                    )
                 else:
                     content += f"\n{route_register}\n"
-            self.stdout.write(self.style.SUCCESS(f"  [urls.py] Ruta '/api/{plural_slug}/' registrada."))
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"  [urls.py] Ruta '/api/{plural_slug}/' registrada."
+                )
+            )
         else:
             self.stdout.write(f"  [urls.py] Ruta '/api/{plural_slug}/' ya registrada.")
 
-        file_path.write_text(content, encoding='utf-8')
+        file_path.write_text(content, encoding="utf-8")
 
 
 def main():
@@ -230,11 +260,12 @@ def main():
     if str(src_dir) not in sys.path:
         sys.path.insert(0, str(src_dir))
 
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'poki_koa.settings')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "poki_koa.settings")
     from django.core.management import execute_from_command_line
-    sys.argv = [sys.argv[0], 'make_crud'] + sys.argv[1:]
+
+    sys.argv = [sys.argv[0], "make_crud"] + sys.argv[1:]
     execute_from_command_line(sys.argv)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

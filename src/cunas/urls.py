@@ -18,15 +18,39 @@ Rutas generadas bajo el prefijo /api/ (definido en poki_koa/urls.py):
     /api/planes-cuidado/{id}/ GET (detalle), PUT (actualizar), DELETE (borrar)
 """
 
+<<<<<<< HEAD
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
+=======
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 # 1. Agrega PlanCuidadoViewSet a esta importación
 from .views import MedicoViewSet, BebeViewSet, CunaViewSet, MedicamentoViewSet, PlanCuidadoViewSet
 from .views import MedicoViewSet, BebeViewSet, CunaViewSet, MedicamentoViewSet, AlertaViewSet
+>>>>>>> origin/desarrollo
 
+from .views import (
+    AlertaViewSet,
+    BebeViewSet,
+    CunaViewSet,
+    MedicamentoViewSet,
+    MedicoViewSet,
+)
 
 # El router genera automáticamente todas las URLs a partir de los ViewSets registrados
 router = DefaultRouter()
+<<<<<<< HEAD
+router.register(r"medicos", MedicoViewSet)
+router.register(r"bebes", BebeViewSet)
+router.register(r"cunas", CunaViewSet)
+router.register(r"medicamentos", MedicamentoViewSet)
+router.register(r"alertas", AlertaViewSet)
+
+
+urlpatterns = [
+    path("", include(router.urls)),
+]
+=======
 router.register(r'medicos', MedicoViewSet)
 router.register(r'bebes', BebeViewSet)
 router.register(r'cunas', CunaViewSet)
@@ -39,3 +63,4 @@ router.register(r'alertas', AlertaViewSet)
 urlpatterns = [
     path('', include(router.urls)),
 ]
+>>>>>>> origin/desarrollo
