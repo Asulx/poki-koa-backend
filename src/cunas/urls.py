@@ -1,15 +1,12 @@
 """
 Configuración de URLs de la aplicación 'cunas'.
 
-
 Usa el DefaultRouter de Django REST Framework para registrar los ViewSets
 y generar automáticamente todas las rutas CRUD.
 
-
 Rutas generadas bajo el prefijo /api/ (definido en poki_koa/urls.py):
 
-
-    /api/medicos/           GET (lista), POST (crear)
+    /api/medicos/         GET (lista), POST (crear)
     /api/medicos/{id}/      GET (detalle), PUT (actualizar), DELETE (borrar)
     /api/bebes/             GET (lista), POST (crear)
     /api/bebes/{id}/        GET (detalle), PUT (actualizar), DELETE (borrar)
@@ -17,11 +14,14 @@ Rutas generadas bajo el prefijo /api/ (definido en poki_koa/urls.py):
     /api/cunas/{id}/        GET (detalle), PUT (actualizar), DELETE (borrar)
     /api/medicamentos/      GET (lista), POST (crear)
     /api/medicamentos/{id}/ GET (detalle), PUT (actualizar), DELETE (borrar)
+    /api/planes-cuidado/    GET (lista), POST (crear)
+    /api/planes-cuidado/{id}/ GET (detalle), PUT (actualizar), DELETE (borrar)
 """
-
 
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+# 1. Agrega PlanCuidadoViewSet a esta importación
+from .views import MedicoViewSet, BebeViewSet, CunaViewSet, MedicamentoViewSet, PlanCuidadoViewSet
 from .views import MedicoViewSet, BebeViewSet, CunaViewSet, MedicamentoViewSet, AlertaViewSet
 
 
@@ -31,12 +31,11 @@ router.register(r'medicos', MedicoViewSet)
 router.register(r'bebes', BebeViewSet)
 router.register(r'cunas', CunaViewSet)
 router.register(r'medicamentos', MedicamentoViewSet)
+# 2. Registra la nueva ruta aquí
+router.register(r'planes-cuidado', PlanCuidadoViewSet)
 router.register(r'alertas', AlertaViewSet)
 
 
 urlpatterns = [
     path('', include(router.urls)),
 ]
-
-
-

@@ -18,15 +18,15 @@ para su modelo correspondiente gracias a Django REST Framework:
 
 
 from rest_framework import viewsets
-from .models import Medico, Bebe, Cuna, Medicamento, Alerta
+from .models import Medico, Bebe, Cuna, Medicamento, PlanCuidado, Alerta
 from .serializers import (
     MedicoSerializer, 
     BebeSerializer, 
     CunaSerializer, 
     MedicamentoSerializer,
+    PlanCuidadoSerializer,
     AlertaSerializer
 )
-
 
 
 
@@ -75,7 +75,14 @@ class MedicamentoViewSet(viewsets.ModelViewSet):
     queryset = Medicamento.objects.all()
     serializer_class = MedicamentoSerializer
 
-
+class PlanCuidadoViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para el modelo PlanCuidado.
+    Proporciona operaciones CRUD completas sobre los protocolos 
+    de atención asignados a los pacientes.
+    """
+    queryset = PlanCuidado.objects.all()
+    serializer_class = PlanCuidadoSerializer
 
 
 
