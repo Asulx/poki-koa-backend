@@ -30,3 +30,13 @@ build-backend = "hatchling.build"
 # Indica a hatchling dónde están los paquetes Python del proyecto
 [tool.hatch.build.targets.wheel]
 packages = ["src/poki_koa", "src/cunas"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.16.6",
+]
+
+# Ruff ignora archivos generados automaticamente por django
+[tool.ruff.lint.per-file-ignores]
+"**/migrations/*" = ["RUF012"]
+

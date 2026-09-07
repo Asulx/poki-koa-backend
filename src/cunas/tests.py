@@ -7,13 +7,13 @@ Incluye:
 - APIAlertaTestCase: verifica el endpoint /api/alertas/ generado con make-crud.
 """
 
-import datetime
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from cunas.models import Medico, Bebe, Cuna, Alerta
+from cunas.models import Alerta, Bebe, Cuna, Medico
 
 
 class CunasModelsTestCase(TestCase):
@@ -22,8 +22,7 @@ class CunasModelsTestCase(TestCase):
     def setUp(self):
         """Crea los objetos de prueba que se reutilizan en cada test."""
         self.medico = Medico.objects.create(
-            nombre_completo="Dra. María López",
-            turno="Mañana"
+            nombre_completo="Dra. María López", turno="Mañana"
         )
 
         self.bebe = Bebe.objects.create(
@@ -32,7 +31,7 @@ class CunasModelsTestCase(TestCase):
             sexo="F",
             medico_a_cargo=self.medico,
             diagnostico="Dificultad respiratoria leve",
-            plan_cuidados="Monitoreo continuo de SPO2"
+            plan_cuidados="Monitoreo continuo de SPO2",
         )
 
         self.cuna = Cuna.objects.create(
@@ -41,14 +40,14 @@ class CunasModelsTestCase(TestCase):
             ritmo_cardiaco=120,
             spo2=98,
             temperatura=36.7,
-            estado_sueno="Dormido"
+            estado_sueno="Dormido",
         )
 
         self.alerta = Alerta.objects.create(
             paciente=self.bebe,
             tipo="spo2",
             mensaje="Saturación por debajo de 90%",
-            nivel="Critica"
+            nivel="Critica",
         )
 
     def test_representacion_texto_modelos(self):
@@ -78,11 +77,10 @@ class APIBebeValidacionTestCase(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse('bebe-list')
+        self.url = reverse("bebe-list")
 
         self.medico = Medico.objects.create(
-            nombre_completo="Dr. Juan Pérez",
-            turno="Tarde"
+            nombre_completo="Dr. Juan Pérez", turno="Tarde"
         )
 
         self.payload_valido = {
@@ -98,7 +96,7 @@ class APIBebeValidacionTestCase(TestCase):
 
     def test_peso_negativo_retorna_400(self):
         payload = {**self.payload_valido, "peso": -1.0}
-        respuesta = self.client.post(self.url, payload, format='json')
+        respuesta = self.client.post(self.url, payload, format="json")
 
         self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("peso", respuesta.data)
@@ -106,21 +104,21 @@ class APIBebeValidacionTestCase(TestCase):
 
     def test_peso_cero_retorna_400(self):
         payload = {**self.payload_valido, "peso": 0}
-        respuesta = self.client.post(self.url, payload, format='json')
+        respuesta = self.client.post(self.url, payload, format="json")
 
         self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("peso", respuesta.data)
 
     def test_fecha_nacimiento_futura_retorna_400(self):
-        fecha_futura = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
+        fecha_futura = (timezone.now().date() + timezone.timedelta(days=1)).isoformat()
         payload = {**self.payload_valido, "fecha_nacimiento": fecha_futura}
-        respuesta = self.client.post(self.url, payload, format='json')
+        respuesta = self.client.post(self.url, payload, format="json")
 
         self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("fecha_nacimiento", respuesta.data)
 
     def test_bebe_valido_se_crea_correctamente(self):
-        respuesta = self.client.post(self.url, self.payload_valido, format='json')
+        respuesta = self.client.post(self.url, self.payload_valido, format="json")
 
         self.assertEqual(respuesta.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Bebe.objects.count(), 1)
@@ -135,20 +133,18 @@ class APIAlertaTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.bebe = Bebe.objects.create(
-            nombre_completo="Lucas Silva",
-            edad_meses=2,
-            sexo="M"
+            nombre_completo="Lucas Silva", edad_meses=2, sexo="M"
         )
-        self.url = reverse('alerta-list')
+        self.url = reverse("alerta-list")
 
     def test_crear_y_listar_alerta(self):
         payload = {
             "paciente": self.bebe.pk,
             "tipo": "temperatura",
             "mensaje": "Fiebre detectada (38.5 °C)",
-            "nivel": "Advertencia"
+            "nivel": "Advertencia",
         }
-        res_post = self.client.post(self.url, payload, format='json')
+        res_post = self.client.post(self.url, payload, format="json")
         self.assertEqual(res_post.status_code, status.HTTP_201_CREATED)
 
         res_get = self.client.get(self.url)
