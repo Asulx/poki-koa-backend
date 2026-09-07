@@ -11,9 +11,8 @@ Para producción, este archivo debe reemplazarse o extenderse con
 variables de entorno y configuraciones seguras (DEBUG=False, etc.).
 """
 
-from pathlib import Path
-import os
 import sys
+from pathlib import Path
 
 # Directorio raíz del proyecto: apunta a src/ (donde viven manage.py y las apps)
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,40 +22,40 @@ sys.path.append(str(BASE_DIR))
 
 # CLAVE SECRETA — Solo válida para desarrollo local.
 # En producción debe definirse como variable de entorno y nunca subirse al repositorio.
-SECRET_KEY = 'django-insecure-mamoru-clave-de-desarrollo-local'
+SECRET_KEY = "django-insecure-mamoru-clave-de-desarrollo-local"
 
 # Modo depuración: muestra errores detallados. Debe ser False en producción.
 DEBUG = True
 
 # Hosts permitidos. En desarrollo aceptamos cualquier host.
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
 # APLICACIONES INSTALADAS
 INSTALLED_APPS = [
     # Apps nativas de Django
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
     # Librerías de terceros
-    'rest_framework',   # API REST (Django REST Framework)
-    'corsheaders',      # Permite conexiones cross-origin desde el frontend
+    "rest_framework",  # API REST (Django REST Framework)
+    "corsheaders",  # Permite conexiones cross-origin desde el frontend
     # Apps del proyecto
-    'cunas',            # App principal: modelos, vistas y API del sistema de cunas
+    "cunas",  # App principal: modelos, vistas y API del sistema de cunas
 ]
 
 # MIDDLEWARES — Se procesan en orden para cada request/response
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware',      # Debe ir antes de CommonMiddleware para CORS
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",  # Debe ir antes de CommonMiddleware para CORS
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 # CORS — Orígenes autorizados para hacer peticiones al backend.
@@ -66,52 +65,60 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
 ]
 
-ROOT_URLCONF = 'poki_koa.urls'
+ROOT_URLCONF = "poki_koa.urls"
 
 # PLANTILLAS — Requerido por la app 'admin' de Django para renderizar su interfaz
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'poki_koa.wsgi.application'
+WSGI_APPLICATION = "poki_koa.wsgi.application"
 
 # BASE DE DATOS
 # SQLite es suficiente para desarrollo. En producción se recomienda PostgreSQL.
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
 # VALIDADORES DE CONTRASEÑA — Reglas mínimas de seguridad para usuarios del sistema
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
 
 # INTERNACIONALIZACIÓN — Idioma y zona horaria del proyecto
-LANGUAGE_CODE = 'es-es'
-TIME_ZONE = 'America/Santiago'
+LANGUAGE_CODE = "es-es"
+TIME_ZONE = "America/Santiago"
 USE_I18N = True
 USE_TZ = True
 
 # ARCHIVOS ESTÁTICOS (CSS, JavaScript, imágenes del panel admin)
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
 
 # Tipo de campo de clave primaria por defecto para todos los modelos nuevos
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

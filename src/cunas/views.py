@@ -16,29 +16,39 @@ para su modelo correspondiente gracias a Django REST Framework:
 (Las mismas operaciones aplican para /api/bebes/, /api/cunas/ y /api/medicamentos/)
 """
 
-
 from rest_framework import viewsets
-from .models import Medico, Bebe, Cuna, Medicamento, Alerta
+<<<<<<< HEAD
+
+from .models import Alerta, Bebe, Cuna, Medicamento, Medico
+=======
+from .models import Medico, Bebe, Cuna, Medicamento, PlanCuidado, Alerta
+>>>>>>> origin/desarrollo
 from .serializers import (
-    MedicoSerializer, 
-    BebeSerializer, 
-    CunaSerializer, 
+    AlertaSerializer,
+    BebeSerializer,
+    CunaSerializer,
     MedicamentoSerializer,
+<<<<<<< HEAD
+    MedicoSerializer,
+)
+
+
+=======
+    PlanCuidadoSerializer,
     AlertaSerializer
 )
 
 
 
-
+>>>>>>> origin/desarrollo
 class MedicoViewSet(viewsets.ModelViewSet):
     """
     ViewSet para el modelo Medico.
     Proporciona operaciones CRUD completas sobre los médicos del sistema.
     """
+
     queryset = Medico.objects.all()
     serializer_class = MedicoSerializer
-
-
 
 
 class BebeViewSet(viewsets.ModelViewSet):
@@ -46,10 +56,9 @@ class BebeViewSet(viewsets.ModelViewSet):
     ViewSet para el modelo Bebe.
     Proporciona operaciones CRUD completas sobre los pacientes (bebés).
     """
+
     queryset = Bebe.objects.all()
     serializer_class = BebeSerializer
-
-
 
 
 class CunaViewSet(viewsets.ModelViewSet):
@@ -58,31 +67,42 @@ class CunaViewSet(viewsets.ModelViewSet):
     Proporciona operaciones CRUD completas sobre las cunas de monitoreo.
     Las respuestas incluyen datos anidados del bebé asignado (ver CunaSerializer).
     """
+
     queryset = Cuna.objects.all()
     serializer_class = CunaSerializer
-
-
 
 
 class MedicamentoViewSet(viewsets.ModelViewSet):
     """
     ViewSet para el modelo Medicamento.
-    Proporciona operaciones CRUD completas sobre el control y 
+    Proporciona operaciones CRUD completas sobre el control y
     administración de fármacos a los pacientes.
     """
+
     # Si quieres que la API envíe los datos ordenados por hora por defecto,
     # puedes cambiar .all() por .all().order_by('hora')
     queryset = Medicamento.objects.all()
     serializer_class = MedicamentoSerializer
 
+<<<<<<< HEAD
+=======
+class PlanCuidadoViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para el modelo PlanCuidado.
+    Proporciona operaciones CRUD completas sobre los protocolos 
+    de atención asignados a los pacientes.
+    """
+    queryset = PlanCuidado.objects.all()
+    serializer_class = PlanCuidadoSerializer
 
 
-
+>>>>>>> origin/desarrollo
 
 class AlertaViewSet(viewsets.ModelViewSet):
     """
     ViewSet para el modelo Alerta.
     Proporciona operaciones CRUD completas.
     """
+
     queryset = Alerta.objects.all()
     serializer_class = AlertaSerializer

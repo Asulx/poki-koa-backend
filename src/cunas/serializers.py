@@ -16,7 +16,15 @@ Cada serializador corresponde a un modelo:
 from django.utils import timezone
 from rest_framework import serializers
 
+<<<<<<< HEAD
+from .models import Alerta, Bebe, Cuna, Medicamento, Medico
+=======
+
+from .models import Medico, Bebe, Cuna, Medicamento, PlanCuidado
+
+
 from .models import Medico, Bebe, Cuna, Medicamento, Alerta
+>>>>>>> origin/desarrollo
 
 
 class MedicoSerializer(serializers.ModelSerializer):
@@ -24,7 +32,7 @@ class MedicoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Medico
-        fields = '__all__'
+        fields = "__all__"
 
 
 class AlertaSerializer(serializers.ModelSerializer):
@@ -32,14 +40,14 @@ class AlertaSerializer(serializers.ModelSerializer):
     Serializa todos los campos del modelo Alerta.
     Agrega `paciente_nombre` (solo lectura) para el frontend.
     """
+
     paciente_nombre = serializers.CharField(
-        source='paciente.nombre_completo',
-        read_only=True
+        source="paciente.nombre_completo", read_only=True
     )
 
     class Meta:
         model = Alerta
-        fields = '__all__'
+        fields = "__all__"
 
 
 class MedicamentoSerializer(serializers.ModelSerializer):
@@ -47,18 +55,18 @@ class MedicamentoSerializer(serializers.ModelSerializer):
     Serializa todos los campos del modelo Medicamento.
     Agrega campos derivados (solo lectura) para el frontend.
     """
+
     paciente_nombre = serializers.CharField(
-        source='paciente.nombre_completo',
-        read_only=True
+        source="paciente.nombre_completo", read_only=True
     )
     cuna = serializers.SerializerMethodField()
 
     class Meta:
         model = Medicamento
-        fields = '__all__'
+        fields = "__all__"
 
     def get_cuna(self, obj):
-        if hasattr(obj.paciente, 'cuna_asignada') and obj.paciente.cuna_asignada:
+        if hasattr(obj.paciente, "cuna_asignada") and obj.paciente.cuna_asignada:
             return obj.paciente.cuna_asignada.identificador
         return "Sin cuna"
 
@@ -80,8 +88,7 @@ class BebeSerializer(serializers.ModelSerializer):
     """
 
     medico_nombre = serializers.CharField(
-        source='medico_a_cargo.nombre_completo',
-        read_only=True
+        source="medico_a_cargo.nombre_completo", read_only=True
     )
     cuna_identificador = serializers.SerializerMethodField()
     signos_vitales = serializers.SerializerMethodField()
@@ -90,27 +97,25 @@ class BebeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Bebe
-        fields = '__all__'
+        fields = "__all__"
 
     def get_cuna_identificador(self, obj):
-        if hasattr(obj, 'cuna_asignada') and obj.cuna_asignada:
+        if hasattr(obj, "cuna_asignada") and obj.cuna_asignada:
             return obj.cuna_asignada.identificador
         return None
 
     def get_signos_vitales(self, obj):
-        if hasattr(obj, 'cuna_asignada') and obj.cuna_asignada:
+        if hasattr(obj, "cuna_asignada") and obj.cuna_asignada:
             return {
-                'ritmo_cardiaco': obj.cuna_asignada.ritmo_cardiaco,
-                'spo2': obj.cuna_asignada.spo2,
-                'temperatura': obj.cuna_asignada.temperatura,
+                "ritmo_cardiaco": obj.cuna_asignada.ritmo_cardiaco,
+                "spo2": obj.cuna_asignada.spo2,
+                "temperatura": obj.cuna_asignada.temperatura,
             }
         return None
 
     def validate_peso(self, value):
         if value is not None and value <= 0:
-            raise serializers.ValidationError(
-                "El peso debe ser mayor a 0."
-            )
+            raise serializers.ValidationError("El peso debe ser mayor a 0.")
         return value
 
     def validate_fecha_nacimiento(self, value):
@@ -126,8 +131,83 @@ class CunaSerializer(serializers.ModelSerializer):
     Serializa todos los campos del modelo Cuna.
     Incluye `paciente_detalle` que embebe la información del bebé.
     """
-    paciente_detalle = BebeSerializer(source='paciente', read_only=True)
+
+    paciente_detalle = BebeSerializer(source="paciente", read_only=True)
 
     class Meta:
         model = Cuna
+<<<<<<< HEAD
+        fields = "__all__"
+=======
         fields = '__all__'
+
+
+
+
+class MedicamentoSerializer(serializers.ModelSerializer):
+    """
+    Serializa todos los campos del modelo Medicamento.
+
+
+    Agrega campos calculados (solo lectura) para facilitar que el frontend
+    (React/Vite) construya la tabla de control de fármacos sin necesidad 
+    de cruzar múltiples endpoints.
+    """
+
+
+    # Extrae el nombre del bebé directamente a través de la relación ForeignKey
+    paciente_nombre = serializers.CharField(
+        source='paciente.nombre_completo',
+        read_only=True
+    )
+    
+    # Campo calculado dinámicamente mediante el método get_cuna
+    cuna = serializers.SerializerMethodField()
+
+
+    class Meta:
+        model = Medicamento
+        fields = '__all__'
+
+
+    def get_cuna(self, obj):
+        """
+        Obtiene el identificador de la cuna asociada al paciente que recibe
+        el medicamento. Retorna 'Sin cuna' si el bebé no está asignado a ninguna.
+        """
+        # Verificamos si el bebé tiene la relación inversa 'cuna_asignada'
+        if hasattr(obj.paciente, 'cuna_asignada') and obj.paciente.cuna_asignada:
+            return obj.paciente.cuna_asignada.identificador
+        return "Sin cuna"
+
+class PlanCuidadoSerializer(serializers.ModelSerializer):
+    """
+    Serializa todos los campos del modelo PlanCuidado.
+
+    Agrega campos calculados (solo lectura) para que el frontend pueda
+    mostrar el nombre del paciente y la cuna asignada directamente en 
+    la tabla de protocolos de atención.
+    """
+
+    # Extrae el nombre del bebé a través de la relación ForeignKey (campo 'bebe')
+    paciente_nombre = serializers.CharField(
+        source='bebe.nombre_completo',
+        read_only=True
+    )
+    
+    # Campo calculado dinámicamente para obtener la cuna
+    cuna = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PlanCuidado
+        fields = '__all__'
+
+    def get_cuna(self, obj):
+        """
+        Obtiene el identificador de la cuna asociada al paciente.
+        Retorna 'Sin cuna' si el bebé no está asignado a ninguna.
+        """
+        if hasattr(obj.bebe, 'cuna_asignada') and obj.bebe.cuna_asignada:
+            return obj.bebe.cuna_asignada.identificador
+        return "Sin cuna"
+>>>>>>> origin/desarrollo
