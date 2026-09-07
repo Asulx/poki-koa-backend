@@ -5,25 +5,69 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cunas', '0003_alter_cuna_identificador_medicamento'),
+        ("cunas", "0003_alter_cuna_identificador_medicamento"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PlanCuidado',
+            name="PlanCuidado",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('area_cuidado', models.CharField(help_text='Ej: Respiratorio, Nutricional, Farmacológico, Monitoreo', max_length=100)),
-                ('intervencion', models.CharField(help_text='Ej: Monitoreo continuo de SpO2, Soporte ventilatorio CPAP', max_length=255)),
-                ('frecuencia', models.CharField(help_text='Ej: Continuo, c/3h, c/24h', max_length=50)),
-                ('estado', models.CharField(choices=[('Activo', 'Activo'), ('Suspendido', 'Suspendido'), ('Finalizado', 'Finalizado')], default='Activo', help_text='Estado actual de este plan', max_length=20)),
-                ('bebe', models.ForeignKey(help_text='Paciente al que aplica este plan de cuidado', on_delete=django.db.models.deletion.CASCADE, related_name='planes_cuidado', to='cunas.bebe')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "area_cuidado",
+                    models.CharField(
+                        help_text="Ej: Respiratorio, Nutricional, Farmacológico, Monitoreo",
+                        max_length=100,
+                    ),
+                ),
+                (
+                    "intervencion",
+                    models.CharField(
+                        help_text="Ej: Monitoreo continuo de SpO2, Soporte ventilatorio CPAP",
+                        max_length=255,
+                    ),
+                ),
+                (
+                    "frecuencia",
+                    models.CharField(
+                        help_text="Ej: Continuo, c/3h, c/24h", max_length=50
+                    ),
+                ),
+                (
+                    "estado",
+                    models.CharField(
+                        choices=[
+                            ("Activo", "Activo"),
+                            ("Suspendido", "Suspendido"),
+                            ("Finalizado", "Finalizado"),
+                        ],
+                        default="Activo",
+                        help_text="Estado actual de este plan",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "bebe",
+                    models.ForeignKey(
+                        help_text="Paciente al que aplica este plan de cuidado",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="planes_cuidado",
+                        to="cunas.bebe",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Plan de Cuidado',
-                'verbose_name_plural': 'Planes de Cuidado',
+                "verbose_name": "Plan de Cuidado",
+                "verbose_name_plural": "Planes de Cuidado",
             },
         ),
     ]
