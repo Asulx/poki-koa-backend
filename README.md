@@ -9,23 +9,22 @@ Sistema de monitoreo inteligente de cunas neonatales diseñado para supervisar e
 
 ---
 
-## Historias de Usuario (Template)
+## Historias de Usuario
 Todas las historias están registradas como GitHub Issues.
 
 | ID | Nombre | Issue |
 |---|---|---|
-| US-01 | Registrar médico o profesional de salud | #1 |
-| US-02 | Iniciar sesión y autenticación | #2 |
-| US-03 | Visualizar cunas asignadas en tiempo real | #3 |
-| US-04 | Registrar ingreso de recién nacido (bebé) | #4 |
-| US-05 | Asignar cuna a recién nacido | #5 |
-| US-06 | Recibir alerta por desviación de constantes vitales | #6 |
-| US-07 | Consultar historial de eventos e incidencias | #7 |
-| US-08 | Configurar umbrales de alerta por cuna | #8 |
-| US-09 | Generar reporte de estado diario | #9 |
-| US-10 | Gestionar alta o traslado de recién nacido | #10 |
+| US-01 | Formulario de gestion de pacientes | [#1](https://github.com/Asulx/poki-koa-web/issues/15) |
+| US-02 | Formulario de gestion de medicamentos | [#2](https://github.com/Asulx/poki-koa-web/issues/17) |
+| US-03 | Listado de medicamentos | [#3](https://github.com/Asulx/poki-koa-web/issues/16) |
+| US-04 | Listado de pacientes | [#4](https://github.com/Asulx/poki-koa-web/issues/13) |
+| US-05 | Busqueda de filtros y pacientes | [#5](https://github.com/Asulx/poki-koa-web/issues/14) |
+| US-06 | Graficos interactivos y visualizacion de estadisticas | [#6](https://github.com/Asulx/poki-koa-web/issues/12) |
+| US-07 | Vista y logica del modulo de reportes | [#7](https://github.com/Asulx/poki-koa-web/issues/18) |
+| US-08 | Exportacion de reportes (PDF y Excel) | [#8](https://github.com/Asulx/poki-koa-web/issues/19) |
+| US-09 | Gestion y modificacion de turnos por ADMIN | [#9](https://github.com/Asulx/poki-koa-web/issues/39) |
+| US-10 | Navegacion interactiva de Monitor de cuna hacia detalles de bebe | [#10](https://github.com/Asulx/poki-koa-web/issues/40) |
 
-*(Asegúrate de reemplazar los `#1`, `#2` por los links reales a tus GitHub Issues).*
 
 ## Requisitos Extrafuncionales
 Ver: [ReqExtrafuncionales.md](./ReqExtrafuncionales.md)
