@@ -16,15 +16,7 @@ Cada serializador corresponde a un modelo:
 from django.utils import timezone
 from rest_framework import serializers
 
-<<<<<<< HEAD
-from .models import Alerta, Bebe, Cuna, Medicamento, Medico
-=======
-
-from .models import Medico, Bebe, Cuna, Medicamento, PlanCuidado
-
-
-from .models import Medico, Bebe, Cuna, Medicamento, Alerta
->>>>>>> origin/desarrollo
+from .models import Alerta, Bebe, Cuna, Medicamento, Medico, PlanCuidado
 
 
 class MedicoSerializer(serializers.ModelSerializer):
@@ -136,78 +128,36 @@ class CunaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cuna
-<<<<<<< HEAD
         fields = "__all__"
-=======
-        fields = '__all__'
 
-
-
-
-class MedicamentoSerializer(serializers.ModelSerializer):
-    """
-    Serializa todos los campos del modelo Medicamento.
-
-
-    Agrega campos calculados (solo lectura) para facilitar que el frontend
-    (React/Vite) construya la tabla de control de fármacos sin necesidad 
-    de cruzar múltiples endpoints.
-    """
-
-
-    # Extrae el nombre del bebé directamente a través de la relación ForeignKey
-    paciente_nombre = serializers.CharField(
-        source='paciente.nombre_completo',
-        read_only=True
-    )
-    
-    # Campo calculado dinámicamente mediante el método get_cuna
-    cuna = serializers.SerializerMethodField()
-
-
-    class Meta:
-        model = Medicamento
-        fields = '__all__'
-
-
-    def get_cuna(self, obj):
-        """
-        Obtiene el identificador de la cuna asociada al paciente que recibe
-        el medicamento. Retorna 'Sin cuna' si el bebé no está asignado a ninguna.
-        """
-        # Verificamos si el bebé tiene la relación inversa 'cuna_asignada'
-        if hasattr(obj.paciente, 'cuna_asignada') and obj.paciente.cuna_asignada:
-            return obj.paciente.cuna_asignada.identificador
-        return "Sin cuna"
 
 class PlanCuidadoSerializer(serializers.ModelSerializer):
     """
     Serializa todos los campos del modelo PlanCuidado.
 
     Agrega campos calculados (solo lectura) para que el frontend pueda
-    mostrar el nombre del paciente y la cuna asignada directamente en 
+    mostrar el nombre del paciente y la cuna asignada directamente en
     la tabla de protocolos de atención.
     """
 
     # Extrae el nombre del bebé a través de la relación ForeignKey (campo 'bebe')
     paciente_nombre = serializers.CharField(
-        source='bebe.nombre_completo',
-        read_only=True
+        source="bebe.nombre_completo",
+        read_only=True,
     )
-    
+
     # Campo calculado dinámicamente para obtener la cuna
     cuna = serializers.SerializerMethodField()
 
     class Meta:
         model = PlanCuidado
-        fields = '__all__'
+        fields = "__all__"
 
     def get_cuna(self, obj):
         """
         Obtiene el identificador de la cuna asociada al paciente.
         Retorna 'Sin cuna' si el bebé no está asignado a ninguna.
         """
-        if hasattr(obj.bebe, 'cuna_asignada') and obj.bebe.cuna_asignada:
+        if hasattr(obj.bebe, "cuna_asignada") and obj.bebe.cuna_asignada:
             return obj.bebe.cuna_asignada.identificador
         return "Sin cuna"
->>>>>>> origin/desarrollo
