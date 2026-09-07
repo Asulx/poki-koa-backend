@@ -2,129 +2,100 @@
 
 > **Poki** (niño/hijo) · **Koa** (alegría, estar contento) — Lengua Rapa Nui
 
-Sistema de monitoreo inteligente de cunas neonatales. El nombre **Poki Koa** busca entregar una identidad nacional al proyecto usando palabras de la lengua Rapa Nui, mientras que el **Moai** como elemento visual refuerza conceptos de protección, cuidado y vigilancia permanente.
+Sistema de monitoreo inteligente de cunas neonatales diseñado para supervisar en tiempo real las constantes vitales y parámetros ambientales de recién nacidos en unidades de cuidado. Centraliza alertas tempranas y datos clínicos para el personal médico.
 
-## Arquitectura
+> **Desarrollo**  
+> [Guía de Desarrollo e Instalación (DESARROLLO.md)](./DESARROLLO.md).
 
-```
-Backend (este repositorio)       Frontend (repositorio aparte)
-┌─────────────────────────┐      ┌────────────────────────┐
-│  Django REST Framework  │◄────►│  React + Vite          │
-│  SQLite (desarrollo)    │      │  Puerto: 5173          │
-│  Puerto: 8000           │      └────────────────────────┘
-└─────────────────────────┘
+---
 
-API REST disponible en: http://127.0.0.1:8000/api/
-  GET/POST  /api/medicos/
-  GET/POST  /api/bebes/
-  GET/POST  /api/cunas/
-  (+ endpoints de detalle /{id}/ para cada uno)
-```
+## Historias de Usuario (Template)
+Todas las historias están registradas como GitHub Issues.
 
-## Requisitos
+| ID | Nombre | Issue |
+|---|---|---|
+| US-01 | Registrar médico o profesional de salud | #1 |
+| US-02 | Iniciar sesión y autenticación | #2 |
+| US-03 | Visualizar cunas asignadas en tiempo real | #3 |
+| US-04 | Registrar ingreso de recién nacido (bebé) | #4 |
+| US-05 | Asignar cuna a recién nacido | #5 |
+| US-06 | Recibir alerta por desviación de constantes vitales | #6 |
+| US-07 | Consultar historial de eventos e incidencias | #7 |
+| US-08 | Configurar umbrales de alerta por cuna | #8 |
+| US-09 | Generar reporte de estado diario | #9 |
+| US-10 | Gestionar alta o traslado de recién nacido | #10 |
 
-- [Git](https://git-scm.com/)
-- Python 3.10 o superior
-- [`uv`](https://docs.astral.sh/uv/getting-started/installation/) para gestionar el entorno virtual y las dependencias
+*(Asegúrate de reemplazar los `#1`, `#2` por los links reales a tus GitHub Issues).*
 
-> Si `uv` no está instalado, puedes obtenerlo con:
-> ```bash
-> #Linux o Macos
-> curl -LsSf https://astral.sh/uv/install.sh | sh
-> # Windows
-> powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-> ```
+## Requisitos Extrafuncionales
+Ver: [ReqExtrafuncionales.md](./ReqExtrafuncionales.md)
 
-## Instalación y ejecución
+## Entidades del Dominio
 
-### 1. Clonar el repositorio
+```mermaid
+erDiagram
+    MEDICO ||--o{ BEBE : "atiende (medico_a_cargo)"
+    BEBE ||--o| CUNA : "ocupa (paciente)"
+    BEBE ||--o{ MEDICAMENTO : "recibe (paciente)"
+    BEBE ||--o{ PLAN_CUIDADO : "posee (bebe)"
+    BEBE ||--o{ ALERTA : "genera (paciente)"
 
-```bash
-git clone https://github.com/Asulx/poki-koa-backend.git
-cd poki-koa-backend
-```
+    MEDICO {
+        int id PK
+        string nombre_completo
+        string turno
+    }
 
-### 2. Sincronizar las dependencias del proyecto
+    BEBE {
+        int id PK
+        string nombre_completo
+        int edad_meses
+        string sexo
+        float peso
+        date fecha_nacimiento
+        datetime fecha_ingreso
+        text diagnostico
+        text plan_cuidados
+        int medico_a_cargo_id FK
+    }
 
-Esto crea el entorno virtual `.venv/` e instala todas las dependencias automáticamente:
+    CUNA {
+        int id PK
+        string identificador
+        int paciente_id FK
+        int ritmo_cardiaco
+        int spo2
+        float temperatura
+        string estado_sueno
+        boolean canula_ok
+        boolean via_iv_activa
+        datetime ultima_actualizacion
+    }
 
-```bash
-uv sync
-```
+    MEDICAMENTO {
+        int id PK
+        int paciente_id FK
+        string nombre
+        string dosis
+        string via
+        time hora
+        string estado
+    }
 
-### 3. Aplicar las migraciones de base de datos
+    PLAN_CUIDADO {
+        int id PK
+        int bebe_id FK
+        string area_cuidado
+        string intervencion
+        string frecuencia
+        string estado
+    }
 
-Solo es necesario la primera vez o cuando se agregan nuevos modelos:
-
-```bash
-uv run poki_koa migrate
-```
-
-### 4. Ejecutar el servidor de desarrollo
-
-```bash
-uv run poki_koa
-```
-
-Para acceder se usa la dirección: **http://127.0.0.1:8000/api** o **http://127.0.0.1:8000/admin**
-
-## Otros comandos útiles
-
-| Comando | Descripción |
-|---|---|
-| `uv run poki_koa` | Inicia el servidor de desarrollo en el puerto 8000 |
-| `uv run poki_koa migrate` | Aplica migraciones pendientes a la base de datos |
-| `uv run poki_koa test` | Ejecuta la suite de pruebas unitarias |
-| `uv run poki_koa makemigrations` | Genera nuevas migraciones tras modificar modelos |
-| `uv run poki_koa createsuperuser` | Crea un usuario administrador para el panel `/admin/` |
-| `uv run make-crud <Modelo>` | Genera automáticamente Model, Serializer, ViewSet y URL para una entidad |
-
-## Automatización de nuevos recursos (make-crud)
-
-Para acelerar la creación de nuevas entidades y evitar escribir repetitivamente en `serializers.py`, `views.py` y `urls.py`:
-
-```bash
-uv run make-crud <NombreModelo>
-```
-
-**Ejemplo:**
-```bash
-uv run make-crud Diagnostico
-```
-
-Este comando automatiza el flujo completo:
-1. **`models.py`**: Crea una estructura base si el modelo no existe (si ya lo creaste tú, respeta tu código).
-2. **`serializers.py`**: Importa el modelo y crea su `ModelSerializer`.
-3. **`views.py`**: Importa el modelo y serializer, y crea su `ModelViewSet`.
-4. **`urls.py`**: Registra la ruta de la API REST (ej: `/api/diagnosticos/`).
-
-> **Nota:** Tras crear o editar tu modelo, recuerda generar y aplicar la migración:
-> ```bash
-> uv run poki_koa makemigrations
-> uv run poki_koa migrate
-> ```
-
-## Estructura del proyecto
-
-```
-.
-├── pyproject.toml          # Dependencias, versión del proyecto y comando `mamoru`
-├── uv.lock                 # Versiones exactas de dependencias (no editar manualmente)
-├── .python-version         # Versión de Python gestionada por uv
-└── src/
-    ├── manage.py           # CLI alternativa de Django (uso directo sin uv)
-    ├── db.sqlite3          # Base de datos SQLite (desarrollo)
-    ├── poki_koa/           # Configuración central del proyecto Django
-    │   ├── settings.py     # Ajustes globales (BD, apps, CORS, etc.)
-    │   ├── urls.py         # Rutas raíz: /admin/ y /api/
-    │   ├── wsgi.py         # Punto de entrada para servidores WSGI (producción)
-    │   └── main.py         # Función `main()` que activa el comando `mamoru`
-    └── cunas/              # App principal del sistema
-        ├── models.py       # Modelos: Medico, Bebe, Cuna
-        ├── serializers.py  # Serializadores JSON para la API REST
-        ├── views.py        # ViewSets: endpoints CRUD automáticos
-        ├── urls.py         # Router con rutas /api/medicos/, /api/bebes/, /api/cunas/
-        ├── admin.py        # Registro de modelos en el panel de administración
-        ├── tests.py        # Pruebas unitarias de los modelos
-        └── migrations/     # Migraciones de base de datos (generadas automáticamente)
-```
+    ALERTA {
+        int id PK
+        int paciente_id FK
+        string tipo
+        string mensaje
+        string nivel
+        datetime fecha_hora
+    }
