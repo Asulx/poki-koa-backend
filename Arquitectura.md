@@ -104,6 +104,22 @@ La descomposición sigue el principio de separación de responsabilidades. Cada 
 
 ---
 
+### Módulo 6: Turnos Rotativos y Asignaciones (ShiftModule) — CR-402
+- **Responsabilidad:** Gestionar turnos de trabajo institucionales (Mañana, Tarde, Noche) y la asignación rotativa de subconjuntos de cunas a cada profesional clínico.
+- **Ofrece a otros módulos:** Entidades `Turno` y `AsignacionTurno`, consulta de cunas asignadas por profesional y turno vigente.
+- **Endpoints:** `GET/POST /api/turnos/`, `GET/POST /api/asignaciones-turno/`.
+- **Depende de:** Personal Clínico, Cunas, ORM.
+
+---
+
+### Módulo 7: Gestión de Familias y Apoderados (FamilyModule) — CR-402
+- **Responsabilidad:** Administrar la información de apoderados/tutores y restringir su acceso exclusivamente a la cuna de su propio hijo mientras mantenga matrícula activa.
+- **Ofrece a otros módulos:** Entidad `Apoderado`, validación de matrícula activa en `Bebe`.
+- **Endpoints:** `GET/POST /api/apoderados/`, detalle con `/{id}/`.
+- **Depende de:** Pacientes, Cunas, ORM.
+
+---
+
 ## 4. Decisiones de Diseño
 
 ### Decisión 1: Separación Frontend SPA y Backend API REST
@@ -131,3 +147,15 @@ La descomposición sigue el principio de separación de responsabilidades. Cada 
 - **Alternativas consideradas:**
   - *Sesiones Django con cookies:* Descartada por complejidad con CORS y CSRF en una arquitectura desacoplada con puertos distintos.
 - **Impacto:** Afecta al módulo de Autenticación y a la configuración global de DRF.
+
+---
+
+### Decisión 4: Escala Institucional y Matriz de Visibilidad por Rol (CR-402)
+- **Decisión:** Soportar unidades institucionales de 40 cunas simultáneas con personal en turnos rotativos (12 profesionales) y segmentación estricta de visibilidad:
+  - **Directora:** Acceso y supervisión global (40 cunas).
+  - **Personal Clínico en Turno:** Acceso restringido al subconjunto de cunas asignado en su turno activo.
+  - **Apoderado:** Acceso a una sola cuna y estrictamente mientras su hijo mantenga matrícula activa (`matriculado=True`).
+- **Motivación:** Da respuesta al escenario institucional solicitado en CR-402 preservando la terminología clínica del proyecto Poki-Koa.
+- **Alternativas consideradas:**
+  - *Renombrar el dominio completo a sala cuna:* Descartada para mantener coherencia clínica del sistema hospitalario neonatal.
+- **Impacto:** Afecta a `CunaViewSet`, `BebeViewSet`, `Turno`, `AsignacionTurno` y `Apoderado`.

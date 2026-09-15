@@ -24,6 +24,7 @@ Todas las historias están registradas como GitHub Issues.
 | US-08 | Exportacion de reportes (PDF y Excel) | [#8](https://github.com/Asulx/poki-koa-web/issues/19) |
 | US-09 | Gestion y modificacion de turnos por ADMIN | [#9](https://github.com/Asulx/poki-koa-web/issues/39) |
 | US-10 | Navegacion interactiva de Monitor de cuna hacia detalles de bebe | [#10](https://github.com/Asulx/poki-koa-web/issues/40) |
+| CR-402 | Del hogar a la sala cuna institucional con cuarenta cunas y turnos | [#42](https://github.com/Asulx/poki-koa-backend/issues/42) |
 
 
 ## Requisitos Extrafuncionales
@@ -34,15 +35,35 @@ Ver: [ReqExtrafuncionales.md](./ReqExtrafuncionales.md)
 ```mermaid
 erDiagram
     MEDICO ||--o{ BEBE : "atiende (medico_a_cargo)"
+    MEDICO ||--o{ ASIGNACION_TURNO : "asignado_a"
+    TURNO ||--o{ ASIGNACION_TURNO : "corresponde_a"
+    ASIGNACION_TURNO }o--o{ CUNA : "supervisa_subconjunto"
     BEBE ||--o| CUNA : "ocupa (paciente)"
     BEBE ||--o{ MEDICAMENTO : "recibe (paciente)"
     BEBE ||--o{ PLAN_CUIDADO : "posee (bebe)"
     BEBE ||--o{ ALERTA : "genera (paciente)"
+    BEBE ||--o{ APODERADO : "representado_por"
 
     MEDICO {
         int id PK
         string nombre_completo
         string turno
+    }
+
+    TURNO {
+        int id PK
+        string nombre
+        time hora_inicio
+        time hora_fin
+        boolean activo
+    }
+
+    ASIGNACION_TURNO {
+        int id PK
+        int medico_id FK
+        int turno_id FK
+        date fecha
+        boolean activo
     }
 
     BEBE {
@@ -55,7 +76,17 @@ erDiagram
         datetime fecha_ingreso
         text diagnostico
         text plan_cuidados
+        boolean matriculado
         int medico_a_cargo_id FK
+    }
+
+    APODERADO {
+        int id PK
+        string nombre_completo
+        string rut
+        string email
+        string telefono
+        int bebe_id FK
     }
 
     CUNA {
@@ -99,6 +130,22 @@ erDiagram
         datetime fecha_hora
     }
 ```
+
+## Escala Institucional (CR-402)
+
+Para soportar la transición desde el hogar a una sala institucional / unidad neonatal:
+- **40 Cunas de monitoreo:** Identificadores `C01` a `C40` con telemetría independiente.
+- **12 Profesionales en turnos rotativos:** Médicos y matronas organizados en turnos (Mañana, Tarde, Noche), con asignación de un subconjunto de cunas que cambia según el turno.
+- **Matriz de visibilidad según rol:**
+  - **Directora:** Acceso y supervisión global de las 40 cunas.
+  - **Profesionales:** Visualizan únicamente el subconjunto de cunas asignado a su turno rotativo.
+  - **Apoderados:** Acceso exclusivo a la cuna de su propio hijo, y **únicamente mientras mantenga matrícula activa** en la institución.
+
+Para poblar automáticamente este escenario para pruebas:
+```bash
+uv run poki_koa poblar_escala --limpiar
+```
+
 ## Roles de Equipo
 | Integrante | Rol | Ítems de la rúbrica a cargo |
 | :--- | :--- | :--- |

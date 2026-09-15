@@ -17,6 +17,7 @@ Prioridad: Alta, Media o Baja.
 | REF-10 | Restricción técnica (Base de datos) | Base de datos relacional con soporte para transacciones ACID, usando SQLite en desarrollo y PostgreSQL en producción, a través del ORM de Django. | Alta |
 | REF-11 | Restricción de proyecto (Trazabilidad) | Control de versiones con Git/GitHub, manteniendo trazabilidad entre commits, issues y pull requests. | Alta |
 | REF-12 | Otros (Idioma) | Toda la interfaz, mensajes y terminología clínica deben estar en español. | Baja |
+| REF-13 | Calidad de servicio (Escalabilidad) | El sistema debe ser capaz de gestionar al menos 40 cunas simultáneas con telemetría en tiempo real y turnos rotativos para 12 profesionales clínicos (CR-402). | Alta |
 
 > [!IMPORTANT]
-> Los requisitos de prioridad **Alta** (REF-01 a REF-05, REF-09, REF-10, REF-11) son abordados de forma explícita en las decisiones de diseño arquitectónico en `Arquitectura.md`.
+> Los requisitos de prioridad **Alta** (REF-01 a REF-05, REF-09, REF-10, REF-11, REF-13) son abordados de forma explícita en las decisiones de diseño arquitectónico en `Arquitectura.md`.

@@ -79,6 +79,7 @@ Para acceder se usa la dirección: **http://127.0.0.1:8000/api** o **http://127.
 | `uv run poki_koa makemigrations` | Genera nuevas migraciones tras modificar modelos |
 | `uv run poki_koa createsuperuser` | Crea un usuario administrador para el panel `/admin/` |
 | `uv run make-crud <Modelo>` | Genera automáticamente Model, Serializer, ViewSet y URL para una entidad |
+| `uv run poki_koa poblar_escala` | Inicializa el escenario a escala con 40 cunas, 12 profesionales y turnos (CR-402) |
 | `uv run ruff check` | Analiza el codigo, detecta errores y malas practicas |
 
 ## Análisis del código con Ruff
