@@ -6,6 +6,11 @@ Define las entidades principales del sistema de monitoreo neonatal:
 - Bebe: el paciente (recién nacido) que ocupa la cuna.
 - Cuna: la unidad física de monitoreo con sus signos vitales en tiempo real.
 - Medicamento: fármacos asignados a un bebé para control de administración.
+- PlanCuidado: protocolos de atención asignados al paciente.
+- Alerta: historial de eventos sobre signos vitales.
+- Turno: turnos de trabajo rotativos para el personal institucional.
+- AsignacionTurno: asignación de subconjunto de cunas a un profesional por turno.
+- Apoderado: apoderado o tutor familiar con acceso exclusivo a la cuna de su bebé matriculado.
 """
 
 from typing import ClassVar
@@ -84,6 +89,10 @@ class Bebe(models.Model):
         blank=True,
         related_name="pacientes",
         help_text="Médico responsable del seguimiento de este bebé",
+    )
+    matriculado = models.BooleanField(
+        default=True,
+        help_text="Indica si el bebé está matriculado y activo en la institución",
     )
 
     def __str__(self):
@@ -316,3 +325,122 @@ class Alerta(models.Model):
     class Meta:
         verbose_name = "Alerta"
         verbose_name_plural = "Alertas"
+
+
+class Turno(models.Model):
+    """
+    Representa un turno de trabajo (ej: Mañana, Tarde, Noche)
+    en el sistema rotativo institucional.
+    """
+
+    nombre = models.CharField(
+        max_length=50,
+        unique=True,
+        help_text="Nombre identificador del turno (ej: Mañana, Tarde, Noche)",
+    )
+    hora_inicio = models.TimeField(
+        null=True,
+        blank=True,
+        help_text="Hora de inicio programada del turno",
+    )
+    hora_fin = models.TimeField(
+        null=True,
+        blank=True,
+        help_text="Hora de término programada del turno",
+    )
+    activo = models.BooleanField(
+        default=True,
+        help_text="Indica si el turno está habilitado operativamente",
+    )
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        verbose_name = "Turno"
+        verbose_name_plural = "Turnos"
+
+
+class AsignacionTurno(models.Model):
+    """
+    Asigna a un profesional de salud (médico / matrona) un subconjunto
+    de cunas que cambia según el turno rotativo.
+    """
+
+    medico = models.ForeignKey(
+        Medico,
+        on_delete=models.CASCADE,
+        related_name="asignaciones_turno",
+        help_text="Profesional de salud a cargo del turno",
+    )
+    turno = models.ForeignKey(
+        Turno,
+        on_delete=models.CASCADE,
+        related_name="asignaciones",
+        help_text="Turno asignado (ej: Mañana, Tarde, Noche)",
+    )
+    cunas = models.ManyToManyField(
+        Cuna,
+        related_name="asignaciones_turno",
+        blank=True,
+        help_text="Subconjunto de cunas asignadas bajo su responsabilidad en este turno",
+    )
+    fecha = models.DateField(
+        default=timezone.now,
+        help_text="Fecha de la asignación del turno",
+    )
+    activo = models.BooleanField(
+        default=True,
+        help_text="Indica si la asignación está actualmente en vigencia",
+    )
+
+    def __str__(self):
+        cunas_count = self.cunas.count() if self.pk else 0
+        return f"{self.medico.nombre_completo} - Turno {self.turno.nombre} ({cunas_count} cunas)"
+
+    class Meta:
+        verbose_name = "Asignación de Turno"
+        verbose_name_plural = "Asignaciones de Turno"
+
+
+class Apoderado(models.Model):
+    """
+    Representa al apoderado o tutor familiar del recién nacido.
+    Solo puede consultar la cuna de su propio hijo mientras éste
+    mantenga su matrícula activa en la institución.
+    """
+
+    nombre_completo = models.CharField(
+        max_length=150,
+        help_text="Nombre completo del apoderado o tutor legal",
+    )
+    rut = models.CharField(
+        max_length=12,
+        unique=True,
+        help_text="RUT o identificador único del apoderado (ej: 12.345.678-9)",
+    )
+    email = models.EmailField(
+        blank=True,
+        null=True,
+        help_text="Correo electrónico de contacto",
+    )
+    telefono = models.CharField(
+        max_length=30,
+        blank=True,
+        null=True,
+        help_text="Número telefónico de contacto",
+    )
+    bebe = models.ForeignKey(
+        Bebe,
+        on_delete=models.CASCADE,
+        related_name="apoderados",
+        help_text="Bebé asociado del cual es apoderado o tutor",
+    )
+
+    def __str__(self):
+        return f"{self.nombre_completo} (Apoderado de {self.bebe.nombre_completo})"
+
+    class Meta:
+        verbose_name = "Apoderado"
+        verbose_name_plural = "Apoderados"
+
