@@ -112,6 +112,12 @@ class CunaViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+
+        # En vista de detalle (retrieve), permitimos que el método retrieve() realice
+        # la validación explícita de pertenencia y devuelva 403 Forbidden si corresponde
+        if getattr(self, "action", None) == "retrieve":
+            return queryset
+
         request = self.request
 
         rol = (
