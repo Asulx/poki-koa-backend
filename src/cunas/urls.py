@@ -23,11 +23,14 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (
     AlertaViewSet,
+    ApoderadoViewSet,
+    AsignacionTurnoViewSet,
     BebeViewSet,
     CunaViewSet,
     MedicamentoViewSet,
     MedicoViewSet,
     PlanCuidadoViewSet,
+    TurnoViewSet,
 )
 
 # El router genera automáticamente todas las URLs a partir de los ViewSets registrados
@@ -38,6 +41,9 @@ router.register(r"cunas", CunaViewSet)
 router.register(r"medicamentos", MedicamentoViewSet)
 router.register(r"planes-cuidado", PlanCuidadoViewSet)
 router.register(r"alertas", AlertaViewSet)
+router.register(r"turnos", TurnoViewSet)
+router.register(r"asignaciones-turno", AsignacionTurnoViewSet)
+router.register(r"apoderados", ApoderadoViewSet)
 
 
 urlpatterns = [

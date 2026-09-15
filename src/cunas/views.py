@@ -18,14 +18,27 @@ para su modelo correspondiente gracias a Django REST Framework:
 
 from rest_framework import viewsets
 
-from .models import Alerta, Bebe, Cuna, Medicamento, Medico, PlanCuidado
+from .models import (
+    Alerta,
+    Apoderado,
+    AsignacionTurno,
+    Bebe,
+    Cuna,
+    Medicamento,
+    Medico,
+    PlanCuidado,
+    Turno,
+)
 from .serializers import (
     AlertaSerializer,
+    ApoderadoSerializer,
+    AsignacionTurnoSerializer,
     BebeSerializer,
     CunaSerializer,
     MedicamentoSerializer,
     MedicoSerializer,
     PlanCuidadoSerializer,
+    TurnoSerializer,
 )
 
 
@@ -92,3 +105,35 @@ class AlertaViewSet(viewsets.ModelViewSet):
 
     queryset = Alerta.objects.all()
     serializer_class = AlertaSerializer
+
+
+class TurnoViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para el modelo Turno.
+    Proporciona operaciones CRUD sobre los turnos de trabajo rotativos.
+    """
+
+    queryset = Turno.objects.all()
+    serializer_class = TurnoSerializer
+
+
+class AsignacionTurnoViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para el modelo AsignacionTurno.
+    Permite gestionar y consultar la asignación rotativa de subconjuntos de cunas
+    a cada profesional según el turno.
+    """
+
+    queryset = AsignacionTurno.objects.all()
+    serializer_class = AsignacionTurnoSerializer
+
+
+class ApoderadoViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para el modelo Apoderado.
+    Permite gestionar el registro de apoderados y sus vínculos con pacientes.
+    """
+
+    queryset = Apoderado.objects.all()
+    serializer_class = ApoderadoSerializer
+

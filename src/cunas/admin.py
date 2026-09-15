@@ -10,12 +10,63 @@ sin necesidad de conectarse directamente a la base de datos.
 
 from django.contrib import admin
 
-from .models import Bebe, Cuna, Medicamento, Medico
+from .models import (
+    Alerta,
+    Apoderado,
+    AsignacionTurno,
+    Bebe,
+    Cuna,
+    Medicamento,
+    Medico,
+    PlanCuidado,
+    Turno,
+)
 
-# Registros básicos
+# Registros básicos y personalizados
 admin.site.register(Medico)
-admin.site.register(Bebe)
 admin.site.register(Cuna)
+admin.site.register(Alerta)
+admin.site.register(PlanCuidado)
+
+
+@admin.register(Bebe)
+class BebeAdmin(admin.ModelAdmin):
+    list_display = ("nombre_completo", "edad_meses", "sexo", "medico_a_cargo", "matriculado", "fecha_ingreso")
+    list_filter = ("matriculado", "sexo", "medico_a_cargo")
+    search_fields = ("nombre_completo", "diagnostico")
+
+
+@admin.register(Turno)
+class TurnoAdmin(admin.ModelAdmin):
+    list_display = ("nombre", "hora_inicio", "hora_fin", "activo")
+    list_filter = ("activo",)
+    search_fields = ("nombre",)
+
+
+@admin.register(AsignacionTurno)
+class AsignacionTurnoAdmin(admin.ModelAdmin):
+    list_display = ("medico", "turno", "fecha", "activo", "obtener_cantidad_cunas")
+    list_filter = ("turno", "activo", "fecha")
+    filter_horizontal = ("cunas",)
+    search_fields = ("medico__nombre_completo", "turno__nombre")
+
+    def obtener_cantidad_cunas(self, obj):
+        return obj.cunas.count()
+
+    obtener_cantidad_cunas.short_description = "N° Cunas"
+
+
+@admin.register(Apoderado)
+class ApoderadoAdmin(admin.ModelAdmin):
+    list_display = ("nombre_completo", "rut", "bebe", "obtener_matricula", "telefono", "email")
+    list_filter = ("bebe__matriculado",)
+    search_fields = ("nombre_completo", "rut", "bebe__nombre_completo")
+
+    def obtener_matricula(self, obj):
+        return obj.bebe.matriculado
+
+    obtener_matricula.boolean = True
+    obtener_matricula.short_description = "Matrícula Activa"
 
 
 # Registro personalizado para Medicamento

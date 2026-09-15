@@ -16,7 +16,17 @@ Cada serializador corresponde a un modelo:
 from django.utils import timezone
 from rest_framework import serializers
 
-from .models import Alerta, Bebe, Cuna, Medicamento, Medico, PlanCuidado
+from .models import (
+    Alerta,
+    Apoderado,
+    AsignacionTurno,
+    Bebe,
+    Cuna,
+    Medicamento,
+    Medico,
+    PlanCuidado,
+    Turno,
+)
 
 
 class MedicoSerializer(serializers.ModelSerializer):
@@ -161,3 +171,63 @@ class PlanCuidadoSerializer(serializers.ModelSerializer):
         if hasattr(obj.bebe, "cuna_asignada") and obj.bebe.cuna_asignada:
             return obj.bebe.cuna_asignada.identificador
         return "Sin cuna"
+
+
+class TurnoSerializer(serializers.ModelSerializer):
+    """Serializa todos los campos del modelo Turno."""
+
+    class Meta:
+        model = Turno
+        fields = "__all__"
+
+
+class AsignacionTurnoSerializer(serializers.ModelSerializer):
+    """
+    Serializa el modelo AsignacionTurno.
+    Proporciona información del médico, turno y subconjunto de cunas asignadas.
+    """
+
+    medico_nombre = serializers.CharField(
+        source="medico.nombre_completo", read_only=True
+    )
+    turno_nombre = serializers.CharField(
+        source="turno.nombre", read_only=True
+    )
+    cunas_identificadores = serializers.SerializerMethodField()
+    cantidad_cunas = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AsignacionTurno
+        fields = "__all__"
+
+    def get_cunas_identificadores(self, obj):
+        return list(obj.cunas.values_list("identificador", flat=True))
+
+    def get_cantidad_cunas(self, obj):
+        return obj.cunas.count()
+
+
+class ApoderadoSerializer(serializers.ModelSerializer):
+    """
+    Serializa el modelo Apoderado.
+    Permite acceder a los datos del apoderado y del paciente asociado,
+    indicando si está activo y su cuna correspondiente.
+    """
+
+    bebe_nombre = serializers.CharField(
+        source="bebe.nombre_completo", read_only=True
+    )
+    bebe_matriculado = serializers.BooleanField(
+        source="bebe.matriculado", read_only=True
+    )
+    cuna_identificador = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Apoderado
+        fields = "__all__"
+
+    def get_cuna_identificador(self, obj):
+        if hasattr(obj.bebe, "cuna_asignada") and obj.bebe.cuna_asignada:
+            return obj.bebe.cuna_asignada.identificador
+        return None
+
