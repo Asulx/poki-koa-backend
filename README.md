@@ -8,7 +8,11 @@ Sistema de monitoreo inteligente de cunas neonatales diseñado para supervisar e
 > [Guía de Desarrollo e Instalación (DESARROLLO.md)](./DESARROLLO.md).
 
 ---
-
+## Mockups
+| Mockup | Historia de usuario relacionada |
+|--------|---------------------------------|
+| >https://www.figma.com/make/dptR5R5fPZZl0Tw40a6f86/Aplicaci%C3%B3n-de-Neonatolog%C3%ADa--Copia-?t=IK5Ip2s2MKsiZftq-20&fullscreen=1 | US-44 |
+---
 ## Historias de Usuario
 Todas las historias están registradas como GitHub Issues.
 
