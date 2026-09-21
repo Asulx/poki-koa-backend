@@ -146,6 +146,11 @@ Para poblar automáticamente este escenario para pruebas:
 uv run poki_koa poblar_escala --limpiar
 ```
 
+## Observaciones issue CR-402
+Al revisar las modificaciones y requerimientos, nos encontramos con un cambio drastico de la idea principal del programa, cambiando el foco de Cunas de Instituciones hospitalarias a cunas de instituciones educacionales.
+
+Ahora tenemos que tener en consideracion el manejo de datos no solo de funcionarios medicos, sino que tambien tenemos que manejar los datos para que sean accesibles para ciudadanos comunes.
+
 ## Roles de Equipo
 | Integrante | Rol | Ítems de la rúbrica a cargo |
 | :--- | :--- | :--- |
