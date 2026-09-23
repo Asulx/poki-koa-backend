@@ -30,16 +30,29 @@ class MedicoSerializer(serializers.ModelSerializer):
 class AlertaSerializer(serializers.ModelSerializer):
     """
     Serializa todos los campos del modelo Alerta.
-    Agrega `paciente_nombre` (solo lectura) para el frontend.
+    Agrega `paciente_nombre` y `cuna_identificador` (solo lectura) para el frontend.
     """
 
-    paciente_nombre = serializers.CharField(
-        source="paciente.nombre_completo", read_only=True
-    )
+    paciente_nombre = serializers.SerializerMethodField()
+    cuna_identificador = serializers.SerializerMethodField()
 
     class Meta:
         model = Alerta
         fields = "__all__"
+
+    def get_paciente_nombre(self, obj):
+        if obj.paciente:
+            return obj.paciente.nombre_completo
+        if obj.cuna and obj.cuna.paciente:
+            return obj.cuna.paciente.nombre_completo
+        return None
+
+    def get_cuna_identificador(self, obj):
+        if obj.cuna:
+            return obj.cuna.identificador
+        if obj.paciente and hasattr(obj.paciente, "cuna_asignada") and obj.paciente.cuna_asignada:
+            return obj.paciente.cuna_asignada.identificador
+        return None
 
 
 class MedicamentoSerializer(serializers.ModelSerializer):

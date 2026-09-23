@@ -288,8 +288,18 @@ class Alerta(models.Model):
     paciente = models.ForeignKey(
         Bebe,
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
         related_name="alertas",
         help_text="Bebé al que pertenece la alerta",
+    )
+    cuna = models.ForeignKey(
+        Cuna,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="alertas",
+        help_text="Cuna donde ocurrió el evento de alerta",
     )
     tipo = models.CharField(
         max_length=30,
@@ -309,10 +319,25 @@ class Alerta(models.Model):
     fecha_hora = models.DateTimeField(
         default=timezone.now, help_text="Fecha y hora en que se generó la alerta"
     )
+    activa = models.BooleanField(
+        default=True,
+        help_text="Indica si la alerta está actualmente activa o ya fue resuelta",
+    )
+    valor_leido = models.FloatField(
+        null=True,
+        blank=True,
+        help_text="Valor numérico del signo vital al momento de la alerta",
+    )
 
     def __str__(self):
-        return f"[{self.nivel}] {self.paciente.nombre_completo}: {self.mensaje}"
+        nombre_sujeto = (
+            self.paciente.nombre_completo
+            if self.paciente
+            else (self.cuna.identificador if self.cuna else "Sin asignar")
+        )
+        return f"[{self.nivel}] {nombre_sujeto}: {self.mensaje}"
 
     class Meta:
         verbose_name = "Alerta"
         verbose_name_plural = "Alertas"
+

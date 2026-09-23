@@ -97,6 +97,7 @@ El backend quedará accesible en:
 | `uv run poki_koa makemigrations` | Genera nuevas migraciones tras modificar modelos |
 | `uv run poki_koa test` | Ejecuta la suite de pruebas unitarias |
 | `uv run poki_koa createsuperuser` | Crea un usuario administrador para el panel `/admin/` |
+| `uv run poki_koa simular_alertas` | Simula signos vitales y evalúa alertas en consola |
 | `uv run make-crud <Modelo>` | Genera automáticamente Model, Serializer, ViewSet y URL para una entidad |
 | `uv run ruff check` | Analiza el código con [Ruff](https://docs.astral.sh/ruff/) para detectar errores y estilo |
 
