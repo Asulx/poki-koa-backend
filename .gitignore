@@ -11,3 +11,5 @@ dist/
 # Archivos de entorno y logs
 .env
 *.log
+
+src/db.sqlite3
