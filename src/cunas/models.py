@@ -35,6 +35,28 @@ class Medico(models.Model):
         verbose_name = "Médico"
         verbose_name_plural = "Médicos"
 
+class Educadora(models.Model):
+    """
+    Representa a las 12 educadoras en turnos rotativos a cargo 
+    de un subconjunto de cunas que cambia según el turno.
+    """
+    nombre_completo = models.CharField(max_length=150, help_text="Ej: Ana Gómez")
+    turno = models.CharField(max_length=50, help_text="Turno rotativo (ej: Mañana, Tarde, Noche)")
+    
+    # Una educadora tiene asignado un subconjunto de cunas
+    cunas_asignadas = models.ManyToManyField(
+        'Cuna',
+        blank=True,
+        related_name="educadoras_turno",
+        help_text="Subconjunto de cunas bajo su responsabilidad en este turno"
+    )
+
+    def __str__(self):
+        return f"{self.nombre_completo} ({self.turno})"
+
+    class Meta:
+        verbose_name = "Educadora"
+        verbose_name_plural = "Educadoras"
 
 class Bebe(models.Model):
     """
@@ -86,13 +108,18 @@ class Bebe(models.Model):
         help_text="Médico responsable del seguimiento de este bebé",
     )
 
+    # ── NUEVO CAMPO PARA LOS APODERADOS ──
+    matriculado_activo = models.BooleanField(
+            default=True,
+            help_text="Indica si el niño está matriculado activamente (requerido para vista de apoderados)"
+        )
+
     def __str__(self):
         return self.nombre_completo
 
     class Meta:
         verbose_name = "Bebé"
         verbose_name_plural = "Bebés"
-
 
 class Cuna(models.Model):
     """
