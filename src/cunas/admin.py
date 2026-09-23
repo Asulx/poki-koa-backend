@@ -10,13 +10,22 @@ sin necesidad de conectarse directamente a la base de datos.
 
 from django.contrib import admin
 
-from .models import Alerta, Bebe, Cuna, Medicamento, Medico, PlanCuidado
+from .models import (
+    Alerta,
+    Bebe,
+    Cuna,
+    HistorialSignosVitales,
+    Medicamento,
+    Medico,
+    PlanCuidado,
+)
 
 # Registros básicos
 admin.site.register(Medico)
 admin.site.register(Bebe)
 admin.site.register(Cuna)
 admin.site.register(PlanCuidado)
+admin.site.register(HistorialSignosVitales)
 
 
 # Registro personalizado para Medicamento

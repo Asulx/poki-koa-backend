@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     # Librerías de terceros
     "rest_framework",  # API REST (Django REST Framework)
     "corsheaders",  # Permite conexiones cross-origin desde el frontend
+    "django_filters",  # Soporte para filtrado dinámico en los ViewSets
+    "drf_spectacular",  # Generador de esquema OpenAPI 3.0 y Swagger UI
     # Apps del proyecto
     "cunas",  # App principal: modelos, vistas y API del sistema de cunas
 ]
@@ -59,10 +61,14 @@ MIDDLEWARE = [
 ]
 
 # CORS — Orígenes autorizados para hacer peticiones al backend.
-# El puerto 5173 es el servidor de desarrollo de Vite (frontend React).
+# Incluye servidores de desarrollo habituales (Vite, Next.js / React)
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 
 ROOT_URLCONF = "poki_koa.urls"
@@ -122,3 +128,31 @@ STATIC_URL = "static/"
 
 # Tipo de campo de clave primaria por defecto para todos los modelos nuevos
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# DJANGO REST FRAMEWORK — Configuración global de la API REST
+REST_FRAMEWORK = {
+    # Generador de esquema OpenAPI 3.0 para drf-spectacular
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    # Filtros por defecto: django-filter, búsqueda por texto y ordenamiento
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+    ],
+    # Formato ISO 8601 estandarizado para campos de fecha y hora
+    "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S%z",
+}
+
+# DRF-SPECTACULAR — Ajustes para Swagger UI y especificación OpenAPI 3.0
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Poki Koa API — Sistema de Monitoreo Neonatal",
+    "DESCRIPTION": (
+        "Documentación técnica interactiva de la API REST de Poki Koa. "
+        "Expone endpoints para la gestión de cunas de monitoreo, pacientes neonatales, "
+        "telemetría de signos vitales, control de administración de medicamentos, "
+        "protocolos de cuidado y sistema de alertas tempranas."
+    ),
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+}

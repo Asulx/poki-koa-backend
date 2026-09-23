@@ -14,6 +14,10 @@ dependencies = [
     "django-cors-headers>=4.9.0",
     # API REST: serialización, vistas y router automático
     "djangorestframework>=3.18.0",
+    # Documentación interactiva OpenAPI 3.0 / Swagger / Redoc
+    "drf-spectacular>=0.28.0",
+    # Filtrado dinámico de consultas en endpoints
+    "django-filter>=24.3",
 ]
 
 # Define el comando `mamoru` disponible tras ejecutar `uv sync`
@@ -21,6 +25,7 @@ dependencies = [
 [project.scripts]
 poki_koa = "poki_koa.main:main"
 make-crud = "cunas.management.commands.make_crud:main"
+seed-data = "cunas.management.commands.seed_data:main"
 
 # Sistema de construcción del paquete (requerido por uv para instalar el proyecto)
 [build-system]

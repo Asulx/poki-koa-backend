@@ -14,7 +14,14 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from cunas.alertas import evaluar_signos_vitales
-from cunas.models import Alerta, Bebe, Cuna, Medico
+from cunas.models import (
+    Alerta,
+    Bebe,
+    Cuna,
+    HistorialSignosVitales,
+    Medicamento,
+    Medico,
+)
 
 
 class CunasModelsTestCase(TestCase):
@@ -388,3 +395,144 @@ class MotorAlertasIntegrationTestCase(TestCase):
 
         alertas_spo2 = Alerta.objects.filter(cuna=self.cuna, tipo="spo2", activa=True)
         self.assertEqual(alertas_spo2.count(), 1)
+
+
+class OpenAPISwaggerTestCase(TestCase):
+    """Verifica la generación del esquema OpenAPI 3.0 y la accesibilidad de Swagger UI."""
+
+    def setUp(self):
+        self.client = APIClient()
+
+    def test_schema_endpoint_retorna_200(self):
+        res = self.client.get(reverse("schema"))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_swagger_ui_retorna_200(self):
+        res = self.client.get(reverse("swagger-ui"))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_redoc_ui_retorna_200(self):
+        res = self.client.get(reverse("redoc"))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+
+class CunaHistorialTestCase(TestCase):
+    """Verifica el endpoint de historial de signos vitales para gráficos (US-06)."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.bebe = Bebe.objects.create(nombre_completo="Ana Díaz", edad_meses=1, sexo="F")
+        self.cuna = Cuna.objects.create(identificador="C-H1", paciente=self.bebe, ritmo_cardiaco=130, spo2=98, temperatura=36.8)
+
+    def test_historial_endpoint_retorna_lecturas(self):
+        # Crear 3 lecturas en historial
+        ahora = timezone.now()
+        HistorialSignosVitales.objects.create(
+            cuna=self.cuna, ritmo_cardiaco=125, spo2=97, temperatura=36.7, fecha_hora=ahora - timezone.timedelta(minutes=10)
+        )
+        HistorialSignosVitales.objects.create(
+            cuna=self.cuna, ritmo_cardiaco=130, spo2=98, temperatura=36.8, fecha_hora=ahora - timezone.timedelta(minutes=5)
+        )
+        HistorialSignosVitales.objects.create(
+            cuna=self.cuna, ritmo_cardiaco=135, spo2=99, temperatura=36.9, fecha_hora=ahora
+        )
+
+        url = reverse("cuna-historial", args=[self.cuna.pk])
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        # Debe contener al menos las 3 lecturas (más la creada automáticamente por la señal de creación de la cuna)
+        self.assertGreaterEqual(len(res.data), 3)
+        # La última lectura devuelta debe ser la más reciente
+        self.assertEqual(res.data[-1]["ritmo_cardiaco"], 135)
+
+
+class MedicamentoAdministrarTestCase(TestCase):
+    """Verifica la acción rápida para marcar medicamentos como administrados (US-02, US-03)."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.bebe = Bebe.objects.create(nombre_completo="Tomás Vera", edad_meses=2, sexo="M")
+        self.medicamento = Medicamento.objects.create(
+            paciente=self.bebe,
+            nombre="Amoxicilina",
+            dosis="50 mg",
+            via="VO",
+            hora="12:00:00",
+            estado="Pendiente",
+        )
+
+    def test_administrar_medicamento(self):
+        url = reverse("medicamento-administrar", args=[self.medicamento.pk])
+        res = self.client.post(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.medicamento.refresh_from_db()
+        self.assertEqual(self.medicamento.estado, "Administrado")
+        self.assertEqual(res.data["medicamento"]["estado"], "Administrado")
+
+
+class DashboardResumenTestCase(TestCase):
+    """Verifica el endpoint de métricas consolidadas del dashboard."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.bebe = Bebe.objects.create(nombre_completo="Elena Castro", edad_meses=1, sexo="F")
+        self.cuna = Cuna.objects.create(identificador="C-D1", paciente=self.bebe, ritmo_cardiaco=70)
+
+    def test_dashboard_resumen_retorna_metricas(self):
+        url = reverse("dashboard-resumen")
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn("cunas_totales", res.data)
+        self.assertIn("cunas_ocupadas", res.data)
+        self.assertIn("cunas_disponibles", res.data)
+        self.assertIn("pacientes_activos", res.data)
+        self.assertIn("alertas_activas_total", res.data)
+        self.assertIn("medicamentos_pendientes", res.data)
+        self.assertEqual(res.data["cunas_ocupadas"], 1)
+        self.assertEqual(res.data["pacientes_activos"], 1)
+
+
+class FiltrosYBusquedaTestCase(TestCase):
+    """Verifica los filtros y búsqueda en los ViewSets (US-05)."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.medico1 = Medico.objects.create(nombre_completo="Dr. Alfa", turno="Mañana")
+        self.medico2 = Medico.objects.create(nombre_completo="Dra. Beta", turno="Noche")
+
+        self.bebe1 = Bebe.objects.create(
+            nombre_completo="Ignacio Morales",
+            edad_meses=1,
+            sexo="M",
+            medico_a_cargo=self.medico1,
+            diagnostico="Bronquitis",
+        )
+        self.bebe2 = Bebe.objects.create(
+            nombre_completo="Catalina Soto",
+            edad_meses=2,
+            sexo="F",
+            medico_a_cargo=self.medico2,
+            diagnostico="Ictericia",
+        )
+
+    def test_busqueda_bebe_por_nombre(self):
+        url = reverse("bebe-list")
+        res = self.client.get(f"{url}?search=Catalina")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]["nombre_completo"], "Catalina Soto")
+
+    def test_filtrar_bebe_por_sexo(self):
+        url = reverse("bebe-list")
+        res = self.client.get(f"{url}?sexo=M")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]["nombre_completo"], "Ignacio Morales")
+
+    def test_filtrar_bebe_por_medico(self):
+        url = reverse("bebe-list")
+        res = self.client.get(f"{url}?medico_a_cargo={self.medico2.pk}")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]["nombre_completo"], "Catalina Soto")
+

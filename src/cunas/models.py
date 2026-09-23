@@ -341,3 +341,48 @@ class Alerta(models.Model):
         verbose_name = "Alerta"
         verbose_name_plural = "Alertas"
 
+
+class HistorialSignosVitales(models.Model):
+    """
+    Registro histórico de telemetría de signos vitales por cuna.
+    Permite alimentar gráficos de tendencias temporales en el frontend (US-06).
+    """
+
+    cuna = models.ForeignKey(
+        Cuna,
+        on_delete=models.CASCADE,
+        related_name="historial_signos",
+        help_text="Cuna a la que corresponde la lectura",
+    )
+    ritmo_cardiaco = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Frecuencia cardíaca en latidos por minuto (bpm)",
+    )
+    spo2 = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Saturación de oxígeno en sangre (%)",
+    )
+    temperatura = models.FloatField(
+        null=True,
+        blank=True,
+        help_text="Temperatura corporal en grados Celsius (°C)",
+    )
+    fecha_hora = models.DateTimeField(
+        default=timezone.now,
+        db_index=True,
+        help_text="Fecha y hora de la lectura de telemetría",
+    )
+
+    def __str__(self):
+        return (
+            f"{self.cuna.identificador} ({self.fecha_hora:%H:%M:%S}) - "
+            f"FC:{self.ritmo_cardiaco} SpO2:{self.spo2}% T:{self.temperatura}°C"
+        )
+
+    class Meta:
+        verbose_name = "Historial de Signo Vital"
+        verbose_name_plural = "Historial de Signos Vitales"
+        ordering: ClassVar = ["-fecha_hora"]
+

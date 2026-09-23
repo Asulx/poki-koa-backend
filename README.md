@@ -10,6 +10,7 @@ El nombre **Poki Koa** entrega identidad nacional al proyecto mediante palabras 
 
 ## Documentación del Proyecto
 
+- [Guía de Integración para Frontend (React + Vite)](./FRONTEND_GUIDE.md) (Endpoints, tipos TypeScript, mapeo a US-01 a US-10 y ejemplos)
 - [Arquitectura del Sistema](./Arquitectura.md) (Estilo arquitectónico, componentes y justificación)
 - [Requisitos Extrafuncionales](./ReqExtrafuncionales.md) (Catálogo de atributos de calidad y restricciones)
 
@@ -29,6 +30,8 @@ Backend (este repositorio)       Frontend (repositorio aparte)
 ```
 
 - **API REST**: `http://127.0.0.1:8000/api/` (endpoints para `/api/medicos/`, `/api/bebes/`, `/api/cunas/`, etc.)
+- **Documentación Swagger UI**: `http://127.0.0.1:8000/api/docs/`
+- **Documentación Redoc**: `http://127.0.0.1:8000/api/redoc/`
 - **Panel Administrativo**: `http://127.0.0.1:8000/admin/`
 
 ---
@@ -97,6 +100,7 @@ El backend quedará accesible en:
 | `uv run poki_koa makemigrations` | Genera nuevas migraciones tras modificar modelos |
 | `uv run poki_koa test` | Ejecuta la suite de pruebas unitarias |
 | `uv run poki_koa createsuperuser` | Crea un usuario administrador para el panel `/admin/` |
+| `uv run poki_koa seed_data` | Siembra pacientes, cunas y telemetría de prueba para desarrollo web |
 | `uv run poki_koa simular_alertas` | Simula signos vitales y evalúa alertas en consola |
 | `uv run make-crud <Modelo>` | Genera automáticamente Model, Serializer, ViewSet y URL para una entidad |
 | `uv run ruff check` | Analiza el código con [Ruff](https://docs.astral.sh/ruff/) para detectar errores y estilo |

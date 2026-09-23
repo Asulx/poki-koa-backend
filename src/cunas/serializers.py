@@ -14,9 +14,18 @@ Cada serializador corresponde a un modelo:
 """
 
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from .models import Alerta, Bebe, Cuna, Medicamento, Medico, PlanCuidado
+from .models import (
+    Alerta,
+    Bebe,
+    Cuna,
+    HistorialSignosVitales,
+    Medicamento,
+    Medico,
+    PlanCuidado,
+)
 
 
 class MedicoSerializer(serializers.ModelSerializer):
@@ -40,14 +49,16 @@ class AlertaSerializer(serializers.ModelSerializer):
         model = Alerta
         fields = "__all__"
 
-    def get_paciente_nombre(self, obj):
+    @extend_schema_field(serializers.CharField(allow_null=True))
+    def get_paciente_nombre(self, obj) -> str | None:
         if obj.paciente:
             return obj.paciente.nombre_completo
         if obj.cuna and obj.cuna.paciente:
             return obj.cuna.paciente.nombre_completo
         return None
 
-    def get_cuna_identificador(self, obj):
+    @extend_schema_field(serializers.CharField(allow_null=True))
+    def get_cuna_identificador(self, obj) -> str | None:
         if obj.cuna:
             return obj.cuna.identificador
         if obj.paciente and hasattr(obj.paciente, "cuna_asignada") and obj.paciente.cuna_asignada:
@@ -70,10 +81,19 @@ class MedicamentoSerializer(serializers.ModelSerializer):
         model = Medicamento
         fields = "__all__"
 
-    def get_cuna(self, obj):
+    @extend_schema_field(serializers.CharField())
+    def get_cuna(self, obj) -> str:
         if hasattr(obj.paciente, "cuna_asignada") and obj.paciente.cuna_asignada:
             return obj.paciente.cuna_asignada.identificador
         return "Sin cuna"
+
+
+class SignosVitalesNestedSerializer(serializers.Serializer):
+    """Representa la lectura actual de constantes vitales en una cuna."""
+
+    ritmo_cardiaco = serializers.IntegerField(allow_null=True)
+    spo2 = serializers.IntegerField(allow_null=True)
+    temperatura = serializers.FloatField(allow_null=True)
 
 
 class BebeSerializer(serializers.ModelSerializer):
@@ -104,12 +124,14 @@ class BebeSerializer(serializers.ModelSerializer):
         model = Bebe
         fields = "__all__"
 
-    def get_cuna_identificador(self, obj):
+    @extend_schema_field(serializers.CharField(allow_null=True))
+    def get_cuna_identificador(self, obj) -> str | None:
         if hasattr(obj, "cuna_asignada") and obj.cuna_asignada:
             return obj.cuna_asignada.identificador
         return None
 
-    def get_signos_vitales(self, obj):
+    @extend_schema_field(SignosVitalesNestedSerializer(allow_null=True))
+    def get_signos_vitales(self, obj) -> dict | None:
         if hasattr(obj, "cuna_asignada") and obj.cuna_asignada:
             return {
                 "ritmo_cardiaco": obj.cuna_asignada.ritmo_cardiaco,
@@ -166,7 +188,8 @@ class PlanCuidadoSerializer(serializers.ModelSerializer):
         model = PlanCuidado
         fields = "__all__"
 
-    def get_cuna(self, obj):
+    @extend_schema_field(serializers.CharField())
+    def get_cuna(self, obj) -> str:
         """
         Obtiene el identificador de la cuna asociada al paciente.
         Retorna 'Sin cuna' si el bebé no está asignado a ninguna.
@@ -174,3 +197,43 @@ class PlanCuidadoSerializer(serializers.ModelSerializer):
         if hasattr(obj.bebe, "cuna_asignada") and obj.bebe.cuna_asignada:
             return obj.bebe.cuna_asignada.identificador
         return "Sin cuna"
+
+
+class HistorialSignosVitalesSerializer(serializers.ModelSerializer):
+    """
+    Serializa lecturas individuales del historial de signos vitales.
+    Idóneo para el consumo de librerías de gráficos en frontend (Recharts, Chart.js).
+    """
+
+    cuna_identificador = serializers.CharField(
+        source="cuna.identificador", read_only=True
+    )
+
+    class Meta:
+        model = HistorialSignosVitales
+        fields = (
+            "id",
+            "cuna",
+            "cuna_identificador",
+            "ritmo_cardiaco",
+            "spo2",
+            "temperatura",
+            "fecha_hora",
+        )
+
+
+class DashboardResumenSerializer(serializers.Serializer):
+    """
+    Estructura de respuesta para el resumen del dashboard clínico.
+    Entrega KPIs principales para las tarjetas superiores en frontend.
+    """
+
+    cunas_totales = serializers.IntegerField()
+    cunas_ocupadas = serializers.IntegerField()
+    cunas_disponibles = serializers.IntegerField()
+    pacientes_activos = serializers.IntegerField()
+    alertas_activas_total = serializers.IntegerField()
+    alertas_criticas = serializers.IntegerField()
+    alertas_advertencia = serializers.IntegerField()
+    medicamentos_pendientes = serializers.IntegerField()
+    medicamentos_administrados = serializers.IntegerField()

@@ -16,15 +16,19 @@ para su modelo correspondiente gracias a Django REST Framework:
 (Las mismas operaciones aplican para /api/bebes/, /api/cunas/ y /api/medicamentos/)
 """
 
+from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import Alerta, Bebe, Cuna, Medicamento, Medico, PlanCuidado
 from .serializers import (
     AlertaSerializer,
     BebeSerializer,
     CunaSerializer,
+    DashboardResumenSerializer,
+    HistorialSignosVitalesSerializer,
     MedicamentoSerializer,
     MedicoSerializer,
     PlanCuidadoSerializer,
@@ -39,16 +43,23 @@ class MedicoViewSet(viewsets.ModelViewSet):
 
     queryset = Medico.objects.all()
     serializer_class = MedicoSerializer
+    search_fields = ("nombre_completo", "turno")
+    filterset_fields = ("turno",)
+    ordering_fields = ("nombre_completo", "turno")
 
 
 class BebeViewSet(viewsets.ModelViewSet):
     """
     ViewSet para el modelo Bebe.
     Proporciona operaciones CRUD completas sobre los pacientes (bebés).
+    Soporta búsqueda por texto (?search=...) y filtros por sexo o médico.
     """
 
     queryset = Bebe.objects.all()
     serializer_class = BebeSerializer
+    search_fields = ("nombre_completo", "diagnostico")
+    filterset_fields = ("sexo", "medico_a_cargo")
+    ordering_fields = ("nombre_completo", "fecha_ingreso", "peso", "edad_meses")
 
 
 class CunaViewSet(viewsets.ModelViewSet):
@@ -60,6 +71,30 @@ class CunaViewSet(viewsets.ModelViewSet):
 
     queryset = Cuna.objects.all()
     serializer_class = CunaSerializer
+    search_fields = ("identificador", "paciente__nombre_completo")
+    filterset_fields = ("estado_sueno", "canula_ok", "via_iv_activa")
+    ordering_fields = ("identificador", "ultima_actualizacion")
+
+    @extend_schema(
+        responses=HistorialSignosVitalesSerializer(many=True),
+        summary="Serie temporal de signos vitales para gráficos",
+        description="Retorna las lecturas históricas de la cuna en orden cronológico para visualización en gráficos.",
+    )
+    @action(detail=True, methods=["get"], url_path="historial")
+    def historial(self, request, pk=None):
+        """
+        Retorna la serie temporal de lecturas de signos vitales para graficar (US-06).
+        Parámetro opcional: ?limit=50 (por defecto 30).
+        Retorna las lecturas ordenadas cronológicamente (más antigua a más reciente).
+        """
+        cuna = self.get_object()
+        limit = int(request.query_params.get("limit", 30))
+        lecturas = cuna.historial_signos.all()[:limit]
+        lecturas_cronologicas = list(reversed(lecturas))
+        serializer = HistorialSignosVitalesSerializer(
+            lecturas_cronologicas, many=True
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], url_path="telemetria")
     def telemetria(self, request, pk=None):
@@ -115,14 +150,36 @@ class CunaViewSet(viewsets.ModelViewSet):
 class MedicamentoViewSet(viewsets.ModelViewSet):
     """
     ViewSet para el modelo Medicamento.
-    Proporciona operaciones CRUD completas sobre el control y
-    administración de fármacos a los pacientes.
+    Proporciona operaciones CRUD y acción rápida para marcar como administrado.
     """
 
-    # Si quieres que la API envíe los datos ordenados por hora por defecto,
-    # puedes cambiar .all() por .all().order_by('hora')
-    queryset = Medicamento.objects.all()
+    queryset = Medicamento.objects.all().order_by("hora")
     serializer_class = MedicamentoSerializer
+    search_fields = ("nombre", "paciente__nombre_completo")
+    filterset_fields = ("paciente", "estado", "via")
+    ordering_fields = ("hora", "nombre", "estado")
+
+    @extend_schema(
+        responses=MedicamentoSerializer,
+        summary="Marcar medicamento como administrado (US-02, US-03)",
+        description="Actualiza el estado del medicamento a 'Administrado'.",
+    )
+    @action(detail=True, methods=["post"], url_path="administrar")
+    def administrar(self, request, pk=None):
+        """
+        Marca rápidamente un medicamento prescrito como 'Administrado' (US-02, US-03).
+        """
+        medicamento = self.get_object()
+        medicamento.estado = "Administrado"
+        medicamento.save(update_fields=["estado"])
+        serializer = self.get_serializer(medicamento)
+        return Response(
+            {
+                "mensaje": f"Medicamento {medicamento.nombre} administrado exitosamente",
+                "medicamento": serializer.data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class PlanCuidadoViewSet(viewsets.ModelViewSet):
@@ -134,6 +191,9 @@ class PlanCuidadoViewSet(viewsets.ModelViewSet):
 
     queryset = PlanCuidado.objects.all()
     serializer_class = PlanCuidadoSerializer
+    search_fields = ("area_cuidado", "intervencion", "bebe__nombre_completo")
+    filterset_fields = ("bebe", "estado", "area_cuidado")
+    ordering_fields = ("area_cuidado", "estado")
 
 
 class AlertaViewSet(viewsets.ModelViewSet):
@@ -144,6 +204,9 @@ class AlertaViewSet(viewsets.ModelViewSet):
 
     queryset = Alerta.objects.all().order_by("-fecha_hora")
     serializer_class = AlertaSerializer
+    search_fields = ("mensaje", "paciente__nombre_completo", "cuna__identificador")
+    filterset_fields = ("activa", "nivel", "tipo", "paciente", "cuna")
+    ordering_fields = ("fecha_hora", "nivel")
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -190,4 +253,45 @@ class AlertaViewSet(viewsets.ModelViewSet):
             {"mensaje": "Alerta resuelta con éxito", "alerta": serializer.data},
             status=status.HTTP_200_OK,
         )
+
+
+class DashboardResumenView(APIView):
+    """
+    Endpoint consolidado de KPIs para el Dashboard principal de Poki Koa (US-06).
+    Retorna métricas globales de ocupación de cunas, alertas activas y fármacos.
+    """
+
+    @extend_schema(
+        responses=DashboardResumenSerializer,
+        summary="KPIs y métricas consolidadas del Dashboard",
+        description="Retorna indicadores agregados en tiempo real (cunas ocupadas/libres, alertas activas, fármacos).",
+    )
+    def get(self, request):
+        cunas_totales = Cuna.objects.count()
+        cunas_ocupadas = Cuna.objects.filter(paciente__isnull=False).count()
+        cunas_disponibles = cunas_totales - cunas_ocupadas
+        pacientes_activos = Bebe.objects.count()
+        alertas_activas = Alerta.objects.filter(activa=True)
+        alertas_criticas = alertas_activas.filter(nivel="Critica").count()
+        alertas_advertencia = alertas_activas.filter(nivel="Advertencia").count()
+        medicamentos_pendientes = Medicamento.objects.filter(
+            estado="Pendiente"
+        ).count()
+        medicamentos_administrados = Medicamento.objects.filter(
+            estado="Administrado"
+        ).count()
+
+        data = {
+            "cunas_totales": cunas_totales,
+            "cunas_ocupadas": cunas_ocupadas,
+            "cunas_disponibles": cunas_disponibles,
+            "pacientes_activos": pacientes_activos,
+            "alertas_activas_total": alertas_activas.count(),
+            "alertas_criticas": alertas_criticas,
+            "alertas_advertencia": alertas_advertencia,
+            "medicamentos_pendientes": medicamentos_pendientes,
+            "medicamentos_administrados": medicamentos_administrados,
+        }
+        serializer = DashboardResumenSerializer(data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 

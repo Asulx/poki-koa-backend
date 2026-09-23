@@ -25,6 +25,7 @@ from .views import (
     AlertaViewSet,
     BebeViewSet,
     CunaViewSet,
+    DashboardResumenView,
     MedicamentoViewSet,
     MedicoViewSet,
     PlanCuidadoViewSet,
@@ -41,5 +42,6 @@ router.register(r"alertas", AlertaViewSet)
 
 
 urlpatterns = [
+    path("dashboard/resumen/", DashboardResumenView.as_view(), name="dashboard-resumen"),
     path("", include(router.urls)),
 ]
