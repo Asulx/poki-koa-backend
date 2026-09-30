@@ -127,6 +127,99 @@ class APIBebeValidacionTestCase(TestCase):
         self.assertEqual(respuesta.data["diagnostico"], "Observación")
         self.assertEqual(float(respuesta.data["peso"]), 3.5)
 
+    def test_contrato_respuesta_listado_bebes_para_frontend(self):
+        """Verifica que GET /api/bebes/ entregue todos los campos requeridos por el frontend (Issue #14)."""
+        bebe = Bebe.objects.create(
+            nombre_completo="Lucas Silva",
+            edad_meses=2,
+            edad_gestacional=34.5,
+            sexo="M",
+            peso=2.8,
+            fecha_nacimiento="2026-07-15",
+            diagnostico="Dificultad respiratoria leve",
+            observaciones="Paciente en fototerapia",
+            medico_a_cargo=self.medico,
+        )
+        Cuna.objects.create(
+            identificador="C05",
+            paciente=bebe,
+            ritmo_cardiaco=135,
+            spo2=97,
+            temperatura=36.8,
+            canula_ok=True,
+            via_iv_activa=True,
+        )
+
+        res = self.client.get(self.url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(len(res.data) >= 1)
+
+        datos = next(item for item in res.data if item["id"] == bebe.id)
+        # Campos del paciente requeridos por el frontend
+        self.assertIn("id", datos)
+        self.assertIn("identificador", datos)
+        self.assertEqual(datos["identificador"], bebe.identificador)
+        self.assertEqual(datos["nombre"], "Lucas Silva")
+        self.assertEqual(datos["nombre_completo"], "Lucas Silva")
+        self.assertEqual(datos["sexo"], "M")
+        self.assertEqual(float(datos["edad_gestacional"]), 34.5)
+        self.assertEqual(float(datos["peso"]), 2.8)
+        self.assertEqual(datos["fecha_nacimiento"], "2026-07-15")
+        self.assertIn("fecha_ingreso", datos)
+        self.assertEqual(datos["diagnostico"], "Dificultad respiratoria leve")
+        self.assertEqual(datos["observaciones"], "Paciente en fototerapia")
+
+        # Datos relacionados de médico y cuna
+        self.assertEqual(datos["medico_responsable"], "Dr. Juan Pérez")
+        self.assertEqual(datos["medico_nombre"], "Dr. Juan Pérez")
+        self.assertEqual(datos["cuna"], "C05")
+        self.assertEqual(datos["numero_cuna"], "C05")
+        self.assertEqual(datos["cuna_identificador"], "C05")
+        self.assertEqual(datos["estado_canula"], True)
+        self.assertEqual(datos["canula_ok"], True)
+        self.assertEqual(datos["via_intravenosa"], True)
+        self.assertEqual(datos["via_iv_activa"], True)
+
+    def test_busqueda_y_filtros_bebes(self):
+        """Verifica búsqueda por texto (nombre e identificador) y combinación con filtros."""
+        b1 = Bebe.objects.create(
+            nombre_completo="Sofía García",
+            edad_meses=1,
+            sexo="F",
+            fecha_ingreso="2026-09-10T10:00:00Z",
+            medico_a_cargo=self.medico,
+        )
+        b2 = Bebe.objects.create(
+            nombre_completo="Mateo Rodríguez",
+            edad_meses=2,
+            sexo="M",
+            fecha_ingreso="2026-09-15T12:00:00Z",
+        )
+
+        # Búsqueda por nombre
+        res_search_nombre = self.client.get(f"{self.url}?search=Sofía")
+        self.assertEqual(len(res_search_nombre.data), 1)
+        self.assertEqual(res_search_nombre.data[0]["id"], b1.id)
+
+        # Búsqueda por identificador
+        res_search_id = self.client.get(f"{self.url}?search={b2.identificador}")
+        self.assertEqual(len(res_search_id.data), 1)
+        self.assertEqual(res_search_id.data[0]["id"], b2.id)
+
+        # Filtro por sexo
+        res_filtro_sexo = self.client.get(f"{self.url}?sexo=F")
+        self.assertEqual(len(res_filtro_sexo.data), 1)
+        self.assertEqual(res_filtro_sexo.data[0]["id"], b1.id)
+
+        # Combinar búsqueda con filtro
+        res_combinado = self.client.get(f"{self.url}?search=Mateo&sexo=M")
+        self.assertEqual(len(res_combinado.data), 1)
+        self.assertEqual(res_combinado.data[0]["id"], b2.id)
+
+        # Búsqueda que no coincide
+        res_vacio = self.client.get(f"{self.url}?search=Inexistente")
+        self.assertEqual(len(res_vacio.data), 0)
+
 
 class APIAlertaTestCase(TestCase):
     """Pruebas para el endpoint CRUD /api/alertas/ generado con make-crud."""

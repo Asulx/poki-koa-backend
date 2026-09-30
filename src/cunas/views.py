@@ -16,6 +16,7 @@ para su modelo correspondiente gracias a Django REST Framework:
 (Las mismas operaciones aplican para /api/bebes/, /api/cunas/ y /api/medicamentos/)
 """
 
+from django.db.models import Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -44,11 +45,76 @@ class MedicoViewSet(viewsets.ModelViewSet):
 class BebeViewSet(viewsets.ModelViewSet):
     """
     ViewSet para el modelo Bebe.
-    Proporciona operaciones CRUD completas sobre los pacientes (bebés).
+    Proporciona operaciones CRUD completas sobre los pacientes (bebés),
+    optimizando la carga de relaciones y permitiendo búsqueda y filtros
+    mediante parámetros de consulta (?search=, ?identificador=, ?sexo=, etc.).
     """
 
-    queryset = Bebe.objects.all()
+    queryset = (
+        Bebe.objects.all()
+        .select_related("medico_a_cargo", "cuna_asignada")
+        .prefetch_related("medicamentos", "alertas")
+        .order_by("-fecha_ingreso")
+    )
     serializer_class = BebeSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        # Búsqueda por texto (nombre, identificador o ID numérico)
+        search = self.request.query_params.get("search") or self.request.query_params.get("q")
+        if search:
+            search = search.strip()
+            if search.isdigit():
+                queryset = queryset.filter(
+                    Q(nombre_completo__icontains=search)
+                    | Q(identificador__icontains=search)
+                    | Q(id=int(search))
+                )
+            else:
+                queryset = queryset.filter(
+                    Q(nombre_completo__icontains=search)
+                    | Q(identificador__icontains=search)
+                )
+
+        # Filtro directo por identificador del paciente
+        identificador = self.request.query_params.get("identificador")
+        if identificador:
+            queryset = queryset.filter(identificador__icontains=identificador.strip())
+
+        # Filtro directo por nombre
+        nombre = self.request.query_params.get("nombre")
+        if nombre:
+            queryset = queryset.filter(nombre_completo__icontains=nombre.strip())
+
+        # Filtro por sexo ('F' o 'M')
+        sexo = self.request.query_params.get("sexo")
+        if sexo:
+            queryset = queryset.filter(sexo__iexact=sexo.strip())
+
+        # Filtro por fecha de ingreso (formato YYYY-MM-DD)
+        fecha_ingreso = self.request.query_params.get("fecha_ingreso")
+        if fecha_ingreso:
+            queryset = queryset.filter(fecha_ingreso__date=fecha_ingreso.strip())
+
+        # Filtro por médico asignado (ID o nombre)
+        medico = (
+            self.request.query_params.get("medico_a_cargo")
+            or self.request.query_params.get("medico")
+        )
+        if medico:
+            medico = medico.strip()
+            if medico.isdigit():
+                queryset = queryset.filter(medico_a_cargo_id=int(medico))
+            else:
+                queryset = queryset.filter(medico_a_cargo__nombre_completo__icontains=medico)
+
+        # Filtro por cuna
+        cuna = self.request.query_params.get("cuna")
+        if cuna:
+            queryset = queryset.filter(cuna_asignada__identificador__icontains=cuna.strip())
+
+        return queryset
 
 
 class CunaViewSet(viewsets.ModelViewSet):
