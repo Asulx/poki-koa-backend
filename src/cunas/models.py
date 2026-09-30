@@ -47,43 +47,36 @@ class Bebe(models.Model):
         ("F", "Femenino"),
         ("M", "Masculino"),
     ]
+ 
+    identificador = models.CharField(
+        max_length=30,
+        unique=True,
+        help_text="Identificador único del paciente, ej: BEB-0001",
+    )
 
-    nombre_completo = models.CharField(max_length=200, help_text="Ej: Sofía García")
-    edad_meses = models.IntegerField(help_text="Edad del bebé expresada en meses")
+    nombre_completo = models.CharField(max_length=200)
+    edad_meses = models.IntegerField()
+    edad_gestacional = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        help_text="Edad gestacional en semanas",
+    )
     sexo = models.CharField(max_length=1, choices=SEXO_CHOICES)
-    peso = models.FloatField(
-        null=True,
-        blank=True,
-        help_text="Peso del bebé en kilogramos (debe ser mayor a 0)",
-    )
-    fecha_nacimiento = models.DateField(
-        null=True,
-        blank=True,
-        help_text="Fecha de nacimiento del bebé (no puede ser futura)",
-    )
-    fecha_ingreso = models.DateTimeField(
-        default=timezone.now,
-        help_text="Fecha y hora de ingreso del bebé a la unidad neonatal",
-    )
-    diagnostico = models.TextField(
-        null=True,
-        blank=True,
-        help_text="Diagnóstico médico principal o motivo de ingreso",
-    )
-    plan_cuidados = models.TextField(
-        null=True,
-        blank=True,
-        help_text="Plan de cuidados médicos y de enfermería asignado",
-    )
-    # Si el médico es eliminado del sistema, el campo queda vacío (SET_NULL)
-    # en lugar de borrar también al bebé (CASCADE)
+    peso = models.FloatField(null=True, blank=True)
+    fecha_nacimiento = models.DateField(null=True, blank=True)
+    fecha_ingreso = models.DateTimeField(default=timezone.now)
+    diagnostico = models.TextField(null=True, blank=True)
+    observaciones = models.TextField(null=True, blank=True)
+    plan_cuidados = models.TextField(null=True, blank=True)
+
     medico_a_cargo = models.ForeignKey(
         Medico,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="pacientes",
-        help_text="Médico responsable del seguimiento de este bebé",
     )
 
     def __str__(self):
