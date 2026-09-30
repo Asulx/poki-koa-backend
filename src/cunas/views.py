@@ -15,6 +15,9 @@ para su modelo correspondiente gracias a Django REST Framework:
 
 (Las mismas operaciones aplican para /api/bebes/, /api/cunas/ y /api/medicamentos/)
 """
+import logging
+
+logger = logging.getLogger(__name__)
 
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -69,6 +72,31 @@ class CunaViewSet(viewsets.ModelViewSet):
         """
         cuna = self.get_object()
         data = request.data
+
+        # LOG 1 (Nivel INFO): Registra la llegada de datos de telemetría
+        logger.info(
+            "Recibida telemetría para cuna %s: %s",
+            cuna.identificador,
+            data
+        )
+
+        # Validación de telemetría clínica (Corrección Issue #51)
+        if "ritmo_cardiaco" in data:
+            ritmo = data.get("ritmo_cardiaco")
+            # Falla si es nulo, no numérico, menor o igual a cero o fuera de rango neonatal
+            if ritmo is None or not isinstance(ritmo, (int, float)) or ritmo <= 0 or ritmo > 260:
+                # LOG 2 (Nivel WARNING): Registra el valor anómalo rechazado
+                logger.warning(
+                    "Telemetría anómala detectada en cuna %s: ritmo cardíaco inválido (%s)",
+                    cuna.identificador,
+                    ritmo
+                )
+                return Response(
+                    {
+                        "error": "El ritmo cardíaco debe ser un valor numérico positivo válido dentro del rango neonatal (1-260 bpm)."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         campos_actualizables = [
             "ritmo_cardiaco",
