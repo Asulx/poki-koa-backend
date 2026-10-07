@@ -5,6 +5,9 @@ Incluye:
 - CunasModelsTestCase: verifica el comportamiento de los modelos (str, relaciones, nuevos campos).
 - APIBebeValidacionTestCase: verifica las validaciones y respuestas del endpoint POST /api/bebes/.
 - APIAlertaTestCase: verifica el endpoint /api/alertas/ generado con make-crud.
+- APITelemetriaCunaTestCase: verifica la actualización de telemetría y emisión de alertas.
+- EvaluacionSignosVitalesTestCase: comprueba la función pura de evaluación médica neonatal.
+- MotorAlertasIntegrationTestCase: comprueba la deduplicación y autorresolución de alertas.
 - CunaServiceContractTestCase: verifica el contrato de la Operación 1 (1 caso válido y 2 inválidos).
 """
 
@@ -30,6 +33,7 @@ class CunasModelsTestCase(TestCase):
         )
 
         self.bebe = Bebe.objects.create(
+            identificador="BEBE-000",
             nombre_completo="Sofía García",
             edad_meses=3,
             sexo="F",
@@ -88,6 +92,7 @@ class APIBebeValidacionTestCase(TestCase):
         )
 
         self.payload_valido = {
+            "identificador": "BEBE-001",
             "nombre_completo": "Mateo Rodríguez",
             "edad_meses": 1,
             "sexo": "M",
@@ -133,6 +138,7 @@ class APIBebeValidacionTestCase(TestCase):
     def test_contrato_respuesta_listado_bebes_para_frontend(self):
         """Verifica que GET /api/bebes/ entregue todos los campos requeridos por el frontend (Issue #14)."""
         bebe = Bebe.objects.create(
+            identificador="BEBE-002",
             nombre_completo="Lucas Silva",
             edad_meses=2,
             edad_gestacional=34.5,
@@ -186,6 +192,7 @@ class APIBebeValidacionTestCase(TestCase):
     def test_busqueda_y_filtros_bebes(self):
         """Verifica búsqueda por texto (nombre e identificador) y combinación con filtros."""
         b1 = Bebe.objects.create(
+            identificador="BEBE-SOFIA",
             nombre_completo="Sofía García",
             edad_meses=1,
             sexo="F",
@@ -193,6 +200,7 @@ class APIBebeValidacionTestCase(TestCase):
             medico_a_cargo=self.medico,
         )
         b2 = Bebe.objects.create(
+            identificador="BEBE-MATEO",
             nombre_completo="Mateo Rodríguez",
             edad_meses=2,
             sexo="M",
@@ -230,7 +238,10 @@ class APIAlertaTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.bebe = Bebe.objects.create(
-            nombre_completo="Lucas Silva", edad_meses=2, sexo="M"
+            identificador="BEBE-LUCAS",
+            nombre_completo="Lucas Silva",
+            edad_meses=2,
+            sexo="M",
         )
         self.url = reverse("alerta-list")
 
@@ -250,76 +261,6 @@ class APIAlertaTestCase(TestCase):
         self.assertEqual(res_get.data[0]["mensaje"], "Fiebre detectada (38.5 °C)")
         self.assertEqual(res_get.data[0]["paciente_nombre"], "Lucas Silva")
 
-<<<<<<< HEAD
-
-class CunaServiceContractTestCase(TestCase):
-    """
-    Pruebas de verificación de contrato para CunaService (Unidad 2.2).
-    Comprueba el cumplimiento de precondiciones, postcondiciones,
-    invariantes y la capacidad de sustituir dependencias.
-    """
-
-    def test_caso_valido_actualizacion_exitosa(self):
-        """
-        Caso Válido: telemetría dentro de rangos normales actualiza la cuna
-        y preserva las invariantes del objeto.
-        """
-        mock_model = Mock()
-        mock_cuna = Mock(
-            id=1,
-            identificador="Cuna 01",
-            ritmo_cardiaco=120,
-            spo2=95,
-            temperatura=36.5,
-        )
-        mock_model.objects.get.return_value = mock_cuna
-
-        service = CunaService(cuna_model=mock_model)
-        resultado = service.actualizar_telemetria(
-            cuna_id="Cuna 01",
-            ritmo_cardiaco=135,
-            spo2=98,
-            temperatura=36.8,
-        )
-
-        self.assertEqual(resultado.ritmo_cardiaco, 135)
-        self.assertEqual(resultado.spo2, 98)
-        self.assertEqual(resultado.temperatura, 36.8)
-        mock_model.objects.get.assert_called_once_with(identificador="Cuna 01")
-        mock_cuna.save.assert_called_once()
-
-    def test_caso_invalido_spo2_fuera_de_rango(self):
-        """
-        Caso Inválido 1: SpO2 mayor al límite biológico (100%) es rechazado en la frontera.
-        """
-        service = CunaService(cuna_model=Mock())
-
-        with self.assertRaises(ValueError) as context:
-            service.actualizar_telemetria(
-                cuna_id="Cuna 01",
-                ritmo_cardiaco=120,
-                spo2=112,
-                temperatura=36.6,
-            )
-
-        self.assertIn("SpO2 inválido", str(context.exception))
-
-    def test_caso_invalido_cuna_id_vacio(self):
-        """
-        Caso Inválido 2: identificador de cuna vacío o en blanco es rechazado inmediatamente.
-        """
-        service = CunaService(cuna_model=Mock())
-
-        with self.assertRaises(ValueError) as context:
-            service.actualizar_telemetria(
-                cuna_id="   ",
-                ritmo_cardiaco=120,
-                spo2=97,
-                temperatura=36.6,
-            )
-
-        self.assertIn("cuna_id es obligatorio", str(context.exception))
-=======
     def test_listar_alertas_activas_endpoint(self):
         """Verifica que el endpoint /api/alertas/activas/ solo devuelva alertas activas."""
         Alerta.objects.create(
@@ -364,7 +305,10 @@ class APITelemetriaCunaTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.bebe = Bebe.objects.create(
-            nombre_completo="Camila Valenzuela", edad_meses=1, sexo="F"
+            identificador="BEBE-CAMILA",
+            nombre_completo="Camila Valenzuela",
+            edad_meses=1,
+            sexo="F",
         )
         self.cuna = Cuna.objects.create(
             identificador="C-TEST",
@@ -392,11 +336,9 @@ class APITelemetriaCunaTestCase(TestCase):
         self.assertFalse(self.cuna.canula_ok)
 
     def test_telemetria_con_valores_normales_autorresuelve(self):
-        # Primero inyectar alerta
         self.client.post(self.url, {"ritmo_cardiaco": 70}, format="json")
         self.assertEqual(Alerta.objects.filter(cuna=self.cuna, activa=True).count(), 1)
 
-        # Ahora enviar ritmo cardíaco normal
         res = self.client.post(self.url, {"ritmo_cardiaco": 130}, format="json")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data["alertas_activas"]), 0)
@@ -496,6 +438,7 @@ class MotorAlertasIntegrationTestCase(TestCase):
     def setUp(self):
         self.medico = Medico.objects.create(nombre_completo="Dra. Vega", turno="Mañana")
         self.bebe = Bebe.objects.create(
+            identificador="BEBE-IGNACIO",
             nombre_completo="Ignacio Morales",
             edad_meses=1,
             sexo="M",
@@ -511,7 +454,6 @@ class MotorAlertasIntegrationTestCase(TestCase):
         )
 
     def test_actualizacion_cuna_crea_alerta_automaticamente(self):
-        # Al actualizar el ritmo cardíaco a valor crítico, se genera la alerta vía señal
         self.cuna.ritmo_cardiaco = 72
         self.cuna.save()
 
@@ -524,7 +466,6 @@ class MotorAlertasIntegrationTestCase(TestCase):
         self.assertEqual(alerta.valor_leido, 72.0)
 
     def test_normalizacion_de_signos_autorresuelve_alerta(self):
-        # 1. Disparar alerta de fiebre
         self.cuna.temperatura = 38.2
         self.cuna.save()
         self.assertEqual(
@@ -532,11 +473,9 @@ class MotorAlertasIntegrationTestCase(TestCase):
             1,
         )
 
-        # 2. Normalizar temperatura
         self.cuna.temperatura = 36.8
         self.cuna.save()
 
-        # Debe marcarse como no activa
         self.assertEqual(
             Alerta.objects.filter(cuna=self.cuna, tipo="temperatura", activa=True).count(),
             0,
@@ -547,11 +486,62 @@ class MotorAlertasIntegrationTestCase(TestCase):
         self.assertFalse(alerta_resuelta.activa)
 
     def test_deduplicacion_evita_spam(self):
-        # Enviar dos veces el mismo signo anómalo
         self.cuna.spo2 = 87
         self.cuna.save()
         self.cuna.save()
 
         alertas_spo2 = Alerta.objects.filter(cuna=self.cuna, tipo="spo2", activa=True)
         self.assertEqual(alertas_spo2.count(), 1)
->>>>>>> origin/desarrollo
+
+
+class CunaServiceContractTestCase(TestCase):
+    """
+    Pruebas de verificación de contrato para CunaService (Unidad 2.2).
+    Comprueba el cumplimiento de precondiciones, postcondiciones,
+    invariantes y la capacidad de sustituir dependencias.
+    """
+
+    def test_caso_valido_actualizacion_exitosa(self):
+        """
+        Caso Válido: telemetría dentro de rangos normales actualiza la cuna
+        y preserva las invariantes del objeto.
+        """
+        mock_model = Mock()
+        mock_cuna = Mock(
+            id=1,
+            identificador="Cuna 01",
+            ritmo_cardiaco=120,
+            spo2=95,
+            temperatura=36.5,
+        )
+        mock_model.objects.get.return_value = mock_cuna
+
+        service = CunaService(cuna_model=mock_model)
+        resultado = service.actualizar_telemetria("Cuna 01", 130, 98, 36.8)
+
+        self.assertEqual(resultado.spo2, 98)
+        self.assertEqual(resultado.ritmo_cardiaco, 130)
+        self.assertEqual(resultado.temperatura, 36.8)
+        mock_cuna.save.assert_called_once()
+
+    def test_caso_invalido_spo2_fuera_de_rango(self):
+        """
+        Caso Inválido 1: SpO2 superior al 100% debe ser rechazado en la frontera
+        por violación de precondición biológica.
+        """
+        service = CunaService(cuna_model=Mock())
+        with self.assertRaises(ValueError) as context:
+            service.actualizar_telemetria("Cuna 01", 130, 110, 36.8)
+
+        self.assertIn("SpO2 inválido", str(context.exception))
+
+    def test_caso_invalido_cuna_id_vacio(self):
+        """
+        Caso Inválido 2: identificador de cuna vacío debe ser rechazado
+        inmediatamente por validación defensiva.
+        """
+        service = CunaService(cuna_model=Mock())
+        with self.assertRaises(ValueError) as context:
+            service.actualizar_telemetria("", 130, 98, 36.8)
+
+        self.assertIn("cuna_id es obligatorio", str(context.exception))
