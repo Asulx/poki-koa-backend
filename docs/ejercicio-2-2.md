@@ -96,3 +96,5 @@ Base integrada: `feature/54-construccion-para-verificacion`, commit `6c909e1`, q
 Resultado de la ejecución combinada: 7 pruebas aisladas y 35 pruebas Django aprobadas. El dato de 11 pruebas de la Ficha 1 corresponde a la evidencia original de su autor.
 
 La comprobación `makemigrations --check --dry-run` detecta un cambio pendiente de `Bebe.identificador` (nullable/blank). Esa diferencia ya existe entre el modelo y la migración 0007 de `desarrollo` y de la rama de la Operación 1; esta operación de medicación no modifica modelos ni migraciones.
+
+La simulación con `git merge-tree --write-tree origin/feature/54-construccion-para-verificacion HEAD` finaliza sin conflictos y produce el mismo árbol que esta rama. Esta verificación cubre integrar primero la PR de la Operación 1 mediante un merge que conserve sus commits. Si se usa squash o rebase, se debe volver a sincronizar con `desarrollo` después de esa integración: la simulación squash detectó conflictos en este documento y en `src/cunas/tests.py`.
