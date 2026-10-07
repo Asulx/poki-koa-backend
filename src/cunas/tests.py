@@ -1,12 +1,14 @@
 """
-Pruebas unitarias para los modelos y la API REST de la aplicación 'cunas'.
+Pruebas unitarias para los modelos, la API REST y los contratos de la aplicación 'cunas'.
 
 Incluye:
 - CunasModelsTestCase: verifica el comportamiento de los modelos (str, relaciones, nuevos campos).
 - APIBebeValidacionTestCase: verifica las validaciones y respuestas del endpoint POST /api/bebes/.
 - APIAlertaTestCase: verifica el endpoint /api/alertas/ generado con make-crud.
+- CunaServiceContractTestCase: verifica el contrato de la Operación 1 (1 caso válido y 2 inválidos).
 """
 
+from unittest.mock import Mock
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -14,6 +16,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from cunas.models import Alerta, Bebe, Cuna, Medico
+from cunas.services import CunaService
 
 
 class CunasModelsTestCase(TestCase):
@@ -152,3 +155,72 @@ class APIAlertaTestCase(TestCase):
         self.assertEqual(len(res_get.data), 1)
         self.assertEqual(res_get.data[0]["mensaje"], "Fiebre detectada (38.5 °C)")
         self.assertEqual(res_get.data[0]["paciente_nombre"], "Lucas Silva")
+
+
+class CunaServiceContractTestCase(TestCase):
+    """
+    Pruebas de verificación de contrato para CunaService (Unidad 2.2).
+    Comprueba el cumplimiento de precondiciones, postcondiciones,
+    invariantes y la capacidad de sustituir dependencias.
+    """
+
+    def test_caso_valido_actualizacion_exitosa(self):
+        """
+        Caso Válido: telemetría dentro de rangos normales actualiza la cuna
+        y preserva las invariantes del objeto.
+        """
+        mock_model = Mock()
+        mock_cuna = Mock(
+            id=1,
+            identificador="Cuna 01",
+            ritmo_cardiaco=120,
+            spo2=95,
+            temperatura=36.5,
+        )
+        mock_model.objects.get.return_value = mock_cuna
+
+        service = CunaService(cuna_model=mock_model)
+        resultado = service.actualizar_telemetria(
+            cuna_id="Cuna 01",
+            ritmo_cardiaco=135,
+            spo2=98,
+            temperatura=36.8,
+        )
+
+        self.assertEqual(resultado.ritmo_cardiaco, 135)
+        self.assertEqual(resultado.spo2, 98)
+        self.assertEqual(resultado.temperatura, 36.8)
+        mock_model.objects.get.assert_called_once_with(identificador="Cuna 01")
+        mock_cuna.save.assert_called_once()
+
+    def test_caso_invalido_spo2_fuera_de_rango(self):
+        """
+        Caso Inválido 1: SpO2 mayor al límite biológico (100%) es rechazado en la frontera.
+        """
+        service = CunaService(cuna_model=Mock())
+
+        with self.assertRaises(ValueError) as context:
+            service.actualizar_telemetria(
+                cuna_id="Cuna 01",
+                ritmo_cardiaco=120,
+                spo2=112,
+                temperatura=36.6,
+            )
+
+        self.assertIn("SpO2 inválido", str(context.exception))
+
+    def test_caso_invalido_cuna_id_vacio(self):
+        """
+        Caso Inválido 2: identificador de cuna vacío o en blanco es rechazado inmediatamente.
+        """
+        service = CunaService(cuna_model=Mock())
+
+        with self.assertRaises(ValueError) as context:
+            service.actualizar_telemetria(
+                cuna_id="   ",
+                ritmo_cardiaco=120,
+                spo2=97,
+                temperatura=36.6,
+            )
+
+        self.assertIn("cuna_id es obligatorio", str(context.exception))
