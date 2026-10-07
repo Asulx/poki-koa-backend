@@ -1,4 +1,7 @@
-"""Pruebas sin Django ni base de datos: PYTHONPATH=src python -m unittest discover -s test -v."""
+"""Pruebas aisladas del servicio, sin inicializar Django ni usar base de datos.
+
+Ejecutar: PYTHONPATH=src uv run --locked python -m unittest discover -s test -v
+"""
 
 import unittest
 from dataclasses import replace
