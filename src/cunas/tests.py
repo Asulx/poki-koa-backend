@@ -13,7 +13,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from cunas.models import Alerta, Bebe, Cuna, Medico
+from cunas.models import Alerta, Bebe, Cuna, Medicamento, Medico
 
 
 class CunasModelsTestCase(TestCase):
@@ -152,3 +152,38 @@ class APIAlertaTestCase(TestCase):
         self.assertEqual(len(res_get.data), 1)
         self.assertEqual(res_get.data[0]["mensaje"], "Fiebre detectada (38.5 °C)")
         self.assertEqual(res_get.data[0]["paciente_nombre"], "Lucas Silva")
+
+
+class APIAdministrarMedicamentoTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        bebe = Bebe.objects.create(nombre_completo="Ana", edad_meses=1, sexo="F")
+        self.medicamento = Medicamento.objects.create(
+            paciente=bebe, nombre="Vitamina K", dosis="1 mg", via="IM",
+            hora="10:00", estado="Pendiente",
+        )
+        self.url = reverse("medicamento-administrar", args=[self.medicamento.pk])
+
+    def test_administra_y_rechaza_repeticion(self):
+        respuesta = self.client.post(self.url)
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(respuesta.data["estado"], "Administrado")
+        self.medicamento.refresh_from_db()
+        self.assertEqual(self.medicamento.estado, "Administrado")
+        self.assertEqual(respuesta.data["paciente_id"], self.medicamento.paciente_id)
+        respuesta = self.client.post(self.url)
+        self.assertEqual(respuesta.status_code, 409)
+        self.medicamento.refresh_from_db()
+        self.assertEqual(self.medicamento.estado, "Administrado")
+
+    def test_id_invalido(self):
+        url = reverse("medicamento-administrar", args=["abc"])
+        self.assertEqual(self.client.post(url).status_code, 400)
+        self.medicamento.refresh_from_db()
+        self.assertEqual(self.medicamento.estado, "Pendiente")
+
+    def test_id_inexistente(self):
+        url = reverse("medicamento-administrar", args=[self.medicamento.pk + 1])
+        self.assertEqual(self.client.post(url).status_code, 404)
+        self.medicamento.refresh_from_db()
+        self.assertEqual(self.medicamento.estado, "Pendiente")
