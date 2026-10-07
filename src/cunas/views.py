@@ -17,6 +17,11 @@ para su modelo correspondiente gracias a Django REST Framework:
 """
 
 from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+from .repositories import DjangoMedicamentoRepository
+from .services import MedicamentoService, OperacionError
 
 from .models import Alerta, Bebe, Cuna, Medicamento, Medico, PlanCuidado
 from .serializers import (
@@ -71,6 +76,20 @@ class MedicamentoViewSet(viewsets.ModelViewSet):
     # puedes cambiar .all() por .all().order_by('hora')
     queryset = Medicamento.objects.all()
     serializer_class = MedicamentoSerializer
+
+    @action(detail=True, methods=["post"])
+    def administrar(self, request, pk=None):
+        """POST /api/medicamentos/{id}/administrar/ (sin cuerpo requerido)."""
+        servicio = MedicamentoService(DjangoMedicamentoRepository())
+        try:
+            resultado = servicio.administrar(pk)
+        except OperacionError as error:
+            return Response({"detail": str(error)}, status=error.status_code)
+        return Response({
+            "id": resultado.id,
+            "paciente_id": resultado.paciente_id,
+            "estado": resultado.estado,
+        })
 
 
 class PlanCuidadoViewSet(viewsets.ModelViewSet):
