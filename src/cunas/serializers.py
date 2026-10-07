@@ -30,16 +30,29 @@ class MedicoSerializer(serializers.ModelSerializer):
 class AlertaSerializer(serializers.ModelSerializer):
     """
     Serializa todos los campos del modelo Alerta.
-    Agrega `paciente_nombre` (solo lectura) para el frontend.
+    Agrega `paciente_nombre` y `cuna_identificador` (solo lectura) para el frontend.
     """
 
-    paciente_nombre = serializers.CharField(
-        source="paciente.nombre_completo", read_only=True
-    )
+    paciente_nombre = serializers.SerializerMethodField()
+    cuna_identificador = serializers.SerializerMethodField()
 
     class Meta:
         model = Alerta
         fields = "__all__"
+
+    def get_paciente_nombre(self, obj):
+        if obj.paciente:
+            return obj.paciente.nombre_completo
+        if obj.cuna and obj.cuna.paciente:
+            return obj.cuna.paciente.nombre_completo
+        return None
+
+    def get_cuna_identificador(self, obj):
+        if obj.cuna:
+            return obj.cuna.identificador
+        if obj.paciente and hasattr(obj.paciente, "cuna_asignada") and obj.paciente.cuna_asignada:
+            return obj.paciente.cuna_asignada.identificador
+        return None
 
 
 class MedicamentoSerializer(serializers.ModelSerializer):
@@ -68,8 +81,17 @@ class BebeSerializer(serializers.ModelSerializer):
     Serializa todos los campos del modelo Bebe.
 
     Agrega campos calculados y relaciones de solo lectura para el frontend:
+    - `nombre`: Alias de `nombre_completo` para el frontend
     - `medico_nombre`: Nombre del médico responsable
+    - `medico_responsable`: Alias de `medico_nombre` para el frontend
+    - `cuna`: Identificador de la cuna asignada
+    - `numero_cuna`: Alias de identificador de cuna
     - `cuna_identificador`: Identificador de la cuna asignada
+    - `cuna_id`: Clave primaria de la cuna asignada
+    - `estado_canula`: Estado funcional de la cánula de oxígeno (True/False/None)
+    - `canula_ok`: Alias booleano de `estado_canula`
+    - `via_intravenosa`: Estado de la vía intravenosa (True/False/None)
+    - `via_iv_activa`: Alias booleano de `via_intravenosa`
     - `signos_vitales`: Diccionario con ritmo_cardiaco, spo2 y temperatura de la cuna
     - `medicamentos`: Lista de medicamentos prescritos
     - `alertas`: Historial de alertas registradas sobre signos vitales
@@ -79,10 +101,21 @@ class BebeSerializer(serializers.ModelSerializer):
     - `fecha_nacimiento`: no puede ser una fecha posterior a hoy.
     """
 
+    nombre = serializers.CharField(source="nombre_completo", read_only=True)
     medico_nombre = serializers.CharField(
-        source="medico_a_cargo.nombre_completo", read_only=True
+        source="medico_a_cargo.nombre_completo", read_only=True, default=None
     )
+    medico_responsable = serializers.CharField(
+        source="medico_a_cargo.nombre_completo", read_only=True, default=None
+    )
+    cuna = serializers.SerializerMethodField()
+    numero_cuna = serializers.SerializerMethodField()
     cuna_identificador = serializers.SerializerMethodField()
+    cuna_id = serializers.SerializerMethodField()
+    estado_canula = serializers.SerializerMethodField()
+    canula_ok = serializers.SerializerMethodField()
+    via_intravenosa = serializers.SerializerMethodField()
+    via_iv_activa = serializers.SerializerMethodField()
     signos_vitales = serializers.SerializerMethodField()
     medicamentos = MedicamentoSerializer(many=True, read_only=True)
     alertas = AlertaSerializer(many=True, read_only=True)
@@ -91,10 +124,44 @@ class BebeSerializer(serializers.ModelSerializer):
         model = Bebe
         fields = "__all__"
 
+    def to_internal_value(self, data):
+        # Permite aceptar 'nombre' como alias de 'nombre_completo' en peticiones POST/PUT
+        if isinstance(data, dict) and "nombre" in data and "nombre_completo" not in data:
+            data = data.copy()
+            data["nombre_completo"] = data["nombre"]
+        return super().to_internal_value(data)
+
     def get_cuna_identificador(self, obj):
         if hasattr(obj, "cuna_asignada") and obj.cuna_asignada:
             return obj.cuna_asignada.identificador
         return None
+
+    def get_cuna(self, obj):
+        return self.get_cuna_identificador(obj)
+
+    def get_numero_cuna(self, obj):
+        return self.get_cuna_identificador(obj)
+
+    def get_cuna_id(self, obj):
+        if hasattr(obj, "cuna_asignada") and obj.cuna_asignada:
+            return obj.cuna_asignada.id
+        return None
+
+    def get_estado_canula(self, obj):
+        if hasattr(obj, "cuna_asignada") and obj.cuna_asignada:
+            return obj.cuna_asignada.canula_ok
+        return None
+
+    def get_canula_ok(self, obj):
+        return self.get_estado_canula(obj)
+
+    def get_via_intravenosa(self, obj):
+        if hasattr(obj, "cuna_asignada") and obj.cuna_asignada:
+            return obj.cuna_asignada.via_iv_activa
+        return None
+
+    def get_via_iv_activa(self, obj):
+        return self.get_via_intravenosa(obj)
 
     def get_signos_vitales(self, obj):
         if hasattr(obj, "cuna_asignada") and obj.cuna_asignada:
@@ -116,6 +183,7 @@ class BebeSerializer(serializers.ModelSerializer):
                 "La fecha de nacimiento no puede ser una fecha futura."
             )
         return value
+
 
 
 class CunaSerializer(serializers.ModelSerializer):

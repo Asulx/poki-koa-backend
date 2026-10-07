@@ -1,14 +1,16 @@
 """Adaptador de persistencia para la operación de administración."""
 
+from .medicamentos import RegistroMedicamento
 from .models import Medicamento
-from .services import RegistroMedicamento
 
 
 class DjangoMedicamentoRepository:
     def obtener(self, medicamento_id):
-        datos = Medicamento.objects.filter(pk=medicamento_id).values(
-            "id", "paciente_id", "estado"
-        ).first()
+        datos = (
+            Medicamento.objects.filter(pk=medicamento_id)
+            .values("id", "paciente_id", "estado")
+            .first()
+        )
         return RegistroMedicamento(**datos) if datos else None
 
     def confirmar_pendiente(self, medicamento):

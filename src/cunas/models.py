@@ -47,43 +47,36 @@ class Bebe(models.Model):
         ("F", "Femenino"),
         ("M", "Masculino"),
     ]
+ 
+    identificador = models.CharField(
+        max_length=30,
+        unique=True,
+        help_text="Identificador único del paciente, ej: BEB-0001",
+    )
 
-    nombre_completo = models.CharField(max_length=200, help_text="Ej: Sofía García")
-    edad_meses = models.IntegerField(help_text="Edad del bebé expresada en meses")
+    nombre_completo = models.CharField(max_length=200)
+    edad_meses = models.IntegerField()
+    edad_gestacional = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        help_text="Edad gestacional en semanas",
+    )
     sexo = models.CharField(max_length=1, choices=SEXO_CHOICES)
-    peso = models.FloatField(
-        null=True,
-        blank=True,
-        help_text="Peso del bebé en kilogramos (debe ser mayor a 0)",
-    )
-    fecha_nacimiento = models.DateField(
-        null=True,
-        blank=True,
-        help_text="Fecha de nacimiento del bebé (no puede ser futura)",
-    )
-    fecha_ingreso = models.DateTimeField(
-        default=timezone.now,
-        help_text="Fecha y hora de ingreso del bebé a la unidad neonatal",
-    )
-    diagnostico = models.TextField(
-        null=True,
-        blank=True,
-        help_text="Diagnóstico médico principal o motivo de ingreso",
-    )
-    plan_cuidados = models.TextField(
-        null=True,
-        blank=True,
-        help_text="Plan de cuidados médicos y de enfermería asignado",
-    )
-    # Si el médico es eliminado del sistema, el campo queda vacío (SET_NULL)
-    # en lugar de borrar también al bebé (CASCADE)
+    peso = models.FloatField(null=True, blank=True)
+    fecha_nacimiento = models.DateField(null=True, blank=True)
+    fecha_ingreso = models.DateTimeField(default=timezone.now)
+    diagnostico = models.TextField(null=True, blank=True)
+    observaciones = models.TextField(null=True, blank=True)
+    plan_cuidados = models.TextField(null=True, blank=True)
+
     medico_a_cargo = models.ForeignKey(
         Medico,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="pacientes",
-        help_text="Médico responsable del seguimiento de este bebé",
     )
 
     def __str__(self):
@@ -288,8 +281,18 @@ class Alerta(models.Model):
     paciente = models.ForeignKey(
         Bebe,
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
         related_name="alertas",
         help_text="Bebé al que pertenece la alerta",
+    )
+    cuna = models.ForeignKey(
+        Cuna,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="alertas",
+        help_text="Cuna donde ocurrió el evento de alerta",
     )
     tipo = models.CharField(
         max_length=30,
@@ -309,10 +312,25 @@ class Alerta(models.Model):
     fecha_hora = models.DateTimeField(
         default=timezone.now, help_text="Fecha y hora en que se generó la alerta"
     )
+    activa = models.BooleanField(
+        default=True,
+        help_text="Indica si la alerta está actualmente activa o ya fue resuelta",
+    )
+    valor_leido = models.FloatField(
+        null=True,
+        blank=True,
+        help_text="Valor numérico del signo vital al momento de la alerta",
+    )
 
     def __str__(self):
-        return f"[{self.nivel}] {self.paciente.nombre_completo}: {self.mensaje}"
+        nombre_sujeto = (
+            self.paciente.nombre_completo
+            if self.paciente
+            else (self.cuna.identificador if self.cuna else "Sin asignar")
+        )
+        return f"[{self.nivel}] {nombre_sujeto}: {self.mensaje}"
 
     class Meta:
         verbose_name = "Alerta"
         verbose_name_plural = "Alertas"
+

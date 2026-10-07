@@ -1,78 +1,85 @@
-"""Contratos de negocio independientes de Django y del almacenamiento."""
-
-from dataclasses import dataclass, replace
-from typing import Protocol
+from datetime import datetime, timezone
+from cunas.models import Cuna
 
 
-class OperacionError(Exception):
-    status_code = 400
+class CunaService:
+    """
+    Servicio de dominio encargado de la gestión y telemetría de cunas neonatales.
+    Aplica diseño por contrato y programación defensiva.
+    """
 
-
-class MedicamentoNoEncontrado(OperacionError):
-    status_code = 404
-
-
-class EstadoNoPermitido(OperacionError):
-    status_code = 409
-
-
-@dataclass(frozen=True)
-class RegistroMedicamento:
-    id: int
-    paciente_id: int
-    estado: str
-
-
-class MedicamentoRepository(Protocol):
-    def obtener(self, medicamento_id: int) -> RegistroMedicamento | None: ...
-
-    def confirmar_pendiente(
-        self, medicamento: RegistroMedicamento
-    ) -> RegistroMedicamento | None:
-        """Actualiza solo si sigue pendiente y conserva paciente e ID.
-
-        Retorna None si otro proceso cambió o eliminó el registro.
+    def __init__(self, cuna_model=Cuna):
         """
-        ...
+        Dependencia explícita: se recibe el modelo/repositorio de cunas.
+        Esto permite sustituirlo por un objeto simulado (Mock/Fake)
+        durante las pruebas unitarias sin acoplarse a la base de datos real.
+        """
+        self.model = cuna_model
 
+    def actualizar_telemetria(
+        self,
+        cuna_id: str,
+        ritmo_cardiaco: int,
+        spo2: int,
+        temperatura: float,
+    ):
+        """
+        Actualiza los signos vitales medidos por los sensores de una cuna.
 
-class MedicamentoService:
-    def __init__(self, repositorio: MedicamentoRepository):
-        self._repositorio = repositorio
+        Precondiciones:
+        - cuna_id debe ser un string no vacío.
+        - 30 <= ritmo_cardiaco <= 250 (bpm).
+        - 50 <= spo2 <= 100 (porcentaje de saturación).
+        - 30.0 <= temperatura <= 45.0 (°C).
 
-    def administrar(self, medicamento_id: int | str) -> RegistroMedicamento:
-        # PRE: ID entero positivo (o cadena decimal canónica), hasta 2**63 - 1.
-        # Validación externa: no usar assert; bool tampoco es un ID válido.
-        if isinstance(medicamento_id, str):
-            if (
-                not medicamento_id.isascii()
-                or not medicamento_id.isdecimal()
-                or medicamento_id.startswith("0")
-                or len(medicamento_id) > 19
-            ):
-                raise OperacionError("medicamento_id debe ser un entero positivo.")
-            medicamento_id = int(medicamento_id)
-        if type(medicamento_id) is not int or not 0 < medicamento_id <= 2**63 - 1:
-            raise OperacionError("medicamento_id debe ser un entero positivo.")
+        Postcondiciones:
+        - La cuna persiste las métricas actualizadas y la fecha/hora actual.
+        - Se retorna la instancia actualizada.
 
-        # PRE: el medicamento existe y su estado es Pendiente.
-        actual = self._repositorio.obtener(medicamento_id)
-        if actual is None:
-            raise MedicamentoNoEncontrado("El medicamento no existe.")
-        if actual.estado != "Pendiente":
-            raise EstadoNoPermitido("Solo se puede administrar un medicamento Pendiente.")
+        Invariante:
+        - SpO2 nunca puede superar el 100% ni ser negativo en el sistema.
+        - La cuna persistida debe conservar su identificador e ID único.
+        """
 
-        # INV: el repositorio entrega la identidad solicitada y un paciente válido.
-        assert actual.id == medicamento_id, "Invariante: identidad del medicamento."
-        assert type(actual.paciente_id) is int and actual.paciente_id > 0, (
-            "Invariante: el medicamento pertenece a un paciente válido."
-        )
-        resultado = self._repositorio.confirmar_pendiente(actual)
-        if resultado is None:
-            raise EstadoNoPermitido("El medicamento cambió; recargue antes de administrar.")
+        # -------------------------------------------------------------
+        # 1. VALIDACIÓN DEFENSIVA EN LA FRONTERA (Datos externos)
+        # -------------------------------------------------------------
+        if not cuna_id or not str(cuna_id).strip():
+            raise ValueError("cuna_id es obligatorio y no puede estar vacío.")
 
-        # POST: estado Administrado; INV: se conservan ID y paciente.
-        assert resultado == replace(actual, estado="Administrado"), (
-            "Invariante: solo cambia Pendiente a Administrado, conservando ID y paciente."
-        )
-        return resultado
+        if not isinstance(ritmo_cardiaco, int) or not (30 <= ritmo_cardiaco <= 250):
+            raise ValueError(
+                f"Ritmo cardíaco inválido: {ritmo_cardiaco}. Debe estar entre 30 y 250 bpm."
+            )
+
+        if not isinstance(spo2, int) or not (50 <= spo2 <= 100):
+            raise ValueError(
+                f"SpO2 inválido: {spo2}. Debe ser un porcentaje entre 50% y 100%."
+            )
+
+        if not isinstance(temperatura, (int, float)) or not (30.0 <= float(temperatura) <= 45.0):
+            raise ValueError(
+                f"Temperatura inválida: {temperatura}. Debe estar entre 30.0 y 45.0 °C."
+            )
+
+        # -------------------------------------------------------------
+        # 2. OPERACIÓN CON LA DEPENDENCIA INYECTADA
+        # -------------------------------------------------------------
+        try:
+            cuna = self.model.objects.get(identificador=cuna_id)
+        except self.model.DoesNotExist:
+            raise LookupError(f"No existe la cuna con identificador: {cuna_id}")
+
+        cuna.ritmo_cardiaco = ritmo_cardiaco
+        cuna.spo2 = spo2
+        cuna.temperatura = float(temperatura)
+        cuna.ultima_actualizacion = datetime.now(timezone.utc)
+        cuna.save()
+
+        # -------------------------------------------------------------
+        # 3. ASERCIONES INTERNAS E INVARIANTES (Supuestos del sistema)
+        # -------------------------------------------------------------
+        assert cuna.id is not None, "Invariante violada: la cuna no tiene ID asignado."
+        assert 0 <= cuna.spo2 <= 100, f"Invariante violada: SpO2 inconsistente ({cuna.spo2})."
+
+        return cuna

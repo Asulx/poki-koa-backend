@@ -1,9 +1,14 @@
 """Pruebas sin Django ni base de datos: PYTHONPATH=src python -m unittest discover -s test -v."""
+
 import unittest
 from dataclasses import replace
-from cunas.services import (
-    EstadoNoPermitido, MedicamentoNoEncontrado, MedicamentoService,
-    OperacionError, RegistroMedicamento,
+
+from cunas.medicamentos import (
+    EstadoNoPermitido,
+    MedicamentoNoEncontrado,
+    MedicamentoService,
+    OperacionError,
+    RegistroMedicamento,
 )
 
 
@@ -69,8 +74,10 @@ class Operacion3Test(unittest.TestCase):
 
     def test_propaga_fallo_de_dependencia(self):
         repo = RepositorioFake()
+
         def fallar(registro):
             raise ConnectionError("Repositorio no disponible")
+
         repo.confirmar_pendiente = fallar
         with self.assertRaisesRegex(ConnectionError, "no disponible"):
             MedicamentoService(repo).administrar(1)
