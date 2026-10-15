@@ -16,10 +16,10 @@ dependencies = [
     "djangorestframework>=3.18.0",
 ]
 
-# Define el comando `mamoru` disponible tras ejecutar `uv sync`
-# Uso: uv run mamoru [comando django]
+# Define el comando de gestión Django disponible tras ejecutar `uv sync`
+# Uso: uv run poki_koa [comando django]
 [project.scripts]
-mamoru = "poki_koa.main:main"
+poki_koa = "poki_koa.main:main"
 make-crud = "cunas.management.commands.make_crud:main"
 
 # Sistema de construcción del paquete (requerido por uv para instalar el proyecto)
