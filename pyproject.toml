@@ -39,4 +39,7 @@ dev = [
 # Ruff ignora archivos generados automaticamente por django
 [tool.ruff.lint.per-file-ignores]
 "**/migrations/*" = ["RUF012"]
+"src/cunas/models.py" = ["RUF012"]
+"src/cunas/serializers.py" = ["RUF012"]
+"src/cunas/views.py" = ["RUF012"]
 

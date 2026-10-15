@@ -11,8 +11,8 @@ Incluye:
 - CunaServiceContractTestCase: verifica el contrato de la Operación 1 (1 caso válido y 2 inválidos).
 """
 
-from unittest.mock import Mock
-from unittest.mock import patch
+from unittest.mock import Mock, patch
+
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
