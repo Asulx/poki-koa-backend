@@ -12,7 +12,6 @@
     "Relaciones de datos ficticios",
     "Evaluador rechaza respuestas incorrectas"
   ],
-  "api_http": "44 PASS / 0 FAIL; ver resultado-http-local.json",
   "thunder_client": "PENDIENTE",
   "archivos_sha256": {
     "qa/entrega2/casos.json": "d4dbea403c744aefc7488a38d83cf42d854659d11966d6e49c45fbd7342f2bc7",

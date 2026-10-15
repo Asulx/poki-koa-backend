@@ -18,15 +18,12 @@ El nombre **Poki Koa** entrega identidad nacional al proyecto mediante palabras 
 
 El Entregable 2 incluye las APIs de pacientes y catálogo de medicamentos con
 stock (`/api/catalogo-medicamentos/`). El catálogo es independiente de las
-asignaciones de medicación por paciente. Se comprobaron 39 pruebas Django y
-44 casos HTTP (22 por API), todos aprobados. Los resultados están en
-[Registro de ejecución](./docs/entrega2/REGISTRO_EJECUCION.md).
-La [colección Bruno](./qa/entrega2/bruno/) se verificó con Bruno CLI 4.2.1:
-94 solicitudes y 265 verificaciones aprobadas. [Reporte HTML](./qa/entrega2/resultado-bruno-cli.html).
-El equipo utiliza Bruno porque Thunder Client 2.41.7 gratuito bloqueó las colecciones;
-la aceptación del cambio de herramienta por el docente está pendiente. El equipo también ejecutó la colección en Bruno 4.2.1: 94 solicitudes y 265
-verificaciones aprobadas, sin fallos ni omisiones.
-[Reporte del equipo](./qa/entrega2/resultado-bruno-equipo.html).
+asignaciones de medicación por paciente. El equipo ejecutó los 44 casos (22 por API)
+en Bruno 4.2.1: 94 solicitudes y 265 verificaciones aprobadas, sin fallos ni omisiones.
+Los resultados están en el [registro de ejecución](./docs/entrega2/REGISTRO_EJECUCION.md)
+y en el [reporte del equipo](./qa/entrega2/resultado-bruno-equipo.html).
+La [colección Bruno](./qa/entrega2/bruno/) contiene las solicitudes y sus verificaciones.
+El motivo del cambio de herramienta se explica en [Uso de Bruno](./docs/entrega2/USO_BRUNO.md).
 
 ## Responsabilidades del equipo
 
