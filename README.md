@@ -10,11 +10,13 @@ El nombre **Poki Koa** entrega identidad nacional al proyecto mediante palabras 
 
 ## Documentación del Proyecto
 
-- [Arquitectura del Sistema](./Arquitectura.md) (Estilo arquitectónico, componentes y justificación)
-- [Requisitos Extrafuncionales](./ReqExtrafuncionales.md) (Catálogo de atributos de calidad y restricciones)
-- [Entregable 2: documentación de APIs](./docs/entrega2/DOCUMENTACION_APIS.md)
-- [Matriz de 44 casos de prueba](./docs/entrega2/MATRIZ_CASOS.md)
-- [Cambio a Bruno, instalación y ejecución](./docs/entrega2/USO_BRUNO.md)
+| Grupo | Documentos |
+|---|---|
+| Proyecto | [Arquitectura](./docs/proyecto/Arquitectura.md) · [Requisitos extrafuncionales](./docs/proyecto/ReqExtrafuncionales.md) |
+| Entrega 2 — APIs | [Documentación de APIs](./docs/entrega2/DOCUMENTACION_APIS.md) |
+| Entrega 2 — Pruebas | [Matriz de casos](./docs/entrega2/MATRIZ_CASOS.md) · [Resultados](./docs/entrega2/REGISTRO_EJECUCION.md) · [Instalación y uso de Bruno](./docs/entrega2/USO_BRUNO.md) |
+| Entrega 2 — Refinamiento | [Conversación con Clarita](./docs/entrega2/evidencias/clarita/clarita_reviews_chat.md) |
+| Actividades de clase | [Diagnóstico](./docs/actividades/Actividad-Diagnostico.md) · [Ejercicio 2.2: construcción para la verificación](./docs/actividades/ejercicio-2-2.md) |
 
 El Entregable 2 incluye las APIs de pacientes y catálogo de medicamentos con
 stock (`/api/catalogo-medicamentos/`). El catálogo es independiente de las
@@ -193,9 +195,11 @@ Este comando genera y conecta de forma automática:
 ├── pyproject.toml          # Dependencias y comandos de ejecución (uv + hatchling)
 ├── uv.lock                 # Registro exacto de versiones de dependencias
 ├── .python-version         # Versión de Python fijada para el proyecto
-├── Arquitectura.md         # Documento detallado de diseño arquitectónico
-├── ReqExtrafuncionales.md  # Catálogo de requisitos extrafuncionales
-├── docs/                   # Documentación funcional, de API y de pruebas
+├── docs/
+│   ├── proyecto/           # Arquitectura y requisitos extrafuncionales
+│   ├── actividades/        # Diagnóstico y ejercicios de clase
+│   └── entrega2/           # APIs, matriz, resultados y uso de Bruno
+│       └── evidencias/clarita/ # Conversación de revisión de historias
 ├── qa/entrega2/            # Casos, colecciones y evidencia de pruebas API
 └── src/
     ├── manage.py           # CLI estándar de Django (uso alternativo sin uv)

@@ -19,4 +19,4 @@ Prioridad: Alta, Media o Baja.
 | REF-12 | Otros (Idioma) | Toda la interfaz, mensajes y terminología clínica deben estar en español. | Baja |
 
 > [!IMPORTANT]
-> Los requisitos de prioridad **Alta** (REF-01 a REF-05, REF-09, REF-10, REF-11) son abordados de forma explícita en las decisiones de diseño arquitectónico en `Arquitectura.md`.
+> Los requisitos de prioridad **Alta** (REF-01 a REF-05, REF-09, REF-10, REF-11) son abordados de forma explícita en las decisiones de diseño arquitectónico en [Arquitectura](Arquitectura.md).
