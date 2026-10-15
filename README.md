@@ -12,6 +12,36 @@ El nombre **Poki Koa** entrega identidad nacional al proyecto mediante palabras 
 
 - [Arquitectura del Sistema](./Arquitectura.md) (Estilo arquitectónico, componentes y justificación)
 - [Requisitos Extrafuncionales](./ReqExtrafuncionales.md) (Catálogo de atributos de calidad y restricciones)
+- [Entregable 2: documentación de APIs](./docs/entrega2/DOCUMENTACION_APIS.md)
+- [Matriz de 44 casos de prueba](./docs/entrega2/MATRIZ_CASOS.md)
+
+El Entregable 2 incluye las APIs de pacientes y catálogo de medicamentos con
+stock (`/api/catalogo-medicamentos/`). El catálogo es independiente de las
+asignaciones de medicación por paciente. Se comprobaron 39 pruebas Django y
+44 casos HTTP (22 por API), todos aprobados. Los resultados están en
+[Registro de ejecución](./docs/entrega2/REGISTRO_EJECUCION.md).
+La [colección Bruno](./qa/entrega2/bruno/) se verificó con Bruno CLI 4.2.1:
+94 solicitudes y 265 verificaciones aprobadas. [Reporte HTML](./qa/entrega2/resultado-bruno-cli.html).
+El equipo utiliza Bruno porque Thunder Client 2.41.7 gratuito bloqueó las colecciones;
+la aceptación del cambio de herramienta por el docente está pendiente. El equipo también ejecutó la colección en Bruno 4.2.1: 94 solicitudes y 265
+verificaciones aprobadas, sin fallos ni omisiones.
+[Reporte del equipo](./qa/entrega2/resultado-bruno-equipo.html).
+
+## Responsabilidades del equipo
+
+Declaración del **Entregable 2**, pendiente de completar por cada integrante con
+sus aportes reales. La tabla histórica al final del README corresponde a otros
+ítems y no sustituye esta declaración. Reemplazar los pendientes y vincular
+issues, commits, PRs o pruebas; no atribuir trabajo sin evidencia.
+
+| Integrante | Rol | Ítems de la rúbrica a cargo |
+|------------|-----|----------------------------|
+| Sebastian Quinzacaras | Pendiente de declarar | Pendiente: ítem(s) 1.1 / 2.1 / 3.1 / 4.1 y evidencia |
+| Ricardo Figueroa | Pendiente de declarar | Pendiente: ítem(s) 1.1 / 2.1 / 3.1 / 4.1 y evidencia |
+| Mauricio Escobar | Pendiente de declarar | Pendiente: ítem(s) 1.1 / 2.1 / 3.1 / 4.1 y evidencia |
+| Ricardo Loyola | Pendiente de declarar | Pendiente: ítem(s) 1.1 / 2.1 / 3.1 / 4.1 y evidencia |
+| Fabian Mamani | Pendiente de declarar | Pendiente: ítem(s) 1.1 / 2.1 / 3.1 / 4.1 y evidencia |
+| Sarai Herrera | Pendiente de declarar | Pendiente: ítem(s) 1.1 / 2.1 / 3.1 / 4.1 y evidencia |
 
 ---
 
