@@ -14,6 +14,7 @@ El nombre **Poki Koa** entrega identidad nacional al proyecto mediante palabras 
 - [Requisitos Extrafuncionales](./ReqExtrafuncionales.md) (Catálogo de atributos de calidad y restricciones)
 - [Entregable 2: documentación de APIs](./docs/entrega2/DOCUMENTACION_APIS.md)
 - [Matriz de 44 casos de prueba](./docs/entrega2/MATRIZ_CASOS.md)
+- [Cambio a Bruno, instalación y ejecución](./docs/entrega2/USO_BRUNO.md)
 
 El Entregable 2 incluye las APIs de pacientes y catálogo de medicamentos con
 stock (`/api/catalogo-medicamentos/`). El catálogo es independiente de las
