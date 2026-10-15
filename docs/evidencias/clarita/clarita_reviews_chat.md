@@ -8,7 +8,7 @@ Te entregaremos distintas historias de usuario para que realices una revisión a
 
 Primera:
 
-#### US-01 — Issue #15
+#### US-01 — Issue [#15](https://github.com/Asulx/poki-koa-web/issues/15)
 Desarrollar formulario de gestión de pacientes (Registro y Edición)
 Última actualización del issue: 2026-09-29T08:08:01Z.
 
@@ -27,7 +27,7 @@ Como usuario del sistema (personal médico o administrativo) quiero contar con u
 
 ### Clarita
 
-¡Hola! Soy Clarita Reviews. Gracias por compartir la primera historia de usuario, US-01 — Issue #15: Gestión de pacientes.
+¡Hola! Soy Clarita Reviews. Gracias por compartir la primera historia de usuario, US-01 — Issue [#15](https://github.com/Asulx/poki-koa-web/issues/15): Gestión de pacientes.
 
 He identificado tanto la historia de usuario como sus cinco criterios de aceptación.
 
@@ -84,7 +84,7 @@ Ya tenemos definido el modelo verbal de gestión de pacientes de Poki Koa. Te lo
 ### Clarita
 
 ¡Perfecto! Ahora contamos con el modelo verbal de la solución informática de Poki Koa, por lo que podemos revisar la US-01 considerando las funcionalidades, los roles y las reglas de negocio del sistema.
-Revisión de US-01 — Issue #15
+Revisión de US-01 — Issue [#15](https://github.com/Asulx/poki-koa-web/issues/15)
 
 Título actual: Desarrollar formulario de gestión de pacientes (Registro y Edición)
 Requiere ajustes
@@ -215,7 +215,7 @@ Continuamos con la siguiente issue, desde ahora en adelante, solo realiza una re
 
 ### Usuario
 
-#### US-02 — Issue #17
+#### US-02 — Issue [#17](https://github.com/Asulx/poki-koa-web/issues/17)
 Desarrollar formulario de gestión de medicamentos (Registro y Modificación)
 Última actualización del issue: 2026-09-02T20:36:57Z.
 Descripcion Historia
@@ -230,7 +230,7 @@ Criterios de aceptación
 
 ### Clarita
 
-#### Revisión US-02 — Issue #17: Gestión de medicamentos
+#### Revisión US-02 — Issue [#17](https://github.com/Asulx/poki-koa-web/issues/17): Gestión de medicamentos
 
 Estado: Requiere ajustes.
 
@@ -287,7 +287,7 @@ La historia tiene una base adecuada, pero requiere mayor precisión funcional pa
 
 ### Usuario
 
-#### US-03 — Issue #16
+#### US-03 — Issue [#16](https://github.com/Asulx/poki-koa-web/issues/16)
 Desarrollo del listado de medicamentos
 Última actualización del issue: 2026-09-02T20:44:13Z.
 #### Descripcion Historia
@@ -295,15 +295,15 @@ Como usuario del sistema (personal de farmacia o médico), quiero visualizar un 
 Criterios de aceptación
 - Se implementó una vista principal con una tabla (Data Grid) o listado de tarjetas para mostrar los medicamentos.
  La tabla incluye las columnas con la información clave (ej. Nombre, Principio activo, Dosis, Stock actual).
- Los datos se consumen de manera dinámica utilizando el Servicio de medicamentos (desarrollado en el Issue #21#21).
+ Los datos se consumen de manera dinámica utilizando el Servicio de medicamentos (desarrollado en el Issue [#21](https://github.com/Asulx/poki-koa-web/issues/21)).
 - Se implementó paginación o scroll infinito para evitar la sobrecarga de la interfaz al mostrar muchos registros.
- Cada registro de la lista cuenta con un botón de acciones (ej. un ícono de "Editar") que redirige al formulario de modificación (Issue #17#17).
+ Cada registro de la lista cuenta con un botón de acciones (ej. un ícono de "Editar") que redirige al formulario de modificación (Issue [#17](https://github.com/Asulx/poki-koa-web/issues/17)).
 - Se implementó un estado de carga (loading spinner o skeleton) que se muestra mientras se obtienen los datos del servidor.hacer el listado de medicamentos
 …
 
 ### Clarita
 
-#### Revisión US-03 — Issue #16: Listado de medicamentos
+#### Revisión US-03 — Issue [#16](https://github.com/Asulx/poki-koa-web/issues/16): Listado de medicamentos
 
 Estado: Requiere ajustes menores.
 
@@ -322,7 +322,7 @@ Estado: Requiere ajustes menores.
 | --- | --- |
 | CA1 | Evitar especificar componentes técnicos como Data Grid. Enfocarse en que el usuario pueda visualizar el listado. |
 | CA2 | Especificar qué información debe mostrarse obligatoriamente por medicamento. |
-| CA3 | Retirar la referencia técnica al servicio y al Issue #21 del criterio funcional. Documentarla como dependencia técnica. |
+| CA3 | Retirar la referencia técnica al servicio y al Issue [#21](https://github.com/Asulx/poki-koa-web/issues/21) del criterio funcional. Documentarla como dependencia técnica. |
 | CA4 | Definir un comportamiento concreto de paginación o desplazamiento, evitando dejar dos alternativas abiertas. |
 | CA5 | Verificar que la opción de edición aparezca únicamente para usuarios autorizados y permita acceder al medicamento seleccionado. |
 | CA6 | Mantener el estado de carga, pero describir el comportamiento esperado sin imponer un componente visual específico. |
@@ -355,7 +355,7 @@ La historia está bien orientada y presenta criterios relevantes. Con estos ajus
 
 ### Usuario
 
-#### US-04 — Issue #13
+#### US-04 — Issue [#13](https://github.com/Asulx/poki-koa-web/issues/13)
 Desarrollar vista del listado de pacientes
 Última actualización del issue: 2026-09-02T21:04:55Z.
 Descripcion Historia
@@ -364,15 +364,15 @@ para consultar rápidamente su información resumida y acceder de forma ágil a 
 Criterios de aceptación
 - Se implementó la vista principal conteniendo una Tabla principal (Data Grid) para listar a los pacientes.
  La tabla despliega la información resumida y más relevante de cada paciente (ej. Nombre, RUT/Identificación, Edad o Fecha de nacimiento, y Teléfono).
- Los datos mostrados en la tabla se obtienen de forma dinámica consumiendo el Servicio de pacientes (desarrollado en el Issue #21#21).
+ Los datos mostrados en la tabla se obtienen de forma dinámica consumiendo el Servicio de pacientes (desarrollado en el Issue [#21](https://github.com/Asulx/poki-koa-web/issues/21)).
 - Se implementó un sistema de paginación en la tabla para manejar eficientemente grandes cantidades de registros.
- Cada fila incluye un botón o menú de acciones (ej. "Ver detalles" o "Editar") que conecta con el formulario de pacientes (Issue #15#15).
+ Cada fila incluye un botón o menú de acciones (ej. "Ver detalles" o "Editar") que conecta con el formulario de pacientes (Issue [#15](https://github.com/Asulx/poki-koa-web/issues/15)).
  La interfaz muestra un indicador de carga (loading state) mientras el sistema recupera la información del servidor.
 …
 
 ### Clarita
 
-#### Revisión US-04 — Issue #13: Listado de pacientes
+#### Revisión US-04 — Issue [#13](https://github.com/Asulx/poki-koa-web/issues/13): Listado de pacientes
 
 Estado: Requiere ajustes menores.
 
@@ -391,7 +391,7 @@ Estado: Requiere ajustes menores.
 | --- | --- |
 | CA1 | Evitar términos técnicos como Data Grid. Enfocarse en la visualización del listado de pacientes. |
 | CA2 | Corregir los campos mostrados. RUT y teléfono no corresponden a los datos principales definidos para los recién nacidos. Considerar ID único, nombre, sexo, edad gestacional, peso y fecha de ingreso. |
-| CA3 | Retirar la referencia al servicio y al Issue #21 del criterio funcional. Mantenerla como dependencia técnica. |
+| CA3 | Retirar la referencia al servicio y al Issue [#21](https://github.com/Asulx/poki-koa-web/issues/21) del criterio funcional. Mantenerla como dependencia técnica. |
 | CA4 | Especificar el comportamiento de la paginación, incluyendo cómo navegar entre páginas. |
 | CA5 | Diferenciar las acciones de consultar detalles y editar. La edición debe respetar los permisos establecidos en US-01. |
 | CA6 | Mantener el estado de carga, describiendo el comportamiento esperado sin imponer una implementación visual específica. |
@@ -432,7 +432,7 @@ La historia tiene una estructura adecuada y un objetivo funcional claro. Con est
 
 ### Usuario
 
-#### US-05 — Issue #14
+#### US-05 — Issue [#14](https://github.com/Asulx/poki-koa-web/issues/14)
 Implementación de búsqueda y filtros de pacientes
 Última actualización del issue: 2026-09-02T19:07:04Z.
 Historia
@@ -447,7 +447,7 @@ Criterios de aceptación
 
 ### Clarita
 
-#### Revisión US-05 — Issue #14: Búsqueda y filtros de pacientes
+#### Revisión US-05 — Issue [#14](https://github.com/Asulx/poki-koa-web/issues/14): Búsqueda y filtros de pacientes
 
 Estado: Requiere ajustes menores.
 
@@ -511,7 +511,7 @@ La historia tiene un objetivo claro y sus criterios cubren las funcionalidades p
 
 ### Usuario
 
-#### US-06 — Issue #12
+#### US-06 — Issue [#12](https://github.com/Asulx/poki-koa-web/issues/12)
  Implementar gráficos interactivos y visualización de estadísticas
 Última actualización del issue: 2026-09-02T21:37:55Z.
 Descripcion Historia
@@ -527,7 +527,7 @@ Criterios de aceptación
 
 ### Clarita
 
-#### Revisión US-06 — Issue #12: Gráficos y estadísticas
+#### Revisión US-06 — Issue [#12](https://github.com/Asulx/poki-koa-web/issues/12): Gráficos y estadísticas
 
 Estado: Requiere ajustes.
 
@@ -591,7 +591,7 @@ La historia tiene un beneficio claro, pero requiere mayor definición funcional 
 
 ### Usuario
 
-#### US-06 — Issue #12
+#### US-06 — Issue [#12](https://github.com/Asulx/poki-koa-web/issues/12)
  Implementar gráficos interactivos y visualización de estadísticas
 Última actualización del issue: 2026-09-02T21:37:55Z.
 Descripcion Historia
@@ -606,7 +606,7 @@ Criterios de aceptación
 
 ### Usuario
 
-#### US-07 — Issue #18#18
+#### US-07 — Issue [#18](https://github.com/Asulx/poki-koa-web/issues/18)
 Desarrollar la vista y lógica del módulo de reportes
 Última actualización del issue: 2026-10-03T19:26:34Z.
 Descripcion Historia
@@ -614,15 +614,15 @@ Como usuario administrador o coordinador, quiero acceder a un módulo centraliza
 para visualizar las métricas clave, analizar datos del sistema y tomar decisiones informadas.
 Criterios de aceptación
 - Se creó la vista principal del módulo de reportes y se agregó su respectivo enlace en la barra de navegación lateral.
- La interfaz integra y muestra correctamente los datos consumidos desde el Servicio de reportes (desarrollado en el Issue #21#21).
+ La interfaz integra y muestra correctamente los datos consumidos desde el Servicio de reportes (desarrollado en el Issue [#21](https://github.com/Asulx/poki-koa-web/issues/21)).
 - Se implementaron componentes visuales (tablas de resumen o gráficos básicos) para presentar la información de forma clara.
-- Se integraron los botones y la lógica de la exportación a PDF y Excel (desarrollada en el Issue #19#19) dentro de esta vista.
+- Se integraron los botones y la lógica de la exportación a PDF y Excel (desarrollada en el Issue [#19](https://github.com/Asulx/poki-koa-web/issues/19)) dentro de esta vista.
  La vista maneja correctamente los estados de carga (loading) y muestra un mensaje amigable si no hay datos disponibles para reportar.
 …
 
 ### Clarita
 
-#### Revisión US-06 — Issue #12: Visualizar estadísticas
+#### Revisión US-06 — Issue [#12](https://github.com/Asulx/poki-koa-web/issues/12): Visualizar estadísticas
 
 Estado: Requiere ajustes.
 
@@ -632,7 +632,7 @@ La US-06 debería concentrarse en la visualización de indicadores y gráficos, 
 
 ### Clarita
 
-#### Revisión US-07 — Issue #18: Módulo de reportes
+#### Revisión US-07 — Issue [#18](https://github.com/Asulx/poki-koa-web/issues/18): Módulo de reportes
 
 Estado: Requiere ajustes.
 
@@ -650,9 +650,9 @@ Estado: Requiere ajustes.
 | CA | Observación para aplicar |
 | --- | --- |
 | CA1 | Mantener el acceso al módulo, pero describir que el usuario autorizado pueda ingresar desde la navegación principal. |
-| CA2 | Retirar las referencias técnicas al servicio y al Issue #21. Especificar qué información debe mostrar el módulo. |
+| CA2 | Retirar las referencias técnicas al servicio y al Issue [#21](https://github.com/Asulx/poki-koa-web/issues/21). Especificar qué información debe mostrar el módulo. |
 | CA3 | Revisar posible duplicidad con US-06. Los gráficos y estadísticas deberían definirse principalmente en esa historia. |
-| CA4 | Mantener las opciones de exportación, pero verificar que permitan descargar correctamente los reportes en PDF y Excel. Evitar duplicar los criterios de la US correspondiente al Issue #19. |
+| CA4 | Mantener las opciones de exportación, pero verificar que permitan descargar correctamente los reportes en PDF y Excel. Evitar duplicar los criterios de la US correspondiente al Issue [#19](https://github.com/Asulx/poki-koa-web/issues/19). |
 | CA5 | Es adecuado. Complementar con el comportamiento esperado cuando ocurre un error al recuperar los datos. |
 
 #### 3. Criterios faltantes
@@ -679,7 +679,7 @@ Los criterios deben utilizar Dado – Cuando – Entonces, describiendo resultad
 | Objetivo principal | Visualizar estadísticas | Consultar reportes |
 | Funcionalidad | Indicadores y gráficos interactivos | Acceso, consulta y exportación |
 | Información | Métricas resumidas | Reportes definidos por el sistema |
-| Dependencias | Datos para calcular indicadores | US-06, si incorpora sus gráficos, e Issue #19 para exportación |
+| Dependencias | Datos para calcular indicadores | US-06, si incorpora sus gráficos, e Issue [#19](https://github.com/Asulx/poki-koa-web/issues/19) para exportación |
 | Riesgo | Duplicación de gráficos | Duplicación de visualizaciones y criterios |
 
 Recomendación: Mantener ambas historias independientes, pero delimitar sus responsabilidades. La US-07 puede integrar los gráficos de la US-06 sin volver a exigir su implementación.
@@ -711,7 +711,7 @@ Ambas historias pueden mantenerse separadas, siempre que la US-06 se enfoque en 
 
 ### Usuario
 
-El ultimo mensaje fue una issue repetida sin querer, aqui va la 7: US-07 — Issue #18
+El ultimo mensaje fue una issue repetida sin querer, aqui va la 7: US-07 — Issue [#18](https://github.com/Asulx/poki-koa-web/issues/18)
 Desarrollar la vista y lógica del módulo de reportes
 Última actualización del issue: 2026-10-03T19:26:34Z.
 Descripcion Historia
@@ -719,14 +719,14 @@ Como usuario administrador o coordinador, quiero acceder a un módulo centraliza
 para visualizar las métricas clave, analizar datos del sistema y tomar decisiones informadas.
 Criterios de aceptación
 - Se creó la vista principal del módulo de reportes y se agregó su respectivo enlace en la barra de navegación lateral.
- La interfaz integra y muestra correctamente los datos consumidos desde el Servicio de reportes (desarrollado en el Issue #21#21).
+ La interfaz integra y muestra correctamente los datos consumidos desde el Servicio de reportes (desarrollado en el Issue [#21](https://github.com/Asulx/poki-koa-web/issues/21)).
 - Se implementaron componentes visuales (tablas de resumen o gráficos básicos) para presentar la información de forma clara.
-- Se integraron los botones y la lógica de la exportación a PDF y Excel (desarrollada en el Issue #19#19) dentro de esta vista.
+- Se integraron los botones y la lógica de la exportación a PDF y Excel (desarrollada en el Issue [#19](https://github.com/Asulx/poki-koa-web/issues/19)) dentro de esta vista.
  La vista maneja correctamente los estados de carga (loading) y muestra un mensaje amigable si no hay datos disponibles para reportar.
 
 ### Clarita
 
-#### Revisión US-07 — Issue #18: Módulo de reportes
+#### Revisión US-07 — Issue [#18](https://github.com/Asulx/poki-koa-web/issues/18): Módulo de reportes
 
 Estado: Requiere ajustes.
 
@@ -744,9 +744,9 @@ Estado: Requiere ajustes.
 | CA | Observación para aplicar |
 | --- | --- |
 | CA1 | Es adecuado. Enfocarlo en que el usuario autorizado pueda acceder al módulo desde la navegación principal. |
-| CA2 | Retirar las referencias técnicas al servicio y al Issue #21. Definir qué información debe presentar el módulo. |
+| CA2 | Retirar las referencias técnicas al servicio y al Issue [#21](https://github.com/Asulx/poki-koa-web/issues/21). Definir qué información debe presentar el módulo. |
 | CA3 | Revisar la duplicidad con US-06. Evitar volver a exigir gráficos y estadísticas ya contemplados en esa historia. |
-| CA4 | Mantener el acceso a la exportación, pero dejar la generación y descarga de archivos como responsabilidad del Issue #19. |
+| CA4 | Mantener el acceso a la exportación, pero dejar la generación y descarga de archivos como responsabilidad del Issue [#19](https://github.com/Asulx/poki-koa-web/issues/19). |
 | CA5 | Es adecuado. Complementar con el comportamiento esperado cuando falla la consulta de información. |
 
 #### 3. Criterios faltantes
@@ -783,7 +783,7 @@ La historia tiene un objetivo claro, pero necesita delimitar mejor su alcance pa
 
 ### Clarita
 
-#### Revisión US-08 — Issue #19: Exportación de reportes
+#### Revisión US-08 — Issue [#19](https://github.com/Asulx/poki-koa-web/issues/19): Exportación de reportes
 Estado: Requiere ajustes menores.
 
 #### 1. Historia de usuario
@@ -826,7 +826,7 @@ Estado: Requiere ajustes menores.
 
 ### Usuario
 
-#### US-09 — Issue #39#39
+#### US-09 — Issue [#39](https://github.com/Asulx/poki-koa-web/issues/39)
 Gestión y modificación de turnos por el Administrador
 Última actualización del issue: 2026-09-07T12:49:44Z.
 Historia de Usuario
@@ -847,7 +847,7 @@ Tareas Técnicas sugeridas
 
 ### Usuario
 
-#### US-10 — Issue #40#40
+#### US-10 — Issue [#40](https://github.com/Asulx/poki-koa-web/issues/40)
 Navegación interactiva desde Monitor de Cunas hacia Detalles del Bebé
 Última actualización del issue: 2026-09-07T12:49:34Z.
 Historia de Usuario
@@ -868,7 +868,7 @@ Criterios de Aceptación
 
 ### Clarita
 
-#### Revisión US-09 — Issue #39: Gestión de turnos
+#### Revisión US-09 — Issue [#39](https://github.com/Asulx/poki-koa-web/issues/39): Gestión de turnos
 Estado: Requiere ajustes.
 
 #### 1. Historia de usuario
@@ -906,7 +906,7 @@ Estado: Requiere ajustes.
 
 ### Clarita
 
-#### Revisión US-10 — Issue #40: Navegación hacia detalles del bebé
+#### Revisión US-10 — Issue [#40](https://github.com/Asulx/poki-koa-web/issues/40): Navegación hacia detalles del bebé
 Estado: Requiere ajustes menores.
 
 #### 1. Historia de usuario
