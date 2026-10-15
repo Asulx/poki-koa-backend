@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ["*"]
 
 # APLICACIONES INSTALADAS
 INSTALLED_APPS = [
+    "daphne",  # <--- NUEVO: Servidor ASGI (DEBE ir aquí arriba)
     # Apps nativas de Django
     "django.contrib.admin",
     "django.contrib.auth",
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     # Librerías de terceros
     "rest_framework",  # API REST (Django REST Framework)
     "corsheaders",  # Permite conexiones cross-origin desde el frontend
+    "channels",  # <--- NUEVO: Infraestructura de WebSockets
     # Apps del proyecto
     "cunas",  # App principal: modelos, vistas y API del sistema de cunas
 ]
@@ -84,7 +86,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "poki_koa.wsgi.application"
+# WSGI_APPLICATION = "poki_koa.wsgi.application" # <-- Comentado para usar ASGI
+ASGI_APPLICATION = "poki_koa.asgi.application"   # <-- NUEVO: Activamos el motor asíncrono
 
 # BASE DE DATOS
 # SQLite es suficiente para desarrollo. En producción se recomienda PostgreSQL.
@@ -122,3 +125,11 @@ STATIC_URL = "static/"
 
 # Tipo de campo de clave primaria por defecto para todos los modelos nuevos
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# CONFIGURACIÓN DE CHANNELS (WebSockets)
+# Usamos memoria RAM para desarrollo. En producción usaríamos Redis.
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
