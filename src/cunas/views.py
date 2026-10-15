@@ -140,12 +140,8 @@ class CunaViewSet(viewsets.ModelViewSet):
         cuna = self.get_object()
         data = request.data
 
-        # LOG 1 (Nivel INFO): Registra la llegada de datos de telemetría
-        logger.info(
-            "Recibida telemetría para cuna %s: %s",
-            cuna.identificador,
-            data
-        )
+        # Registrar solo el identificador evita copiar datos clínicos al log.
+        logger.info("Recibida telemetría para cuna %s", cuna.identificador)
 
         # Validación de telemetría clínica (Corrección Issue #51)
         if "ritmo_cardiaco" in data:
