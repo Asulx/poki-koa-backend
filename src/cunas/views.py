@@ -24,12 +24,13 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import Alerta, Bebe, Cuna, Medicamento, Medico, PlanCuidado
+from .models import Alerta, Bebe, Cuna, Medicamento, MedicamentoCatalogo, Medico, PlanCuidado
 from .serializers import (
     AlertaSerializer,
     BebeSerializer,
     CunaSerializer,
     MedicamentoSerializer,
+    MedicamentoCatalogoSerializer,
     MedicoSerializer,
     PlanCuidadoSerializer,
 )
@@ -285,3 +286,11 @@ class AlertaViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+
+
+class MedicamentoCatalogoViewSet(viewsets.ModelViewSet):
+    """Registro, consulta y modificación del catálogo (issue #17)."""
+
+    queryset = MedicamentoCatalogo.objects.all()
+    serializer_class = MedicamentoCatalogoSerializer
+    http_method_names = ["get", "post", "put", "patch", "head", "options"]

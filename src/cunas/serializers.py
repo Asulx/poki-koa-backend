@@ -16,7 +16,7 @@ Cada serializador corresponde a un modelo:
 from django.utils import timezone
 from rest_framework import serializers
 
-from .models import Alerta, Bebe, Cuna, Medicamento, Medico, PlanCuidado
+from .models import Alerta, Bebe, Cuna, Medicamento, MedicamentoCatalogo, Medico, PlanCuidado
 
 
 class MedicoSerializer(serializers.ModelSerializer):
@@ -229,3 +229,10 @@ class PlanCuidadoSerializer(serializers.ModelSerializer):
         if hasattr(obj.bebe, "cuna_asignada") and obj.bebe.cuna_asignada:
             return obj.bebe.cuna_asignada.identificador
         return "Sin cuna"
+
+
+class MedicamentoCatalogoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MedicamentoCatalogo
+        fields = ["id", "nombre", "principio_activo", "dosis_mg", "stock"]
+        read_only_fields = ["id"]
