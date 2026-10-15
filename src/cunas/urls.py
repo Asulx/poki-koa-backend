@@ -25,8 +25,8 @@ from .views import (
     AlertaViewSet,
     BebeViewSet,
     CunaViewSet,
-    MedicamentoViewSet,
     MedicamentoCatalogoViewSet,
+    MedicamentoViewSet,
     MedicoViewSet,
     PlanCuidadoViewSet,
 )

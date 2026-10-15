@@ -16,7 +16,15 @@ Cada serializador corresponde a un modelo:
 from django.utils import timezone
 from rest_framework import serializers
 
-from .models import Alerta, Bebe, Cuna, Medicamento, MedicamentoCatalogo, Medico, PlanCuidado
+from .models import (
+    Alerta,
+    Bebe,
+    Cuna,
+    Medicamento,
+    MedicamentoCatalogo,
+    Medico,
+    PlanCuidado,
+)
 
 
 class MedicoSerializer(serializers.ModelSerializer):
@@ -132,9 +140,8 @@ class BebeSerializer(serializers.ModelSerializer):
         return super().to_internal_value(data)
 
     def get_cuna_identificador(self, obj):
-        if hasattr(obj, "cuna_asignada") and obj.cuna_asignada:
-            return obj.cuna_asignada.identificador
-        return None
+        cuna = self._cuna_asignada(obj)
+        return cuna.identificador if cuna else None
 
     def get_cuna(self, obj):
         return self.get_cuna_identificador(obj)
@@ -143,34 +150,40 @@ class BebeSerializer(serializers.ModelSerializer):
         return self.get_cuna_identificador(obj)
 
     def get_cuna_id(self, obj):
-        if hasattr(obj, "cuna_asignada") and obj.cuna_asignada:
-            return obj.cuna_asignada.id
-        return None
+        cuna = self._cuna_asignada(obj)
+        return cuna.id if cuna else None
 
     def get_estado_canula(self, obj):
-        if hasattr(obj, "cuna_asignada") and obj.cuna_asignada:
-            return obj.cuna_asignada.canula_ok
-        return None
+        cuna = self._cuna_asignada(obj)
+        return cuna.canula_ok if cuna else None
 
     def get_canula_ok(self, obj):
         return self.get_estado_canula(obj)
 
     def get_via_intravenosa(self, obj):
-        if hasattr(obj, "cuna_asignada") and obj.cuna_asignada:
-            return obj.cuna_asignada.via_iv_activa
-        return None
+        cuna = self._cuna_asignada(obj)
+        return cuna.via_iv_activa if cuna else None
 
     def get_via_iv_activa(self, obj):
         return self.get_via_intravenosa(obj)
 
     def get_signos_vitales(self, obj):
-        if hasattr(obj, "cuna_asignada") and obj.cuna_asignada:
-            return {
-                "ritmo_cardiaco": obj.cuna_asignada.ritmo_cardiaco,
-                "spo2": obj.cuna_asignada.spo2,
-                "temperatura": obj.cuna_asignada.temperatura,
-            }
-        return None
+        cuna = self._cuna_asignada(obj)
+        if not cuna:
+            return None
+        return {
+            "ritmo_cardiaco": cuna.ritmo_cardiaco,
+            "spo2": cuna.spo2,
+            "temperatura": cuna.temperatura,
+        }
+
+    @staticmethod
+    def _cuna_asignada(obj):
+        """Obtiene la cuna relacionada sin propagar DoesNotExist."""
+        try:
+            return obj.cuna_asignada
+        except Cuna.DoesNotExist:
+            return None
 
     def validate_peso(self, value):
         if value is not None and value <= 0:
