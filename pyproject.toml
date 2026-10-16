@@ -8,6 +8,8 @@ description = "Backend Django REST para el sistema de monitoreo de cunas neonata
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "channels>=4.3.2",
+    "daphne>=4.2.3",
     # Framework web principal
     "django>=5.2.17",
     # Soporte para solicitudes cross-origin (necesario para conectar con el frontend React/Vite)
