@@ -20,3 +20,17 @@ Prioridad: Alta, Media o Baja.
 
 > [!IMPORTANT]
 > Los requisitos de prioridad **Alta** (REF-01 a REF-05, REF-09, REF-10, REF-11) son abordados de forma explícita en las decisiones de diseño arquitectónico en [Arquitectura](Arquitectura.md).
+
+### Verificación de requisitos prioritarios
+
+El catálogo define objetivos del sistema; su inclusión no acredita cumplimiento.
+Las pruebas funcionales de las APIs no sustituyen las siguientes verificaciones:
+
+| Requisitos | Evidencia necesaria |
+|---|---|
+| REF-01 | Medir tiempos de lectura y escritura, registrando volumen de datos, concurrencia y entorno para definir las condiciones normales. |
+| REF-02 | Registrar tiempo disponible y tiempo total del horario evaluado; comprobar una proporción de al menos 99%. |
+| REF-03 y REF-04 | Probar rechazo de accesos sin autenticación o sin permisos, verificar HTTPS y comprobar que los secretos se cargan desde el entorno. |
+| REF-05 | Probar generación, persistencia y consulta de alertas ante valores fuera de rango; evaluar recuperación ante fallos antes de afirmar que no se pierden eventos. |
+| REF-09 y REF-10 | Verificar el stack declarado, las respuestas JSON y el comportamiento de las transacciones en la base utilizada. La validación en SQLite no acredita PostgreSQL. |
+| REF-11 | Seguir el vínculo entre historia, rama, PR y commit de integración en GitHub. |
