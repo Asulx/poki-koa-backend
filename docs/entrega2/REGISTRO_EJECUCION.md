@@ -35,7 +35,7 @@ Cada resultado incluye la solicitud principal y sus verificaciones secundarias.
 | B12  | Peso y fecha opcionales nulos                                | 201           | 201            | PASS          |
 | B13  | Fecha de nacimiento: ayer                                    | 201           | 201            | PASS          |
 | B14  | Fecha de nacimiento: hoy                                     | 201           | 201            | PASS          |
-| B15  | Fecha de nacimiento: manana                                  | 400           | 400            | PASS          |
+| B15  | Fecha de nacimiento: mañana                                  | 400           | 400            | PASS          |
 | B16  | Sexo fuera del catálogo                                     | 400           | 400            | PASS          |
 | B17  | Médico inexistente                                          | 400           | 400            | PASS          |
 | B18  | Modificar diagnóstico sin perder otros datos                | 200           | 200            | PASS          |

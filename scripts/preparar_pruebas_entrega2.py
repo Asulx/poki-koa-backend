@@ -680,7 +680,7 @@ def main():
     lines = [
         "# Matriz de casos del Entregable 2",
         "",
-        "Generada por `scripts/preparar_pruebas_entrega2.py`. 22 casos por API, 44 en total.",
+        "22 casos por API, 44 en total.",
         "Los pasos `.vN` verifican persistencia y efectos; no se cuentan como casos adicionales.",
         "Precondición común: cargar datos_demo.json en la base aislada y ejecutar B01…B22, luego M01…M22.",
         "Todos los resultados de esta matriz son **esperados**, no ejecuciones acreditadas.",

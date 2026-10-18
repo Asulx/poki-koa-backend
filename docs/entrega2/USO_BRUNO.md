@@ -11,9 +11,8 @@ El cambio conserva los 44 casos (22 por API), sus datos, su orden y sus verifica
 94 solicitudes y 265 pruebas automáticas. Los pasos `.vN` comprueban persistencia y
 efectos de una solicitud; no cuentan como casos adicionales.
 
-Los documentos de evaluación mencionan Thunder Client. Esta sustitución se presenta
-al docente con su justificación y evidencia; no se atribuye a Thunder Client la
-corrida realizada con Bruno ni se afirma una autorización formal no registrada.
+La herramienta solicitada en la evaluación es Thunder Client. Las pruebas registradas
+en esta entrega se ejecutaron con Bruno; el cambio debe acordarse con el docente.
 
 ## Instalación
 
@@ -29,8 +28,6 @@ La versión utilizada y comprobada en esta entrega es **4.2.1**.
 | Windows | Seleccionar Windows y descargar el instalador correspondiente. |
 | macOS | Seleccionar macOS y la descarga adecuada al procesador del equipo. |
 | Linux | Seleccionar Linux y el paquete compatible con la distribución. |
-
-No se requiere instalar la CLI para ejecutar la colección desde la aplicación.
 
 ## Preparar el servidor
 
