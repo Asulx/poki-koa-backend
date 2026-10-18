@@ -11,7 +11,8 @@ Incluye:
 - CunaServiceContractTestCase: verifica el contrato de la Operación 1 (1 caso válido y 2 inválidos).
 """
 
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
+
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -343,6 +344,67 @@ class APITelemetriaCunaTestCase(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data["alertas_activas"]), 0)
         self.assertEqual(Alerta.objects.filter(cuna=self.cuna, activa=True).count(), 0)
+
+    def test_telemetria_rechaza_ritmo_cardiaco_invalido_sin_guardar(self):
+        for valor in (None, "inválido", 0, 261):
+            with self.subTest(valor=valor):
+                respuesta = self.client.post(
+                    self.url, {"ritmo_cardiaco": valor}, format="json"
+                )
+                self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
+                self.cuna.refresh_from_db()
+                self.assertEqual(self.cuna.ritmo_cardiaco, 125)
+
+    def test_telemetria_permite_valores_invalidos_en_otros_campos_actualmente(self):
+        """Fija el comportamiento actual antes de decidir la validación de sensores."""
+        respuesta = self.client.post(
+            self.url, {"spo2": 140}, format="json"
+        )
+
+        self.assertEqual(respuesta.status_code, status.HTTP_200_OK)
+        self.cuna.refresh_from_db()
+        self.assertEqual(self.cuna.spo2, 140)
+
+    @patch("cunas.views.logger.info")
+    def test_log_telemetria_no_incluye_lecturas_clinicas(self, registrar_info):
+        self.client.post(self.url, {"ritmo_cardiaco": 123}, format="json")
+
+        registrar_info.assert_called_once_with(
+            "Recibida telemetría para cuna %s", self.cuna.identificador
+        )
+
+
+class APIFiltrosAlertaCaracterizacionTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("alerta-list")
+        self.alerta = Alerta.objects.create(
+            tipo="spo2",
+            mensaje="SpO2 baja",
+            nivel="Advertencia",
+            activa=True,
+        )
+        Alerta.objects.create(
+            tipo="temperatura",
+            mensaje="Temperatura normalizada",
+            nivel="Info",
+            activa=False,
+        )
+
+    def test_filtros_alerta_se_combinan_y_activa_acepta_booleanos(self):
+        for valor in ("true", "1", "TRUE"):
+            with self.subTest(activa=valor):
+                respuesta = self.client.get(
+                    self.url, {"activa": valor, "nivel": "Advertencia", "tipo": "spo2"}
+                )
+                self.assertEqual(respuesta.status_code, status.HTTP_200_OK)
+                self.assertEqual([item["id"] for item in respuesta.data], [self.alerta.id])
+
+    def test_filtro_activa_desconocido_no_filtra(self):
+        respuesta = self.client.get(self.url, {"activa": "desconocido"})
+
+        self.assertEqual(respuesta.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(respuesta.data), 2)
 
 
 class EvaluacionSignosVitalesTestCase(TestCase):

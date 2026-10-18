@@ -17,22 +17,31 @@ para su modelo correspondiente gracias a Django REST Framework:
 """
 import logging
 
-logger = logging.getLogger(__name__)
-
 from django.db.models import Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import Alerta, Bebe, Cuna, Medicamento, Medico, PlanCuidado
+from .models import (
+    Alerta,
+    Bebe,
+    Cuna,
+    Medicamento,
+    MedicamentoCatalogo,
+    Medico,
+    PlanCuidado,
+)
 from .serializers import (
     AlertaSerializer,
     BebeSerializer,
     CunaSerializer,
+    MedicamentoCatalogoSerializer,
     MedicamentoSerializer,
     MedicoSerializer,
     PlanCuidadoSerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class MedicoViewSet(viewsets.ModelViewSet):
@@ -139,12 +148,8 @@ class CunaViewSet(viewsets.ModelViewSet):
         cuna = self.get_object()
         data = request.data
 
-        # LOG 1 (Nivel INFO): Registra la llegada de datos de telemetría
-        logger.info(
-            "Recibida telemetría para cuna %s: %s",
-            cuna.identificador,
-            data
-        )
+        # Registrar solo el identificador evita copiar datos clínicos al log.
+        logger.info("Recibida telemetría para cuna %s", cuna.identificador)
 
         # Validación de telemetría clínica (Corrección Issue #51)
         if "ritmo_cardiaco" in data:
@@ -285,3 +290,11 @@ class AlertaViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+
+
+class MedicamentoCatalogoViewSet(viewsets.ModelViewSet):
+    """Registro, consulta y modificación del catálogo (issue #17)."""
+
+    queryset = MedicamentoCatalogo.objects.all()
+    serializer_class = MedicamentoCatalogoSerializer
+    http_method_names = ["get", "post", "put", "patch", "head", "options"]

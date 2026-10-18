@@ -25,6 +25,7 @@ from .views import (
     AlertaViewSet,
     BebeViewSet,
     CunaViewSet,
+    MedicamentoCatalogoViewSet,
     MedicamentoViewSet,
     MedicoViewSet,
     PlanCuidadoViewSet,
@@ -36,6 +37,7 @@ router.register(r"medicos", MedicoViewSet)
 router.register(r"bebes", BebeViewSet)
 router.register(r"cunas", CunaViewSet)
 router.register(r"medicamentos", MedicamentoViewSet)
+router.register(r"catalogo-medicamentos", MedicamentoCatalogoViewSet)
 router.register(r"planes-cuidado", PlanCuidadoViewSet)
 router.register(r"alertas", AlertaViewSet)
 
