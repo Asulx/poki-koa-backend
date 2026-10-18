@@ -27,4 +27,14 @@
 ---
 
 ## Ficha de Operación 3
-*(Pendiente de registro)*
+
+| Elemento | Registro del equipo |
+| :--- | :--- |
+| **Funcionalidad y operación** | **Funcionalidad:** Confirmación de administración de medicamentos.<br>**Clase, módulo y firma:** `src/cunas/medicamentos.py` → `MedicamentoService.administrar(medicamento_id: int \| str) -> RegistroMedicamento`.<br>**Ruta:** `POST /api/medicamentos/{id}/administrar/`, sin cuerpo requerido. |
+| **Propósito** | Registrar un medicamento pendiente como `Administrado` y devolver su ID, paciente y estado mediante HTTP 200. |
+| **Precondiciones** | 1. El ID debe ser un entero entre 1 y `2**63 - 1`, o una cadena decimal ASCII equivalente sin espacios, signos ni ceros iniciales; no se aceptan nulos, vacíos ni booleanos.<br>2. El medicamento debe existir y estar `Pendiente` al consultar y actualizar. |
+| **Postcondiciones** | 1. Se persiste el estado `Administrado` y se devuelve el registro actualizado.<br>2. Se conservan el ID, el paciente y los demás campos; una confirmación repetida se rechaza con HTTP 409 mientras siga administrado. |
+| **Invariante** | El medicamento pertenece a un paciente con ID entero positivo y conserva ambas identidades durante la transición. Las aserciones verifican estas reglas internas y el resultado `Administrado`. |
+| **Validación defensiva** | **Entrada inválida 1:** `medicamento_id="abc"` → `OperacionError("medicamento_id debe ser un entero positivo.")`, HTTP 400, sin consultar ni escribir.<br>**Entrada inválida 2:** medicamento ya `Administrado` → `EstadoNoPermitido("Solo se puede administrar un medicamento Pendiente.")`, HTTP 409, sin modificar el registro. |
+| **Dependencia explícita** | El constructor `MedicamentoService(repositorio)` recibe un `MedicamentoRepository` con los métodos `obtener` y `confirmar_pendiente`. La vista inyecta `DjangoMedicamentoRepository`; las pruebas usan `RepositorioFake` en memoria, sin Django ni base de datos. |
+| **Evidencia de ejecución** | **Preparación:** `uv sync --locked` (usa las versiones de `uv.lock`).<br>**Prueba aislada:** `PYTHONPATH=src uv run --locked python -m unittest discover -s test -v` → 7 pruebas, `OK`.<br>**Archivo:** `test/test_operacion3.py`; verifica éxito, ID inválido y estado ya administrado, incluyendo conservación del estado ante rechazos.<br>**Integración:** `uv run --locked python src/manage.py test cunas -v 1` → 35 pruebas, `OK`, incluyendo las pruebas de la Operación 1 y `APIAdministrarMedicamentoTestCase`. |
