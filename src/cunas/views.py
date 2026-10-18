@@ -22,6 +22,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from .medicamentos import MedicamentoService, OperacionError
 from .models import (
     Alerta,
     Bebe,
@@ -31,6 +32,7 @@ from .models import (
     Medico,
     PlanCuidado,
 )
+from .repositories import DjangoMedicamentoRepository
 from .serializers import (
     AlertaSerializer,
     BebeSerializer,
@@ -74,7 +76,9 @@ class BebeViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
 
         # Búsqueda por texto (nombre, identificador o ID numérico)
-        search = self.request.query_params.get("search") or self.request.query_params.get("q")
+        search = self.request.query_params.get(
+            "search"
+        ) or self.request.query_params.get("q")
         if search:
             search = search.strip()
             if search.isdigit():
@@ -110,21 +114,24 @@ class BebeViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(fecha_ingreso__date=fecha_ingreso.strip())
 
         # Filtro por médico asignado (ID o nombre)
-        medico = (
-            self.request.query_params.get("medico_a_cargo")
-            or self.request.query_params.get("medico")
-        )
+        medico = self.request.query_params.get(
+            "medico_a_cargo"
+        ) or self.request.query_params.get("medico")
         if medico:
             medico = medico.strip()
             if medico.isdigit():
                 queryset = queryset.filter(medico_a_cargo_id=int(medico))
             else:
-                queryset = queryset.filter(medico_a_cargo__nombre_completo__icontains=medico)
+                queryset = queryset.filter(
+                    medico_a_cargo__nombre_completo__icontains=medico
+                )
 
         # Filtro por cuna
         cuna = self.request.query_params.get("cuna")
         if cuna:
-            queryset = queryset.filter(cuna_asignada__identificador__icontains=cuna.strip())
+            queryset = queryset.filter(
+                cuna_asignada__identificador__icontains=cuna.strip()
+            )
 
         return queryset
 
@@ -222,6 +229,22 @@ class MedicamentoViewSet(viewsets.ModelViewSet):
     # puedes cambiar .all() por .all().order_by('hora')
     queryset = Medicamento.objects.all()
     serializer_class = MedicamentoSerializer
+
+    @action(detail=True, methods=["post"])
+    def administrar(self, request, pk=None):
+        """POST /api/medicamentos/{id}/administrar/ (sin cuerpo requerido)."""
+        servicio = MedicamentoService(DjangoMedicamentoRepository())
+        try:
+            resultado = servicio.administrar(pk)
+        except OperacionError as error:
+            return Response({"detail": str(error)}, status=error.status_code)
+        return Response(
+            {
+                "id": resultado.id,
+                "paciente_id": resultado.paciente_id,
+                "estado": resultado.estado,
+            }
+        )
 
 
 class PlanCuidadoViewSet(viewsets.ModelViewSet):
