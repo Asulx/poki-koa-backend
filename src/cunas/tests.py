@@ -11,7 +11,7 @@ Incluye:
 - CunaServiceContractTestCase: verifica el contrato de la Operación 1 (1 caso válido y 2 inválidos).
 """
 
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from django.test import TestCase
 from django.urls import reverse
@@ -345,6 +345,67 @@ class APITelemetriaCunaTestCase(TestCase):
         self.assertEqual(len(res.data["alertas_activas"]), 0)
         self.assertEqual(Alerta.objects.filter(cuna=self.cuna, activa=True).count(), 0)
 
+    def test_telemetria_rechaza_ritmo_cardiaco_invalido_sin_guardar(self):
+        for valor in (None, "inválido", 0, 261):
+            with self.subTest(valor=valor):
+                respuesta = self.client.post(
+                    self.url, {"ritmo_cardiaco": valor}, format="json"
+                )
+                self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
+                self.cuna.refresh_from_db()
+                self.assertEqual(self.cuna.ritmo_cardiaco, 125)
+
+    def test_telemetria_permite_valores_invalidos_en_otros_campos_actualmente(self):
+        """Fija el comportamiento actual antes de decidir la validación de sensores."""
+        respuesta = self.client.post(
+            self.url, {"spo2": 140}, format="json"
+        )
+
+        self.assertEqual(respuesta.status_code, status.HTTP_200_OK)
+        self.cuna.refresh_from_db()
+        self.assertEqual(self.cuna.spo2, 140)
+
+    @patch("cunas.views.logger.info")
+    def test_log_telemetria_no_incluye_lecturas_clinicas(self, registrar_info):
+        self.client.post(self.url, {"ritmo_cardiaco": 123}, format="json")
+
+        registrar_info.assert_called_once_with(
+            "Recibida telemetría para cuna %s", self.cuna.identificador
+        )
+
+
+class APIFiltrosAlertaCaracterizacionTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("alerta-list")
+        self.alerta = Alerta.objects.create(
+            tipo="spo2",
+            mensaje="SpO2 baja",
+            nivel="Advertencia",
+            activa=True,
+        )
+        Alerta.objects.create(
+            tipo="temperatura",
+            mensaje="Temperatura normalizada",
+            nivel="Info",
+            activa=False,
+        )
+
+    def test_filtros_alerta_se_combinan_y_activa_acepta_booleanos(self):
+        for valor in ("true", "1", "TRUE"):
+            with self.subTest(activa=valor):
+                respuesta = self.client.get(
+                    self.url, {"activa": valor, "nivel": "Advertencia", "tipo": "spo2"}
+                )
+                self.assertEqual(respuesta.status_code, status.HTTP_200_OK)
+                self.assertEqual([item["id"] for item in respuesta.data], [self.alerta.id])
+
+    def test_filtro_activa_desconocido_no_filtra(self):
+        respuesta = self.client.get(self.url, {"activa": "desconocido"})
+
+        self.assertEqual(respuesta.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(respuesta.data), 2)
+
 
 class EvaluacionSignosVitalesTestCase(TestCase):
     """Pruebas unitarias para la función pura de evaluación de umbrales clínicos neonatales."""
@@ -550,47 +611,3 @@ class CunaServiceContractTestCase(TestCase):
             service.actualizar_telemetria("", 130, 98, 36.8)
 
         self.assertIn("cuna_id es obligatorio", str(context.exception))
-
-
-class APIAdministrarMedicamentoTestCase(TestCase):
-    def setUp(self):
-        self.client = APIClient()
-        bebe = Bebe.objects.create(
-            identificador="BEBE-MEDICACION",
-            nombre_completo="Ana",
-            edad_meses=1,
-            sexo="F",
-        )
-        self.medicamento = Medicamento.objects.create(
-            paciente=bebe,
-            nombre="Vitamina K",
-            dosis="1 mg",
-            via="IM",
-            hora="10:00",
-            estado="Pendiente",
-        )
-        self.url = reverse("medicamento-administrar", args=[self.medicamento.pk])
-
-    def test_administra_y_rechaza_repeticion(self):
-        respuesta = self.client.post(self.url)
-        self.assertEqual(respuesta.status_code, 200)
-        self.assertEqual(respuesta.data["estado"], "Administrado")
-        self.medicamento.refresh_from_db()
-        self.assertEqual(self.medicamento.estado, "Administrado")
-        self.assertEqual(respuesta.data["paciente_id"], self.medicamento.paciente_id)
-        respuesta = self.client.post(self.url)
-        self.assertEqual(respuesta.status_code, 409)
-        self.medicamento.refresh_from_db()
-        self.assertEqual(self.medicamento.estado, "Administrado")
-
-    def test_id_invalido(self):
-        url = reverse("medicamento-administrar", args=["abc"])
-        self.assertEqual(self.client.post(url).status_code, 400)
-        self.medicamento.refresh_from_db()
-        self.assertEqual(self.medicamento.estado, "Pendiente")
-
-    def test_id_inexistente(self):
-        url = reverse("medicamento-administrar", args=[self.medicamento.pk + 1])
-        self.assertEqual(self.client.post(url).status_code, 404)
-        self.medicamento.refresh_from_db()
-        self.assertEqual(self.medicamento.estado, "Pendiente")

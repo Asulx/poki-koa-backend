@@ -7,21 +7,32 @@ Estilo adoptado: **Arquitectura Cliente-Servidor con API REST y Separación por 
 |---|---|---|---|
 | REF-01 | Tiempo de respuesta < 2s | Alta | El frontend SPA se renderiza en el cliente y solo pide datos JSON al backend, minimizando la carga por petición. |
 | REF-02 | Disponibilidad >= 99% | Alta | Frontend estático y backend API son independientes; se puede reiniciar uno sin afectar al otro. |
-| REF-03 | Autenticación JWT/RBAC | Alta | REST stateless se combina con JWT, validando cada petición en middleware sin sesiones en servidor. |
+| REF-03 | Autenticación JWT/RBAC | Alta | Se propone validar identidad y permisos en cada petición; su implementación está pendiente en las APIs de entrega 2. |
 | REF-05 | Alertas automáticas | Alta | La lógica de evaluación de signos vitales se centraliza en el backend como fuente única de verdad. |
 | REF-09 | Python / Django / DRF | Alta | REST se alinea nativamente con DRF: routers, serializers y viewsets generan los endpoints. |
-| REF-10 | BD relacional ACID | Alta | El ORM de Django desacopla la lógica de negocio de la base de datos, asegurando transacciones atómicas. |
+| REF-10 | BD relacional ACID | Alta | El ORM abstrae el acceso a datos; las operaciones que requieren varios cambios indivisibles deben delimitar una transacción. |
 
 ### Explicación textual:
 El estilo elegido para **Poki Koa** es una arquitectura cliente-servidor desacoplada. El frontend (React SPA) se encarga de la presentación y el backend (Django REST Framework) expone una API REST con la lógica de negocio y persistencia.
 
-Esta separación permite que la interfaz responda rápido sin recargas de página completas (REF-01), que el sistema sea más resiliente al aislar fallos entre cliente y servidor (REF-02), y que la autenticación JWT funcione de forma stateless en cada petición (REF-03). Centralizar la lógica de alertas en el backend garantiza que ningún evento crítico se pierda aunque el navegador esté cerrado (REF-05).
+Esta separación permite actualizar la interfaz sin recargar la página y desplegar cliente y servidor por separado. Los tiempos de respuesta y la disponibilidad requieren mediciones: el estilo por sí solo no garantiza REF-01 ni REF-02. Centralizar las alertas permite procesarlas sin depender de una pestaña abierta, pero garantizar que no se pierdan eventos requiere verificar persistencia y recuperación ante fallos (REF-05).
+
+### Alcance implementado en entrega 2
+
+El backend es una aplicación Django única con separación de responsabilidades:
+rutas en `urls.py`, atención de peticiones en `views.py`, validación y representación
+en `serializers.py`, y persistencia mediante los modelos y el ORM. Son capas de una
+misma aplicación, no servicios desplegados de forma independiente.
+
+Las APIs de pacientes y catálogo usan HTTP/JSON y SQLite en el entorno de pruebas.
+JWT, permisos por rol, HTTPS de producción y PostgreSQL forman parte del diseño
+objetivo; no se acreditan con las pruebas funcionales de esta entrega.
 
 ---
 
 ## 2. Diagrama de Arquitectura
 
-El siguiente diagrama muestra la arquitectura del sistema, con la separación de capas y el flujo de información desde los sensores hasta la interfaz:
+El siguiente diagrama muestra la arquitectura objetivo, incluida la autenticación y el despliegue previstos, con la separación de capas y el flujo de información desde los sensores hasta la interfaz:
 
 ```mermaid
 graph TB

@@ -8,8 +8,10 @@ Define las entidades principales del sistema de monitoreo neonatal:
 - Medicamento: fármacos asignados a un bebé para control de administración.
 """
 
+from decimal import Decimal
 from typing import ClassVar
 
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
@@ -334,3 +336,27 @@ class Alerta(models.Model):
         verbose_name = "Alerta"
         verbose_name_plural = "Alertas"
 
+
+
+class MedicamentoCatalogo(models.Model):
+    """Producto de catálogo independiente de las administraciones a pacientes."""
+
+    nombre = models.CharField(max_length=150)
+    principio_activo = models.CharField(max_length=150)
+    dosis_mg = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.01"))],
+    )
+    stock = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(2147483647)],
+    )
+
+    class Meta:
+        ordering = ["id"]
+        constraints = [
+            models.CheckConstraint(condition=models.Q(dosis_mg__gt=0), name="catalogo_dosis_positiva"),
+            models.CheckConstraint(condition=models.Q(stock__gte=1, stock__lte=2147483647), name="catalogo_stock_positivo"),
+        ]
+
+    def __str__(self):
+        return f"{self.nombre} ({self.dosis_mg} mg)"

@@ -10,10 +10,22 @@ El nombre **Poki Koa** entrega identidad nacional al proyecto mediante palabras 
 
 ## Documentación del Proyecto
 
-- [Arquitectura del Sistema](./Arquitectura.md) (Estilo arquitectónico, componentes y justificación)
-- [Requisitos Extrafuncionales](./ReqExtrafuncionales.md) (Catálogo de atributos de calidad y restricciones)
+| Grupo | Documentos |
+|---|---|
+| Proyecto | [Arquitectura](./docs/proyecto/Arquitectura.md) · [Requisitos extrafuncionales](./docs/proyecto/ReqExtrafuncionales.md) |
+| Entrega 2 — APIs | [Documentación de APIs](./docs/entrega2/DOCUMENTACION_APIS.md) |
+| Entrega 2 — Pruebas | [Matriz de casos](./docs/entrega2/MATRIZ_CASOS.md) · [Resultados](./docs/entrega2/REGISTRO_EJECUCION.md) · [Instalación y uso de Bruno](./docs/entrega2/USO_BRUNO.md) |
+| Entrega 2 — Refinamiento | [Conversación con Clarita](./docs/entrega2/evidencias/clarita/clarita_reviews_chat.md) |
+| Actividades de clase | [Diagnóstico](./docs/actividades/Actividad-Diagnostico.md) · [Ejercicio 2.2: construcción para la verificación](./docs/actividades/ejercicio-2-2.md) |
 
----
+El Entregable 2 incluye las APIs de pacientes y catálogo de medicamentos con
+stock (`/api/catalogo-medicamentos/`). El catálogo es independiente de las
+asignaciones de medicación por paciente. El equipo ejecutó los 44 casos (22 por API)
+en Bruno 4.2.1: 94 solicitudes y 265 verificaciones aprobadas, sin fallos ni omisiones.
+Los resultados están en el [registro de ejecución](./docs/entrega2/REGISTRO_EJECUCION.md)
+y en el [reporte del equipo](./qa/entrega2/resultado-bruno-equipo.html).
+La [colección Bruno](./qa/entrega2/bruno/) contiene las solicitudes y sus verificaciones.
+El motivo del cambio de herramienta se explica en [Uso de Bruno](./docs/entrega2/USO_BRUNO.md).
 
 ## Arquitectura
 
@@ -75,6 +87,11 @@ Inicializa o actualiza la base de datos SQLite con los modelos del sistema:
 uv run poki_koa migrate
 ```
 
+Este comando usa `src/db.sqlite3`. La base está excluida para nuevos cambios por
+`.gitignore`, aunque ya existe una copia histórica versionada en este repositorio.
+No uses datos reales de pacientes en entornos locales ni en archivos de SQLite
+versionados.
+
 #### 4. Iniciar el servidor de desarrollo
 ```bash
 uv run poki_koa
@@ -96,10 +113,54 @@ El backend quedará accesible en:
 | `uv run poki_koa migrate` | Aplica migraciones pendientes a la base de datos |
 | `uv run poki_koa makemigrations` | Genera nuevas migraciones tras modificar modelos |
 | `uv run poki_koa test` | Ejecuta la suite de pruebas unitarias |
+| `uv run poki_koa test cunas` | Ejecuta las pruebas de la app principal |
+| `uv run poki_koa makemigrations --check` | Comprueba que los modelos no requieran migraciones nuevas |
 | `uv run poki_koa createsuperuser` | Crea un usuario administrador para el panel `/admin/` |
 | `uv run poki_koa simular_alertas` | Simula signos vitales y evalúa alertas en consola |
 | `uv run make-crud <Modelo>` | Genera automáticamente Model, Serializer, ViewSet y URL para una entidad |
-| `uv run ruff check` | Analiza el código con [Ruff](https://docs.astral.sh/ruff/) para detectar errores y estilo |
+| `uv run ruff check src` | Analiza el código con [Ruff](https://docs.astral.sh/ruff/) para detectar errores y estilo |
+
+La suite Django contiene actualmente 44 tests. La matriz de 44 casos Bruno del
+Entregable 2 es una prueba aparte de los endpoints de pacientes y catálogo; su
+procedimiento y resultados están descritos en la [guía de Bruno](./docs/entrega2/USO_BRUNO.md).
+
+### Entorno de demostración del Entregable 2
+
+La configuración `poki_koa.settings_entregable` selecciona
+`src/db_entregable.sqlite3` en lugar de la base normal. Para preparar los datos
+ficticios del entregable:
+
+```bash
+uv run poki_koa migrate --settings=poki_koa.settings_entregable
+uv run poki_koa preparar_entregable --settings=poki_koa.settings_entregable
+```
+
+El comando se niega a operar si no se seleccionó explícitamente esa configuración.
+Para volver a cargar los datos demo, agrega `--reset`. El reset vacía únicamente la
+base de demostración:
+
+```bash
+uv run poki_koa preparar_entregable --settings=poki_koa.settings_entregable --reset
+```
+
+Las bases SQLite de desarrollo y demostración están ignoradas para archivos nuevos,
+pero ambas están presentes en el historial actual. Verifica su contenido antes de
+compartir una copia del repositorio.
+
+### Configuración y seguridad
+
+`src/poki_koa/settings.py` es configuración local de desarrollo, no una configuración
+lista para desplegar: contiene una clave secreta de desarrollo, `DEBUG=True`,
+`ALLOWED_HOSTS=["*"]` y una lista CORS de localhost. La API tampoco define actualmente
+autenticación ni permisos por endpoint. Antes de exponer el servicio, deben definirse
+valores por entorno, hosts/orígenes autorizados, autenticación y permisos adecuados
+al acceso a datos clínicos. No se deben registrar lecturas ni datos identificables de
+pacientes; los logs de telemetría registran solo el identificador de cuna.
+
+El endpoint `POST /api/cunas/{id}/telemetria/` valida explícitamente el ritmo
+cardíaco, mientras los otros campos recibidos aún no tienen validaciones equivalentes
+en esa vista. Definir rangos y respuestas esperadas con responsables clínicos antes
+de restringirlos, porque los valores aceptados forman parte del comportamiento actual.
 
 ### Automatización de Recursos (`make-crud`)
 
@@ -134,26 +195,64 @@ Este comando genera y conecta de forma automática:
 ├── pyproject.toml          # Dependencias y comandos de ejecución (uv + hatchling)
 ├── uv.lock                 # Registro exacto de versiones de dependencias
 ├── .python-version         # Versión de Python fijada para el proyecto
-├── Arquitectura.md         # Documento detallado de diseño arquitectónico
-├── ReqExtrafuncionales.md  # Catálogo de requisitos extrafuncionales
+├── docs/
+│   ├── proyecto/           # Arquitectura y requisitos extrafuncionales
+│   ├── actividades/        # Diagnóstico y ejercicios de clase
+│   └── entrega2/           # APIs, matriz, resultados y uso de Bruno
+│       └── evidencias/clarita/ # Conversación de revisión de historias
+├── qa/entrega2/            # Casos, colecciones y evidencia de pruebas API
 └── src/
     ├── manage.py           # CLI estándar de Django (uso alternativo sin uv)
-    ├── db.sqlite3          # Base de datos SQLite para desarrollo
     ├── poki_koa/           # Configuración central del proyecto Django
     │   ├── settings.py     # Ajustes globales (base de datos, apps, CORS)
+    │   ├── settings_entregable.py # Settings aislados para la demo del Entregable 2
     │   ├── urls.py         # Rutas principales: /admin/ y /api/
+    │   ├── asgi.py         # Entrada ASGI
     │   ├── wsgi.py         # Entrada para servidores WSGI
-    │   └── main.py         # Script principal que ejecuta el comando `poki_koa`
+    │   └── main.py         # Entrada del comando `poki_koa`
     └── cunas/              # Aplicación principal del dominio neonatal
         ├── models.py       # Modelos clínicos (Medico, Bebe, Cuna, Medicamento, etc.)
         ├── serializers.py  # Serializadores JSON para la API REST
         ├── views.py        # ViewSets con endpoints CRUD
-        ├── urls.py         # Enrutamiento de la app (/api/medicos/, /api/bebes/, /api/cunas/)
+        ├── urls.py         # Router REST bajo /api/
+        ├── alertas.py      # Evaluación, deduplicación y resolución de alertas
+        ├── signals.py      # Ejecuta el motor de alertas al guardar una cuna
+        ├── services.py     # Servicio de dominio para telemetría de cunas
         ├── admin.py        # Registro en el panel administrativo
-        ├── tests.py        # Pruebas unitarias
-        ├── management/     # Comandos personalizados (make-crud)
+        ├── tests.py        # Pruebas de modelos, API y motor de alertas
+        ├── test_catalogo.py # Contrato API y persistencia del catálogo
+        ├── test_migrations.py # Prueba de migración de identificadores
+        ├── management/     # make-crud, simulador y preparación de demo
         └── migrations/     # Historial de migraciones generadas
 ```
+
+Las rutas actuales incluyen `/api/medicos/`, `/api/bebes/`, `/api/cunas/`,
+`/api/medicamentos/`, `/api/catalogo-medicamentos/`, `/api/planes-cuidado/` y
+`/api/alertas/`. La cuna también expone la acción de telemetría. Los nombres de
+campos y formatos serializados son consumidos por el frontend y deben tratarse como
+contrato de compatibilidad.
+
+---
+
+## Pendientes conocidos
+
+Estos asuntos requieren definición o trabajo antes de considerar el backend listo
+para un entorno clínico expuesto:
+
+1. **Seguridad de despliegue:** cargar `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS` y CORS
+   desde configuración de entorno, y definir autenticación/permisos para cada rol.
+2. **Datos sensibles:** determinar si las bases SQLite versionadas contienen datos
+   reales o credenciales; si corresponde, retirar los archivos del control de versiones
+   y evaluar la exposición histórica.
+3. **Validación de telemetría:** acordar y probar rangos para SpO₂, temperatura,
+   estado de sueño y dispositivos con responsables clínicos, manteniendo documentado
+   cualquier cambio de contrato.
+4. **Automatización:** añadir CI que ejecute `uv sync`, `uv run poki_koa test`,
+   `uv run poki_koa makemigrations --check` y `uv run ruff check src` en cada PR.
+5. **Generador CRUD:** agregar pruebas a `make-crud` y reemplazar o limitar la edición
+   de Python por expresiones regulares antes de depender de él en cambios rutinarios.
+6. **Datos del equipo:** mantener roles y aportes ligados a la evidencia del entregable;
+   la tabla de roles histórica al final corresponde a otras actividades.
 
 ---
 
@@ -249,7 +348,9 @@ Todas las historias de usuario están registradas como GitHub Issues:
 
 ---
 
-## Roles de Equipo
+## Roles de Equipo — asignación histórica
+
+Esta tabla documenta roles de una entrega anterior y no declara responsabilidades del Entregable 2.
 
 | Integrante | Rol | Ítems de la rúbrica a cargo |
 | :--- | :--- | :--- |

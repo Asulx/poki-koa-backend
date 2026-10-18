@@ -13,3 +13,5 @@ dist/
 *.log
 
 src/db.sqlite3
+src/db_entregable.sqlite3
+src/db_entregable.sqlite3-*

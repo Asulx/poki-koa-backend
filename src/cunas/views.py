@@ -15,23 +15,33 @@ para su modelo correspondiente gracias a Django REST Framework:
 
 (Las mismas operaciones aplican para /api/bebes/, /api/cunas/ y /api/medicamentos/)
 """
+import logging
 
 from django.db.models import Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .medicamentos import MedicamentoService, OperacionError
-from .models import Alerta, Bebe, Cuna, Medicamento, Medico, PlanCuidado
-from .repositories import DjangoMedicamentoRepository
+from .models import (
+    Alerta,
+    Bebe,
+    Cuna,
+    Medicamento,
+    MedicamentoCatalogo,
+    Medico,
+    PlanCuidado,
+)
 from .serializers import (
     AlertaSerializer,
     BebeSerializer,
     CunaSerializer,
+    MedicamentoCatalogoSerializer,
     MedicamentoSerializer,
     MedicoSerializer,
     PlanCuidadoSerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class MedicoViewSet(viewsets.ModelViewSet):
@@ -142,6 +152,27 @@ class CunaViewSet(viewsets.ModelViewSet):
         """
         cuna = self.get_object()
         data = request.data
+
+        # Registrar solo el identificador evita copiar datos clínicos al log.
+        logger.info("Recibida telemetría para cuna %s", cuna.identificador)
+
+        # Validación de telemetría clínica (Corrección Issue #51)
+        if "ritmo_cardiaco" in data:
+            ritmo = data.get("ritmo_cardiaco")
+            # Falla si es nulo, no numérico, menor o igual a cero o fuera de rango neonatal
+            if ritmo is None or not isinstance(ritmo, (int, float)) or ritmo <= 0 or ritmo > 260:
+                # LOG 2 (Nivel WARNING): Registra el valor anómalo rechazado
+                logger.warning(
+                    "Telemetría anómala detectada en cuna %s: ritmo cardíaco inválido (%s)",
+                    cuna.identificador,
+                    ritmo
+                )
+                return Response(
+                    {
+                        "error": "El ritmo cardíaco debe ser un valor numérico positivo válido dentro del rango neonatal (1-260 bpm)."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         campos_actualizables = [
             "ritmo_cardiaco",
@@ -279,3 +310,12 @@ class AlertaViewSet(viewsets.ModelViewSet):
             {"mensaje": "Alerta resuelta con éxito", "alerta": serializer.data},
             status=status.HTTP_200_OK,
         )
+
+
+
+class MedicamentoCatalogoViewSet(viewsets.ModelViewSet):
+    """Registro, consulta y modificación del catálogo (issue #17)."""
+
+    queryset = MedicamentoCatalogo.objects.all()
+    serializer_class = MedicamentoCatalogoSerializer
+    http_method_names = ["get", "post", "put", "patch", "head", "options"]
