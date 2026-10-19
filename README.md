@@ -350,13 +350,12 @@ Todas las historias de usuario están registradas como GitHub Issues:
 
 ## Roles de Equipo — asignación histórica
 
-Esta tabla documenta roles de una entrega anterior y no declara responsabilidades del Entregable 2.
 
-| Integrante | Rol | Ítems de la rúbrica a cargo |
-| :--- | :--- | :--- |
-| **Sebastian Quinzacaras** | Analista / Arquitecto | • 1.1 Historias de Usuario: Completitud<br>• 1.1 Historias de Usuario: Correctitud (forma)<br>• 1.1 Historias de Usuario: Calidad |
-| **Ricardo Figueroa** | Diseñador de Software | • 2.3 Diseño Arquitectónico: Módulos - Completitud<br>• 2.1 Diseño Arquitectónico: Módulos - Calidad |
-| **Mauricio Escobar** | Líder Técnico | • 2.2 Diagrama de Arquitectura: Consistencia<br>• 2.4 Entidades del dominio: Completitud |
-| **Ricardo Loyola** | Arquitecto de Software | • 1.2 Requisitos Extrafuncionales: Catálogo extrafuncionales<br>• 2.1 Diseño Arquitectónico: Estilo arquitectónico |
-| **Fabian Mamani** | QA Tester / Diseñador UI | • 2.3 Mockups: Consistencia |
-| **Sarai Herrera** | Analista / Arquitecto | • 1.1 Historias de Usuario: Completitud<br>• 1.1 Historias de Usuario: Correctitud (forma)<br>• 1.1 Historias de Usuario: Calidad |
+| Integrante | Rol | Responsabilidades en la entrega actual |
+|---|---|---|
+| Sebastian Quinzacaras | Analista de Requisitos | Presentación de historias de usuario, criterios de aceptación y Definition of Done (DoD). |
+| Ricardo Figueroa | Analista Funcional | Refinamiento de historias con Clarita Review, identificación de mejoras y trazabilidad de requisitos. |
+| Mauricio Escobar | Líder Técnico / Backend | Explicación de la arquitectura, tecnologías, integración de componentes y demostración técnica del backend. |
+| Ricardo Loyola | Arquitecto de Software / Backend | Explicación del diseño de APIs REST, modelos de datos, endpoints y reglas de negocio. |
+| Fabian Mamani | QA Tester | Diseño, ejecución y presentación de pruebas funcionales, validaciones y casos límite. |
+| Sarai Herrera | Analista / Frontend | Contexto del proyecto, solución propuesta, experiencia de usuario y relación entre requisitos e interfaces futuras.|
