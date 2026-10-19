@@ -350,13 +350,11 @@ Todas las historias de usuario están registradas como GitHub Issues:
 
 ## Roles de Equipo — asignación histórica
 
-Esta tabla documenta roles de una entrega anterior y no declara responsabilidades del Entregable 2.
-
 | Integrante | Rol | Ítems de la rúbrica a cargo |
 | :--- | :--- | :--- |
 | **Sebastian Quinzacaras** | Analista / Arquitecto | • 1.1 Historias de Usuario: Completitud<br>• 1.1 Historias de Usuario: Correctitud (forma)<br>• 1.1 Historias de Usuario: Calidad |
-| **Ricardo Figueroa** | Diseñador de Software | • 2.3 Diseño Arquitectónico: Módulos - Completitud<br>• 2.1 Diseño Arquitectónico: Módulos - Calidad |
+| **Ricardo Figueroa** | Analista / Arquitecto | • 1.1 Historias de Usuario: Completitud<br>• 1.1 Historias de Usuario: Correctitud (forma)<br>• 1.1 Historias de Usuario: Calidad |
 | **Mauricio Escobar** | Líder Técnico | • 2.2 Diagrama de Arquitectura: Consistencia<br>• 2.4 Entidades del dominio: Completitud |
 | **Ricardo Loyola** | Arquitecto de Software | • 1.2 Requisitos Extrafuncionales: Catálogo extrafuncionales<br>• 2.1 Diseño Arquitectónico: Estilo arquitectónico |
-| **Fabian Mamani** | QA Tester / Diseñador UI | • 2.3 Mockups: Consistencia |
+| **Fabian Mamani** | QA Tester  | • 2.3 Consistencia |
 | **Sarai Herrera** | Analista / Arquitecto | • 1.1 Historias de Usuario: Completitud<br>• 1.1 Historias de Usuario: Correctitud (forma)<br>• 1.1 Historias de Usuario: Calidad |
