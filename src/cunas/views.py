@@ -22,6 +22,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from .medicamentos import MedicamentoService, OperacionError
 from .models import (
     Alerta,
     Bebe,
@@ -31,6 +32,7 @@ from .models import (
     Medico,
     PlanCuidado,
 )
+from .repositories import DjangoMedicamentoRepository
 from .serializers import (
     AlertaSerializer,
     BebeSerializer,

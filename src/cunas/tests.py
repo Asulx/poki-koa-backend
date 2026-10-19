@@ -611,3 +611,47 @@ class CunaServiceContractTestCase(TestCase):
             service.actualizar_telemetria("", 130, 98, 36.8)
 
         self.assertIn("cuna_id es obligatorio", str(context.exception))
+
+
+class APIAdministrarMedicamentoTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        bebe = Bebe.objects.create(
+            identificador="BEBE-MEDICACION",
+            nombre_completo="Ana",
+            edad_meses=1,
+            sexo="F",
+        )
+        self.medicamento = Medicamento.objects.create(
+            paciente=bebe,
+            nombre="Vitamina K",
+            dosis="1 mg",
+            via="IM",
+            hora="10:00",
+            estado="Pendiente",
+        )
+        self.url = reverse("medicamento-administrar", args=[self.medicamento.pk])
+
+    def test_administra_y_rechaza_repeticion(self):
+        respuesta = self.client.post(self.url)
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(respuesta.data["estado"], "Administrado")
+        self.medicamento.refresh_from_db()
+        self.assertEqual(self.medicamento.estado, "Administrado")
+        self.assertEqual(respuesta.data["paciente_id"], self.medicamento.paciente_id)
+        respuesta = self.client.post(self.url)
+        self.assertEqual(respuesta.status_code, 409)
+        self.medicamento.refresh_from_db()
+        self.assertEqual(self.medicamento.estado, "Administrado")
+
+    def test_id_invalido(self):
+        url = reverse("medicamento-administrar", args=["abc"])
+        self.assertEqual(self.client.post(url).status_code, 400)
+        self.medicamento.refresh_from_db()
+        self.assertEqual(self.medicamento.estado, "Pendiente")
+
+    def test_id_inexistente(self):
+        url = reverse("medicamento-administrar", args=[self.medicamento.pk + 1])
+        self.assertEqual(self.client.post(url).status_code, 404)
+        self.medicamento.refresh_from_db()
+        self.assertEqual(self.medicamento.estado, "Pendiente")
