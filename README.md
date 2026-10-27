@@ -112,9 +112,9 @@ El backend quedará accesible en:
 | `uv run poki_koa` | Inicia el servidor de desarrollo en el puerto 8000 |
 | `uv run poki_koa migrate` | Aplica migraciones pendientes a la base de datos |
 | `uv run poki_koa makemigrations` | Genera nuevas migraciones tras modificar modelos |
-| `uv run poki_koa test` | Ejecuta la suite de pruebas de Django (54 tests) |
+| `uv run poki_koa test` | Ejecuta la suite de pruebas de Django (57 tests) |
 | `PYTHONPATH=src uv run python -m unittest discover -s test -v` | Ejecuta las pruebas unitarias aisladas en memoria (14 tests) |
-| `uv run coverage run src/manage.py test cunas && PYTHONPATH=src uv run coverage run -a -m unittest discover -s test && uv run coverage report -m` | Ejecuta las 68 pruebas y genera el reporte de cobertura de líneas y ramas |
+| `uv run coverage run src/manage.py test cunas && PYTHONPATH=src uv run coverage run -a -m unittest discover -s test && uv run coverage report -m` | Ejecuta las 71 pruebas y genera el reporte de cobertura de líneas y ramas |
 | `uv run poki_koa test cunas` | Ejecuta las pruebas de la app principal |
 | `uv run poki_koa makemigrations --check` | Comprueba que los modelos no requieran migraciones nuevas |
 | `uv run poki_koa createsuperuser` | Crea un usuario administrador para el panel `/admin/` |
@@ -122,7 +122,7 @@ El backend quedará accesible en:
 | `uv run make-crud <Modelo>` | Genera automáticamente Model, Serializer, ViewSet y URL para una entidad |
 | `uv run ruff check src test scripts` | Analiza el código con [Ruff](https://docs.astral.sh/ruff/) para detectar errores y estilo |
 
-La suite automatizada contiene actualmente **68 tests** (54 en la suite de Django y 14 en la suite unitaria aislada `test/`), alcanzando un **92% de cobertura** en líneas y ramas (ver [Cobertura, CI y Depuración](./docs/entrega2/COBERTURA_CI_Y_DEPURACION.md)). La matriz de 44 casos Bruno del Entregable 2 es una prueba aparte de los endpoints de pacientes y catálogo; su procedimiento y resultados están descritos en la [guía de Bruno](./docs/entrega2/USO_BRUNO.md).
+La suite automatizada contiene actualmente **71 tests** (57 en la suite de Django —incluyendo `RegresionSuiteTestCase`— y 14 en la suite unitaria aislada `test/`), alcanzando un **92% de cobertura** en líneas y ramas (ver [Cobertura, CI y Depuración](./docs/entrega2/COBERTURA_CI_Y_DEPURACION.md) y el [reporte HTML persistido](./qa/entrega2/cobertura/html/index.html)). La matriz de 44 casos Bruno del Entregable 2 es una prueba aparte de los endpoints de pacientes y catálogo; su procedimiento y resultados están descritos en la [guía de Bruno](./docs/entrega2/USO_BRUNO.md).
 
 ### Entorno de demostración del Entregable 2
 
@@ -157,10 +157,10 @@ valores por entorno, hosts/orígenes autorizados, autenticación y permisos adec
 al acceso a datos clínicos. No se deben registrar lecturas ni datos identificables de
 pacientes; los logs de telemetría registran solo el identificador de cuna.
 
-El endpoint `POST /api/cunas/{id}/telemetria/` valida explícitamente el ritmo
-cardíaco, mientras los otros campos recibidos aún no tienen validaciones equivalentes
-en esa vista. Definir rangos y respuestas esperadas con responsables clínicos antes
-de restringirlos, porque los valores aceptados forman parte del comportamiento actual.
+El endpoint `POST /api/cunas/{id}/telemetria/` valida defensivamente en la frontera
+HTTP todos los parámetros recibidos (`ritmo_cardiaco` entre 1 y 260 bpm, `spo2` entre 0
+y 100%, `temperatura` entre 25.0 y 45.0 °C, `estado_sueno` dentro del catálogo válido y
+tipos booleanos estrictos para `canula_ok` y `via_iv_activa`).
 
 ### Automatización de Recursos (`make-crud`)
 

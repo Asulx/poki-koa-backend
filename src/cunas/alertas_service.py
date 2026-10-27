@@ -1,5 +1,10 @@
 
-"""Contrato de negocio para resolver alertas, independiente de Django."""
+"""
+Contrato de negocio para resolver alertas clínicas neonatales, independiente de Django.
+
+Aplica Diseño por Contrato (Precondiciones, Postcondiciones e Invariantes)
+y desacopla el almacenamiento mediante `AlertaRepository` (`Protocol`).
+"""
 
 from dataclasses import dataclass, replace
 from datetime import datetime
@@ -7,19 +12,27 @@ from typing import Protocol
 
 
 class AlertaOperacionError(Exception):
+    """Excepción base para entradas inválidas en operaciones de alerta (HTTP 400)."""
+
     status_code = 400
 
 
 class AlertaNoEncontrada(AlertaOperacionError):
+    """Se lanza cuando la alerta solicitada no existe en el repositorio (HTTP 404)."""
+
     status_code = 404
 
 
 class AlertaEstadoNoPermitido(AlertaOperacionError):
+    """Se lanza cuando se intenta resolver una alerta ya inactiva o modificada concurrentemente (HTTP 409)."""
+
     status_code = 409
 
 
 @dataclass(frozen=True)
 class RegistroAlerta:
+    """Proyección inmutable de una alerta clínica neonatal."""
+
     id: int
     paciente_id: int | None
     cuna_id: int | None
@@ -32,6 +45,8 @@ class RegistroAlerta:
 
 
 class AlertaRepository(Protocol):
+    """Contrato de persistencia requerido por `AlertaService`."""
+
     def obtener(self, alerta_id: int) -> RegistroAlerta | None:
         """Obtiene una alerta o None si no existe."""
         ...
@@ -47,7 +62,10 @@ class AlertaRepository(Protocol):
 
 
 class AlertaService:
+    """Servicio de dominio encargado de la resolución controlada de alertas activas."""
+
     def __init__(self, repositorio: AlertaRepository):
+        """Inyecta explícitamente el repositorio para permitir el uso de Fakes en pruebas."""
         self._repositorio = repositorio
 
     def resolver_alerta(self, alerta_id: int | str) -> RegistroAlerta:

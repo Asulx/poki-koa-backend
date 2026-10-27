@@ -8,7 +8,8 @@ Incluye:
 - APITelemetriaCunaTestCase: verifica la actualización de telemetría y emisión de alertas.
 - EvaluacionSignosVitalesTestCase: comprueba la función pura de evaluación médica neonatal.
 - MotorAlertasIntegrationTestCase: comprueba la deduplicación y autorresolución de alertas.
-- CunaServiceContractTestCase: verifica el contrato de la Operación 1 (1 caso válido y 2 inválidos).
+- CunaServiceContractTestCase: verifica el contrato de la Operación 1.
+- RegresionSuiteTestCase: suite explícita de pruebas de regresión (Criterio 6 Hito 2).
 """
 
 from unittest.mock import Mock, patch
@@ -355,15 +356,28 @@ class APITelemetriaCunaTestCase(TestCase):
                 self.cuna.refresh_from_db()
                 self.assertEqual(self.cuna.ritmo_cardiaco, 125)
 
-    def test_telemetria_permite_valores_invalidos_en_otros_campos_actualmente(self):
-        """Fija el comportamiento actual antes de decidir la validación de sensores."""
-        respuesta = self.client.post(
-            self.url, {"spo2": 140}, format="json"
-        )
-
-        self.assertEqual(respuesta.status_code, status.HTTP_200_OK)
-        self.cuna.refresh_from_db()
-        self.assertEqual(self.cuna.spo2, 140)
+    def test_telemetria_rechaza_spo2_temperatura_estado_y_booleanos_invalidos_sin_guardar(self):
+        """Verifica que la validación defensiva rechace otros campos de telemetría inválidos."""
+        casos_invalidos = [
+            {"spo2": 140},
+            {"spo2": -5},
+            {"spo2": True},
+            {"spo2": "abc"},
+            {"temperatura": 50.0},
+            {"temperatura": 20.0},
+            {"temperatura": None},
+            {"estado_sueno": "Invalido"},
+            {"canula_ok": "texto"},
+            {"via_iv_activa": 123},
+        ]
+        for payload in casos_invalidos:
+            with self.subTest(payload=payload):
+                respuesta = self.client.post(self.url, payload, format="json")
+                self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
+                self.cuna.refresh_from_db()
+                self.assertEqual(self.cuna.spo2, 98)
+                self.assertEqual(self.cuna.temperatura, 36.7)
+                self.assertTrue(self.cuna.canula_ok)
 
     @patch("cunas.views.logger.info")
     def test_log_telemetria_no_incluye_lecturas_clinicas(self, registrar_info):
@@ -680,3 +694,90 @@ class APIAdministrarMedicamentoTestCase(TestCase):
         self.assertEqual(self.client.post(url).status_code, 404)
         self.medicamento.refresh_from_db()
         self.assertEqual(self.medicamento.estado, "Pendiente")
+
+
+class RegresionSuiteTestCase(TestCase):
+    """
+    Suite explícita de Pruebas de Regresión (Criterio 6 — Hito 2).
+
+    Cada prueba verifica que un defecto histórico corregido en el proyecto
+    no vuelva a reintroducirse tras refactorizaciones o nuevos desarrollos.
+    """
+
+    def setUp(self):
+        self.client = APIClient()
+        self.bebe = Bebe.objects.create(
+            identificador="BEB-REG-01",
+            nombre_completo="Paciente Regresión",
+            edad_meses=1,
+            sexo="F",
+        )
+        self.cuna = Cuna.objects.create(
+            identificador="C-REG-01",
+            paciente=self.bebe,
+            ritmo_cardiaco=130,
+            spo2=98,
+            temperatura=36.8,
+            canula_ok=True,
+        )
+
+    def test_regresion_issue_51_telemetria_anomala_no_corrompe_estado_ni_crea_alerta(
+        self,
+    ):
+        """
+        PRUEBA DE REGRESIÓN (Issue #51):
+        Antes de la corrección, enviar `ritmo_cardiaco` nulo, negativo o >260 bpm
+        sobrescribía el registro de la cuna y disparaba una alerta falsa de bradicardia/taquicardia.
+        """
+        url = reverse("cuna-telemetria", args=[self.cuna.pk])
+        respuesta = self.client.post(url, {"ritmo_cardiaco": -15}, format="json")
+
+        self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
+        self.cuna.refresh_from_db()
+        self.assertEqual(self.cuna.ritmo_cardiaco, 130)
+        self.assertEqual(Alerta.objects.filter(cuna=self.cuna).count(), 0)
+
+    def test_regresion_issue_54_doble_resolucion_alerta_retorna_409_conflict(self):
+        """
+        PRUEBA DE REGRESIÓN (Issue #54 — Operación 2):
+        Anteriormente, resolver una alerta ya inactiva respondía HTTP 200 OK sin validar
+        la precondición de estado activo. Ahora debe retornar HTTP 409 Conflict.
+        """
+        alerta = Alerta.objects.create(
+            paciente=self.bebe,
+            cuna=self.cuna,
+            tipo="spo2",
+            mensaje="Desaturación",
+            nivel="Critica",
+            activa=True,
+        )
+        url = reverse("alerta-resolver", args=[alerta.pk])
+
+        primera = self.client.post(url)
+        self.assertEqual(primera.status_code, status.HTTP_200_OK)
+
+        segunda = self.client.post(url)
+        self.assertEqual(segunda.status_code, status.HTTP_409_CONFLICT)
+
+    def test_regresion_issue_57_doble_administracion_medicamento_retorna_409_conflict(
+        self,
+    ):
+        """
+        PRUEBA DE REGRESIÓN (Issue #57 — Operación 3):
+        Verifica que un medicamento ya administrado no pueda volver a confirmarse.
+        """
+        med = Medicamento.objects.create(
+            paciente=self.bebe,
+            nombre="Cafeína Citrato",
+            dosis="20 mg/kg",
+            via="IV",
+            hora="08:00",
+            estado="Pendiente",
+        )
+        url = reverse("medicamento-administrar", args=[med.pk])
+
+        self.assertEqual(self.client.post(url).status_code, status.HTTP_200_OK)
+        self.assertEqual(self.client.post(url).status_code, status.HTTP_409_CONFLICT)
+        med.refresh_from_db()
+        self.assertEqual(med.estado, "Administrado")
+

@@ -49,5 +49,17 @@ jobs:
           PYTHONPATH: src
         run: uv run coverage run -a -m unittest discover -s test -v
 
-      - name: Reporte de cobertura y verificación de umbral (>= 85%)
-        run: uv run coverage report -m --fail-under=85
+      - name: Reporte de cobertura, verificación de umbral (>= 85%) y generación de artefactos
+        run: |
+          uv run coverage report -m --fail-under=85
+          uv run coverage xml -o coverage.xml
+          uv run coverage html -d htmlcov
+
+      - name: Publicar artefactos de cobertura (HTML y XML)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-cobertura-hito2
+          path: |
+            coverage.xml
+            htmlcov/

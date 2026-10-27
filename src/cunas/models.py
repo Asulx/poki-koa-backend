@@ -339,7 +339,14 @@ class Alerta(models.Model):
 
 
 class MedicamentoCatalogo(models.Model):
-    """Producto de catálogo independiente de las administraciones a pacientes."""
+    """
+    Producto del catálogo farmacéutico neonatal, independiente de las
+    prescripciones individuales por paciente (`Medicamento`).
+
+    Protege sus invariantes de negocio tanto en la capa de validación de Django
+    como a nivel de motor SQL mediante `CheckConstraint` (`dosis_mg > 0` y
+    `1 <= stock <= 2147483647`).
+    """
 
     nombre = models.CharField(max_length=150)
     principio_activo = models.CharField(max_length=150)
