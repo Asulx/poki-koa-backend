@@ -21,8 +21,66 @@
 
 ---
 
-## Ficha de Operación 2
-*(Pendiente de registro)*
+## Ficha de Operación 2: Contrato y aserciones para gestión de alertas
+
+**Issue:** #54 — Construcción para la Verificación
+
+**Rama de desarrollo:** `feature/54-gestion-alertas`
+
+**Operación:** `AlertaService.resolver_alerta(alerta_id)`
+
+**Estado:** Implementada y verificada.
+
+> **Nota de trazabilidad:** La Operación 2 se desarrolló en la rama `feature/54-gestion-alertas`. Su implementación incorpora contratos explícitos, validaciones defensivas, aserciones para invariantes internas e inyección de dependencias. Se integra con el endpoint existente de resolución de alertas y cuenta con pruebas unitarias y de integración.
+
+| Elemento | Registro del equipo |
+| :--- | :--- |
+| **Funcionalidad y operación** | **Funcionalidad:** Resolución de alertas activas de monitoreo neonatal.<br>**Clase, módulo y firma:** `src/cunas/alertas_service.py` → `AlertaService.resolver_alerta(alerta_id: int \| str) -> RegistroAlerta`.<br>**Repositorio:** `src/cunas/repositories_alertas.py` → `DjangoAlertaRepository`.<br>**Ruta:** `POST /api/alertas/{id}/resolver/`. |
+| **Propósito** | Resolver una alerta activa mediante un servicio de negocio con contrato explícito, garantizando el cambio de estado a `activa=False`, la validación de entradas y la conservación de los demás datos del registro. |
+| **Precondiciones** | 1. `alerta_id` debe ser un entero positivo entre 1 y `2**63 - 1`, o una cadena decimal ASCII canónica, sin espacios, signos ni ceros iniciales.<br>2. La alerta debe existir.<br>3. La alerta debe estar activa (`activa=True`) al momento de su resolución. |
+| **Postcondiciones** | 1. La alerta queda inactiva (`activa=False`) mediante una actualización condicional persistida en la base de datos.<br>2. El servicio devuelve un `RegistroAlerta` con el estado actualizado.<br>3. La resolución exitosa devuelve HTTP 200 desde el endpoint. |
+| **Invariante** | Se conserva el identificador y los demás campos de la alerta: `paciente_id`, `cuna_id`, `tipo`, `mensaje`, `nivel`, `fecha_hora` y `valor_leido`. Las aserciones internas verifican la identidad del registro y que el resultado del repositorio corresponda al registro original con únicamente `activa=False`. |
+| **Validación defensiva** | **Entrada inválida 1:** `alerta_id="abc"` u otro identificador mal formado → `AlertaOperacionError`, HTTP 400, sin consultar ni modificar el repositorio.<br>**Entrada inválida 2:** alerta previamente resuelta (`activa=False`) → `AlertaEstadoNoPermitido`, HTTP 409, sin modificar el registro.<br>**Alerta inexistente:** `AlertaNoEncontrada`, HTTP 404.<br>**Cambio concurrente detectado:** se rechaza la resolución con `AlertaEstadoNoPermitido`, HTTP 409. |
+| **Dependencia explícita** | `AlertaService` recibe mediante su constructor un repositorio que implementa el contrato `AlertaRepository`, definido con `Protocol` y los métodos `obtener` y `confirmar_activa`. La vista utiliza `DjangoAlertaRepository`, mientras que las pruebas unitarias utilizan un repositorio simulado (`RepositorioFake`) sin conexión a la base de datos. |
+| **Evidencia de ejecución** | **Pruebas unitarias de la Operación 2:** `test/test_operacion2.py` → **7 pruebas, OK**.<br>**Pruebas de integración:** `src/cunas/test_operacion2_integracion.py` → **5 pruebas, OK**.<br>**Pruebas Django completas:** `uv run --locked python src/manage.py test cunas -v 1` → **52 pruebas, OK**.<br>**Pruebas unitarias generales:** `uv run --locked python -m unittest discover -s test -v` → **14 pruebas, OK**.<br>**Verificación del proyecto:** `uv run --locked python src/manage.py check` → Sin problemas detectados. |
+
+### Evidencias complementarias de la Operación 2
+
+**Prueba unitaria aislada:**
+
+```powershell
+$env:PYTHONPATH="src"
+uv run --locked python -m unittest discover -s test -p "test_operacion2.py" -v
+```
+
+**Resultado:** 7 pruebas aprobadas.
+
+**Prueba de integración con Django:**
+
+```powershell
+uv run --locked python src/manage.py test cunas.test_operacion2_integracion -v 2
+```
+
+**Resultado:** 5 pruebas aprobadas.
+
+**Prueba de regresión del módulo:**
+
+```powershell
+uv run --locked python src/manage.py test cunas -v 1
+```
+
+**Resultado:** 52 pruebas aprobadas.
+
+**Verificación general de pruebas unitarias:**
+
+```powershell
+$env:PYTHONPATH="src"
+uv run --locked python -m unittest discover -s test -v
+```
+
+**Resultado:** 14 pruebas aprobadas, correspondientes a las operaciones 2 y 3.
+
+**Observación de compatibilidad:** El endpoint devuelve HTTP 409 cuando se intenta resolver una alerta que ya está inactiva. Este comportamiento difiere de la implementación anterior, que devolvía HTTP 200.
 
 ---
 

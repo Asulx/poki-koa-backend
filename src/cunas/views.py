@@ -22,6 +22,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from .alertas_service import AlertaOperacionError, AlertaService
 from .medicamentos import MedicamentoService, OperacionError
 from .models import (
     Alerta,
@@ -33,6 +34,7 @@ from .models import (
     PlanCuidado,
 )
 from .repositories import DjangoMedicamentoRepository
+from .repositories_alertas import DjangoAlertaRepository
 from .serializers import (
     AlertaSerializer,
     BebeSerializer,
@@ -303,10 +305,21 @@ class AlertaViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="resolver")
     def resolver(self, request, pk=None):
-        """Marca una alerta activa como resuelta."""
+        """Resuelve una alerta mediante el servicio de negocio."""
+        # Conserva la búsqueda, filtros y permisos del endpoint original.
         alerta = self.get_object()
-        alerta.activa = False
-        alerta.save(update_fields=["activa"])
+        servicio = AlertaService(DjangoAlertaRepository())
+
+        try:
+            servicio.resolver_alerta(alerta.pk)
+        except AlertaOperacionError as error:
+            return Response(
+                {"error": str(error)},
+                status=error.status_code,
+            )
+
+        # Refresca el objeto para conservar el serializador y formato original.
+        alerta.refresh_from_db()
         serializer = self.get_serializer(alerta)
         return Response(
             {"mensaje": "Alerta resuelta con éxito", "alerta": serializer.data},
