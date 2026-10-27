@@ -3,7 +3,7 @@
 
 import unittest
 from dataclasses import replace
-from datetime import datetime
+from datetime import datetime, timezone
 
 from cunas.alertas_service import (
     AlertaEstadoNoPermitido,
@@ -25,7 +25,7 @@ class RepositorioFake:
             tipo="temperatura",
             mensaje="Temperatura fuera de rango",
             nivel="Advertencia",
-            fecha_hora=datetime(2026, 10, 20, 12, 0),
+            fecha_hora=datetime(2026, 10, 20, 12, 0, tzinfo=timezone.utc),
             activa=activa,
             valor_leido=38.5,
         )

@@ -612,6 +612,31 @@ class CunaServiceContractTestCase(TestCase):
 
         self.assertIn("cuna_id es obligatorio", str(context.exception))
 
+    def test_caso_invalido_ritmo_cardiaco_y_temperatura_fuera_de_rango(self):
+        """
+        Casos Inválidos adicionales: ritmo cardíaco (<30 o >250) y temperatura
+        (<30.0 o >45.0) fuera de rango fisiológico son rechazados en la frontera.
+        """
+        service = CunaService(cuna_model=Mock())
+        with self.assertRaisesRegex(ValueError, "Ritmo cardíaco inválido"):
+            service.actualizar_telemetria("Cuna 01", 20, 98, 36.8)
+
+        with self.assertRaisesRegex(ValueError, "Temperatura inválida"):
+            service.actualizar_telemetria("Cuna 01", 130, 98, 48.0)
+
+    def test_cuna_inexistente_lanza_lookup_error(self):
+        """
+        Si la cuna solicitada no existe en el repositorio inyectado,
+        se traduce DoesNotExist a LookupError del dominio.
+        """
+        mock_model = Mock()
+        mock_model.DoesNotExist = Cuna.DoesNotExist
+        mock_model.objects.get.side_effect = Cuna.DoesNotExist
+
+        service = CunaService(cuna_model=mock_model)
+        with self.assertRaisesRegex(LookupError, "No existe la cuna"):
+            service.actualizar_telemetria("C-INEXISTENTE", 130, 98, 36.8)
+
 
 class APIAdministrarMedicamentoTestCase(TestCase):
     def setUp(self):

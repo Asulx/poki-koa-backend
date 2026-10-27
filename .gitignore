@@ -8,9 +8,12 @@ __pycache__/
 node_modules/
 dist/
 
-# Archivos de entorno y logs
+# Archivos de entorno, cobertura y logs
 .env
 *.log
+.coverage
+.coverage.*
+htmlcov/
 
 src/db.sqlite3
 src/db_entregable.sqlite3
