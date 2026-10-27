@@ -1,0 +1,53 @@
+name: Verificación y Calidad — Backend Poki Koa
+
+on:
+  push:
+    branches:
+      - main
+      - desarrollo
+      - "feat/**"
+      - "feature/**"
+      - "fix/**"
+  pull_request:
+    branches:
+      - main
+      - desarrollo
+
+jobs:
+  verificacion:
+    name: Linter, Migraciones, Pruebas y Cobertura
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar uv y configurar Python
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Sincronizar dependencias del proyecto (uv.lock)
+        run: uv sync --locked
+
+      - name: Análisis estático y estilo de código (Ruff)
+        run: uv run ruff check src test scripts
+
+      - name: Verificar consistencia de migraciones Django
+        run: uv run poki_koa makemigrations --check --dry-run
+
+      - name: Validación estática de casos de prueba API (Entregable 2)
+        run: uv run python scripts/verificar_entrega2.py --static
+
+      - name: Ejecutar suite de pruebas Django con medición de cobertura (líneas y ramas)
+        run: |
+          uv run coverage erase
+          uv run coverage run src/manage.py test cunas -v 2
+
+      - name: Ejecutar pruebas unitarias aisladas (RepositorioFake en memoria)
+        env:
+          PYTHONPATH: src
+        run: uv run coverage run -a -m unittest discover -s test -v
+
+      - name: Reporte de cobertura y verificación de umbral (>= 85%)
+        run: uv run coverage report -m --fail-under=85

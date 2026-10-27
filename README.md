@@ -14,7 +14,7 @@ El nombre **Poki Koa** entrega identidad nacional al proyecto mediante palabras 
 |---|---|
 | Proyecto | [Arquitectura](./docs/proyecto/Arquitectura.md) · [Requisitos extrafuncionales](./docs/proyecto/ReqExtrafuncionales.md) |
 | Entrega 2 — APIs | [Documentación de APIs](./docs/entrega2/DOCUMENTACION_APIS.md) |
-| Entrega 2 — Pruebas | [Matriz de casos](./docs/entrega2/MATRIZ_CASOS.md) · [Resultados](./docs/entrega2/REGISTRO_EJECUCION.md) · [Instalación y uso de Bruno](./docs/entrega2/USO_BRUNO.md) |
+| Entrega 2 — Pruebas y Calidad | [Matriz de casos](./docs/entrega2/MATRIZ_CASOS.md) · [Resultados](./docs/entrega2/REGISTRO_EJECUCION.md) · [Instalación y uso de Bruno](./docs/entrega2/USO_BRUNO.md) · [Cobertura, CI y Depuración](./docs/entrega2/COBERTURA_CI_Y_DEPURACION.md) |
 | Entrega 2 — Refinamiento | [Conversación con Clarita](./docs/entrega2/evidencias/clarita/clarita_reviews_chat.md) |
 | Actividades de clase | [Diagnóstico](./docs/actividades/Actividad-Diagnostico.md) · [Ejercicio 2.2: construcción para la verificación](./docs/actividades/ejercicio-2-2.md) |
 
@@ -112,17 +112,17 @@ El backend quedará accesible en:
 | `uv run poki_koa` | Inicia el servidor de desarrollo en el puerto 8000 |
 | `uv run poki_koa migrate` | Aplica migraciones pendientes a la base de datos |
 | `uv run poki_koa makemigrations` | Genera nuevas migraciones tras modificar modelos |
-| `uv run poki_koa test` | Ejecuta la suite de pruebas unitarias |
+| `uv run poki_koa test` | Ejecuta la suite de pruebas de Django (54 tests) |
+| `PYTHONPATH=src uv run python -m unittest discover -s test -v` | Ejecuta las pruebas unitarias aisladas en memoria (14 tests) |
+| `uv run coverage run src/manage.py test cunas && PYTHONPATH=src uv run coverage run -a -m unittest discover -s test && uv run coverage report -m` | Ejecuta las 68 pruebas y genera el reporte de cobertura de líneas y ramas |
 | `uv run poki_koa test cunas` | Ejecuta las pruebas de la app principal |
 | `uv run poki_koa makemigrations --check` | Comprueba que los modelos no requieran migraciones nuevas |
 | `uv run poki_koa createsuperuser` | Crea un usuario administrador para el panel `/admin/` |
 | `uv run poki_koa simular_alertas` | Simula signos vitales y evalúa alertas en consola |
 | `uv run make-crud <Modelo>` | Genera automáticamente Model, Serializer, ViewSet y URL para una entidad |
-| `uv run ruff check src` | Analiza el código con [Ruff](https://docs.astral.sh/ruff/) para detectar errores y estilo |
+| `uv run ruff check src test scripts` | Analiza el código con [Ruff](https://docs.astral.sh/ruff/) para detectar errores y estilo |
 
-La suite Django contiene actualmente 44 tests. La matriz de 44 casos Bruno del
-Entregable 2 es una prueba aparte de los endpoints de pacientes y catálogo; su
-procedimiento y resultados están descritos en la [guía de Bruno](./docs/entrega2/USO_BRUNO.md).
+La suite automatizada contiene actualmente **68 tests** (54 en la suite de Django y 14 en la suite unitaria aislada `test/`), alcanzando un **92% de cobertura** en líneas y ramas (ver [Cobertura, CI y Depuración](./docs/entrega2/COBERTURA_CI_Y_DEPURACION.md)). La matriz de 44 casos Bruno del Entregable 2 es una prueba aparte de los endpoints de pacientes y catálogo; su procedimiento y resultados están descritos en la [guía de Bruno](./docs/entrega2/USO_BRUNO.md).
 
 ### Entorno de demostración del Entregable 2
 
@@ -247,11 +247,9 @@ para un entorno clínico expuesto:
 3. **Validación de telemetría:** acordar y probar rangos para SpO₂, temperatura,
    estado de sueño y dispositivos con responsables clínicos, manteniendo documentado
    cualquier cambio de contrato.
-4. **Automatización:** añadir CI que ejecute `uv sync`, `uv run poki_koa test`,
-   `uv run poki_koa makemigrations --check` y `uv run ruff check src` en cada PR.
-5. **Generador CRUD:** agregar pruebas a `make-crud` y reemplazar o limitar la edición
+4. **Generador CRUD:** agregar pruebas a `make-crud` y reemplazar o limitar la edición
    de Python por expresiones regulares antes de depender de él en cambios rutinarios.
-6. **Datos del equipo:** mantener roles y aportes ligados a la evidencia del entregable;
+5. **Datos del equipo:** mantener roles y aportes ligados a la evidencia del entregable;
    la tabla de roles histórica al final corresponde a otras actividades.
 
 ---

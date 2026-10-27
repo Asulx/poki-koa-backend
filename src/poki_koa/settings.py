@@ -122,3 +122,29 @@ STATIC_URL = "static/"
 
 # Tipo de campo de clave primaria por defecto para todos los modelos nuevos
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# CONFIGURACIÓN DE LOGGING — Permite visualizar trazas y eventos de negocio (INFO/WARNING)
+# en consola durante la ejecución y depuración del proyecto (sin exponer datos sensibles).
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "estandar": {
+            "format": "[%(levelname)s] %(asctime)s %(name)s: %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+    },
+    "handlers": {
+        "consola": {
+            "class": "logging.StreamHandler",
+            "formatter": "estandar",
+        },
+    },
+    "loggers": {
+        "cunas": {
+            "handlers": ["consola"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}

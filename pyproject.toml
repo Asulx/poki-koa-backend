@@ -33,7 +33,31 @@ packages = ["src/poki_koa", "src/cunas"]
 
 [dependency-groups]
 dev = [
+    "coverage>=7.6.0",
     "ruff>=0.16.6",
+]
+
+# Configuración de cobertura de código (líneas, funciones y ramas)
+[tool.coverage.run]
+branch = true
+source = ["src/cunas"]
+omit = [
+    "*/migrations/*",
+    "*/management/*",
+    "*/admin.py",
+    "*/apps.py",
+    "*/__init__.py",
+    "*/test*.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 85
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "\\.\\.\\.",
 ]
 
 # Ruff ignora archivos generados automaticamente por django
