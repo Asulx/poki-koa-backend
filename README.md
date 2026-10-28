@@ -14,8 +14,9 @@ El nombre **Poki Koa** entrega identidad nacional al proyecto mediante palabras 
 |---|---|
 | Proyecto | [Arquitectura](./docs/proyecto/Arquitectura.md) · [Requisitos extrafuncionales](./docs/proyecto/ReqExtrafuncionales.md) |
 | Entrega 2 — APIs | [Documentación de APIs](./docs/entrega2/DOCUMENTACION_APIS.md) |
-| Entrega 2 — Pruebas y Calidad | [Matriz de casos](./docs/entrega2/MATRIZ_CASOS.md) · [Resultados](./docs/entrega2/REGISTRO_EJECUCION.md) · [Instalación y uso de Bruno](./docs/entrega2/USO_BRUNO.md) · [Cobertura, CI y Depuración](./docs/entrega2/COBERTURA_CI_Y_DEPURACION.md) |
+| Entrega 2 — Pruebas | [Matriz de casos](./docs/entrega2/MATRIZ_CASOS.md) · [Resultados](./docs/entrega2/REGISTRO_EJECUCION.md) · [Instalación y uso de Bruno](./docs/entrega2/USO_BRUNO.md) |
 | Entrega 2 — Refinamiento | [Conversación con Clarita](./docs/entrega2/evidencias/clarita/clarita_reviews_chat.md) |
+| Hito 2 — Verificación y Calidad | [Depuración](./docs/hito2/depuracion.md) · [Pruebas y cobertura](./docs/hito2/pruebas-y-cobertura.md) · [Integración continua](./docs/hito2/integracion-continua.md) |
 | Actividades de clase | [Diagnóstico](./docs/actividades/Actividad-Diagnostico.md) · [Ejercicio 2.2: construcción para la verificación](./docs/actividades/ejercicio-2-2.md) |
 
 El Entregable 2 incluye las APIs de pacientes y catálogo de medicamentos con
@@ -122,7 +123,7 @@ El backend quedará accesible en:
 | `uv run make-crud <Modelo>` | Genera automáticamente Model, Serializer, ViewSet y URL para una entidad |
 | `uv run ruff check src test scripts` | Analiza el código con [Ruff](https://docs.astral.sh/ruff/) para detectar errores y estilo |
 
-La suite automatizada contiene actualmente **71 tests** (57 en la suite de Django —incluyendo `RegresionSuiteTestCase`— y 14 en la suite unitaria aislada `test/`), alcanzando un **92% de cobertura** en líneas y ramas (ver [Cobertura, CI y Depuración](./docs/entrega2/COBERTURA_CI_Y_DEPURACION.md) y el [reporte HTML persistido](./qa/entrega2/cobertura/html/index.html)). La matriz de 44 casos Bruno del Entregable 2 es una prueba aparte de los endpoints de pacientes y catálogo; su procedimiento y resultados están descritos en la [guía de Bruno](./docs/entrega2/USO_BRUNO.md).
+La suite automatizada contiene actualmente 71 tests (57 en Django y 14 unitarios aislados en `test/`), con un 92% de cobertura en líneas y ramas (ver [Pruebas y cobertura](./docs/hito2/pruebas-y-cobertura.md) y el [reporte HTML](./qa/hito2/cobertura/html/index.html)). La matriz de 44 casos Bruno del Entregable 2 es una prueba aparte de los endpoints de pacientes y catálogo; su procedimiento y resultados están descritos en la [guía de Bruno](./docs/entrega2/USO_BRUNO.md).
 
 ### Entorno de demostración del Entregable 2
 

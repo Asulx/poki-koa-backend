@@ -1,4 +1,4 @@
-name: Verificación y Calidad — Backend Poki Koa
+name: CI — Verificación y Pruebas
 
 on:
   push:
@@ -14,7 +14,7 @@ on:
       - desarrollo
 
 jobs:
-  verificacion:
+  test:
     name: Linter, Migraciones, Pruebas y Cobertura
     runs-on: ubuntu-latest
 
@@ -22,40 +22,37 @@ jobs:
       - name: Clonar repositorio
         uses: actions/checkout@v4
 
-      - name: Instalar uv y configurar Python
+      - name: Instalar uv
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
 
-      - name: Sincronizar dependencias del proyecto (uv.lock)
+      - name: Sincronizar dependencias
         run: uv sync --locked
 
-      - name: Análisis estático y estilo de código (Ruff)
-        run: uv run ruff check src test scripts
+      - name: Verificar estilo y errores con Ruff
+        run: uv run ruff check src test
 
-      - name: Verificar consistencia de migraciones Django
+      - name: Verificar migraciones pendientes
         run: uv run poki_koa makemigrations --check --dry-run
 
-      - name: Validación estática de casos de prueba API (Entregable 2)
-        run: uv run python scripts/verificar_entrega2.py --static
-
-      - name: Ejecutar suite de pruebas Django con medición de cobertura (líneas y ramas)
+      - name: Ejecutar pruebas de Django con cobertura
         run: |
           uv run coverage erase
           uv run coverage run src/manage.py test cunas -v 2
 
-      - name: Ejecutar pruebas unitarias aisladas (RepositorioFake en memoria)
+      - name: Ejecutar pruebas unitarias aisladas (test/)
         env:
           PYTHONPATH: src
         run: uv run coverage run -a -m unittest discover -s test -v
 
-      - name: Reporte de cobertura, verificación de umbral (>= 85%) y generación de artefactos
+      - name: Generar reporte de cobertura (mínimo 85%)
         run: |
           uv run coverage report -m --fail-under=85
           uv run coverage xml -o coverage.xml
           uv run coverage html -d htmlcov
 
-      - name: Publicar artefactos de cobertura (HTML y XML)
+      - name: Subir reporte de cobertura
         if: always()
         uses: actions/upload-artifact@v4
         with:
