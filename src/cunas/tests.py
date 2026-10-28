@@ -137,8 +137,9 @@ class APIBebeValidacionTestCase(TestCase):
         self.assertEqual(respuesta.data["diagnostico"], "Observación")
         self.assertEqual(float(respuesta.data["peso"]), 3.5)
 
+    # [REGRESIÓN #4 — Contrato Frontend Issue #14]
     def test_contrato_respuesta_listado_bebes_para_frontend(self):
-        """Verifica que GET /api/bebes/ entregue todos los campos requeridos por el frontend (Issue #14)."""
+        """PRUEBA DE REGRESIÓN (#4): Verifica que GET /api/bebes/ entregue todos los campos requeridos por el frontend (Issue #14)."""
         bebe = Bebe.objects.create(
             identificador="BEBE-002",
             nombre_completo="Lucas Silva",
@@ -346,7 +347,9 @@ class APITelemetriaCunaTestCase(TestCase):
         self.assertEqual(len(res.data["alertas_activas"]), 0)
         self.assertEqual(Alerta.objects.filter(cuna=self.cuna, activa=True).count(), 0)
 
+    # [REGRESIÓN #1 — Validación Telemetría Issue #51]
     def test_telemetria_rechaza_ritmo_cardiaco_invalido_sin_guardar(self):
+        """PRUEBA DE REGRESIÓN (#1): Verifica que valores inválidos de ritmo cardíaco no se guarden (Issue #51)."""
         for valor in (None, "inválido", 0, 261):
             with self.subTest(valor=valor):
                 respuesta = self.client.post(
@@ -379,8 +382,10 @@ class APITelemetriaCunaTestCase(TestCase):
                 self.assertEqual(self.cuna.temperatura, 36.7)
                 self.assertTrue(self.cuna.canula_ok)
 
+    # [REGRESIÓN #2 — Privacidad de Logs en Telemetría]
     @patch("cunas.views.logger.info")
     def test_log_telemetria_no_incluye_lecturas_clinicas(self, registrar_info):
+        """PRUEBA DE REGRESIÓN (#2): Verifica que el log de telemetría no exponga datos clínicos del paciente."""
         self.client.post(self.url, {"ritmo_cardiaco": 123}, format="json")
 
         registrar_info.assert_called_once_with(

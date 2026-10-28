@@ -160,7 +160,13 @@ class CunaViewSet(viewsets.ModelViewSet):
         # Registrar solo el identificador evita copiar datos clínicos al log.
         logger.info("Recibida telemetría para cuna %s", cuna.identificador)
 
-        # Validación defensiva sistemática de telemetría clínica en la frontera HTTP (Issue #51)
+        # Validación defensiva sistemática de telemetría clínica en la frontera HTTP (Issue #51).
+        # Justificación clínica de rangos:
+        # - Valores físicamente imposibles o por falla de sensor (FC <= 0 o > 260 bpm,
+        #   SpO2 < 0 o > 100%, Temp < 25.0 o > 45.0 °C) se rechazan con HTTP 400 sin guardar.
+        # - Valores fisiológicamente posibles pero clínicamente anormales (ej. FC = 72 bpm,
+        #   SpO2 = 88%, Temp = 38.9 °C) se aceptan con HTTP 200 para que el motor de alertas
+        #   (alertas.py) dispare las alertas críticas o de advertencia correspondientes.
         if "ritmo_cardiaco" in data:
             ritmo = data.get("ritmo_cardiaco")
             if type(ritmo) not in (int, float) or not (1 <= ritmo <= 260):

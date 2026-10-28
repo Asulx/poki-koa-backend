@@ -65,8 +65,9 @@ class AlertaIntegracionTest(TestCase):
         self.assertIn("alerta", respuesta.data)
         self.assertIn("mensaje", respuesta.data)
 
+    # [REGRESIÓN #5 — Resolución Repetida de Alertas Issue #54]
     def test_endpoint_alerta_ya_resuelta(self):
-        """Resolver nuevamente debe devolver HTTP 409."""
+        """PRUEBA DE REGRESIÓN (#5): Resolver nuevamente una alerta inactiva debe devolver HTTP 409."""
         self.alerta.activa = False
         self.alerta.save(update_fields=["activa"])
 

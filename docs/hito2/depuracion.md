@@ -1,12 +1,12 @@
 # Proceso de Depuración — Hito 2
 
-Registro del proceso de depuración aplicado en el módulo de telemetría y alertas de cunas (`Issue #51`).
+Registro en 8 pasos del proceso de depuración realizado sobre el módulo de telemetría y alertas de cunas (`Issue #51`).
 
-## 1. Problema detectado y cómo reproducirlo
+## 1. Síntoma detectado
+Al enviar datos de sensores al endpoint `POST /api/cunas/{id}/telemetria/` con valores imposibles (como ritmo cardíaco negativo o saturación mayor a 100%), el sistema respondía `200 OK`, guardaba el dato corrupto en la cuna y creaba una alerta clínica falsa (`"Bradicardia severa: -15 bpm"`).
 
-Al enviar lecturas de sensores al endpoint `POST /api/cunas/{id}/telemetria/` con valores fuera de rango (por ejemplo, ritmo cardíaco negativo o saturación mayor a 100%), el sistema guardaba los datos igual y generaba alertas clínicas falsas.
-
-Comando para reproducir el fallo:
+## 2. Reproducción del problema
+Con el servidor arriba (`uv run poki_koa`), se reprodujo enviando:
 
 ```bash
 curl -i -X POST "http://127.0.0.1:8000/api/cunas/1/telemetria/" \
@@ -14,53 +14,52 @@ curl -i -X POST "http://127.0.0.1:8000/api/cunas/1/telemetria/" \
   -d '{"ritmo_cardiaco": -15, "spo2": 140}'
 ```
 
-**Qué pasaba antes del arreglo:**
-- Respondía `200 OK` en vez de `400 Bad Request`.
-- Guardaba `-15` y `140` en la base de datos.
-- Creaba una alerta crítica diciendo `"Bradicardia severa: -15 bpm"`.
+También se reprodujo desde la suite de pruebas en `src/cunas/tests.py` (`APITelemetriaCunaTestCase`).
 
-## 2. Hipótesis
+## 3. Hipótesis
+1. En `CunaViewSet.telemetria` (`src/cunas/views.py`), los valores de `request.data` se copiaban directo al objeto `cuna` con `setattr()` y se llamaba a `cuna.save()` sin validar antes si estaban dentro de rangos posibles.
+2. Como `Cuna` tiene conectada la señal `post_save` (`src/cunas/signals.py`), apenas se guardaba el `-15` se ejecutaba `procesar_alertas_cuna(cuna)` (`src/cunas/alertas.py`), donde la condición `fc < 80` lo tomaba como bradicardia crítica.
 
-1. La vista `CunaViewSet.telemetria` (`src/cunas/views.py`) estaba copiando los campos recibidos en `request.data` directamente al modelo `Cuna` y llamando a `cuna.save()` sin revisar si los números tenían sentido.
-2. Como el modelo `Cuna` tiene conectada una señal `post_save` (`src/cunas/signals.py`), apenas se ejecutaba `cuna.save()` se disparaba `procesar_alertas_cuna(cuna)` con el valor `-15`, y como `-15 < 80`, el motor creaba la alerta de bradicardia.
+## 4. Colocación de breakpoints
+Usando el perfil `Django: Depurar Pruebas (cunas)` de [`.vscode/launch.json`](../../.vscode/launch.json), se colocaron dos breakpoints:
+- **Breakpoint 1:** `src/cunas/views.py` línea 170 (entrada de validaciones en `CunaViewSet.telemetria`).
+- **Breakpoint 2:** `src/cunas/alertas.py` línea 234 (bucle `for anomalia in anomalias:` en `procesar_alertas_cuna`).
 
-## 3. Uso del depurador (Breakpoints e inspección)
+## 5. Ejecución paso a paso e inspección de variables
+Avanzando con `Step Over (F10)` y `Step Into (F11)` se revisaron las variables en cada punto:
 
-Usamos la configuración de `.vscode/launch.json` (`Django: Depurar Pruebas (cunas)`) colocando dos breakpoints:
-
-- **Breakpoint 1:** `src/cunas/views.py` (inicio de las validaciones en `telemetria`).
-- **Breakpoint 2:** `src/cunas/alertas.py` (función `procesar_alertas_cuna`, donde se revisan las anomalías).
-
-Al ejecutar paso a paso (`F10` / `F11`) y revisar las variables vimos lo siguiente:
-
-| Punto | Variables revisadas | Qué comprobamos |
+| Punto detenido | Variables inspeccionadas | Qué se observó |
 |---|---|---|
-| `views.py` (entrada) | `data = {'ritmo_cardiaco': -15}`<br>`cuna.ritmo_cardiaco = 130` | El valor anterior en la cuna era `130`, pero `data` traía `-15`. |
-| `views.py` (validación) | `ritmo = -15` | Con la validación activa, entra al `if`, registra un `logger.warning` y devuelve `400` sin llegar a `cuna.save()`. |
-| `alertas.py` (cuando el valor sí es válido, ej. `72`) | `anomalias = [{'tipo': 'ritmo_cardiaco', 'nivel': 'Critica', ...}]`<br>`alerta_activa = None` | Si ya existe una alerta activa del mismo tipo y nivel, solo actualiza la hora y el valor leído para no llenar la base de datos de alertas repetidas. |
+| `views.py:170` (Breakpoint 1) | `data = {'ritmo_cardiaco': -15}`<br>`cuna.ritmo_cardiaco = 130`<br>`ritmo = -15` | La cuna tenía `130 bpm` guardados, pero el payload traía `-15`. |
+| `views.py:172` (`Step Over`) | `1 <= ritmo <= 260` → `False` | Con la validación activa, entra al `if`, emite el log `WARNING` y retorna `HTTP 400` antes de llegar a `cuna.save()`. |
+| `alertas.py:234` (Breakpoint 2, probando con `ritmo_cardiaco = 72`) | `anomalias = [{'tipo': 'ritmo_cardiaco', 'nivel': 'Critica', 'valor_leido': 72.0}]`<br>`alerta_activa = None` | Cuando el valor sí es válido pero crítico (`72 bpm`), pasa a `procesar_alertas_cuna` y crea la alerta (o la actualiza si ya existía una igual activa). |
 
-## 4. Causa y corrección
-
-La causa era la falta de validación en la entrada del endpoint antes de guardar, además de que en Python `isinstance(True, int)` da `True` (porque `bool` hereda de `int`).
-
-**Solución aplicada en `src/cunas/views.py`:**
-- Se validan todos los campos antes de modificar la cuna (`ritmo_cardiaco` entre 1 y 260, `spo2` entre 0 y 100, `temperatura` entre 25.0 y 45.0, `estado_sueno` válido y booleanos para `canula_ok` y `via_iv_activa`), usando `type(valor) in (int, float)` para no aceptar booleanos como números.
-- Se agregaron logs en consola configurados en `src/poki_koa/settings.py` (`LOGGING`):
-  - `logger.info`: registra que llegó telemetría indicando solo el código de la cuna (sin datos del paciente).
-  - `logger.warning`: registra cuando se rechaza un valor fuera de rango.
-
-## 5. Verificación
-
-Se verificó ejecutando la prueba de regresión del issue:
-
-```bash
-uv run poki_koa test cunas.tests.RegresionSuiteTestCase.test_regresion_issue_51_telemetria_anomala_no_corrompe_estado_ni_crea_alerta -v 2
-```
-
-Salida en consola:
+## 6. Revisión de trazas y logs
+Se configuró `LOGGING` en `src/poki_koa/settings.py` para ver las trazas del módulo `cunas` en consola:
+- `logger.info`: registra la llegada de telemetría mostrando solo el identificador de la cuna (sin datos del paciente por privacidad).
+- `logger.warning`: deja registro cuando se rechaza una lectura fuera de rango.
 
 ```text
 [INFO] 2026-10-27 20:40:50 cunas.views: Recibida telemetría para cuna C-REG-01
 [WARNING] 2026-10-27 20:40:50 cunas.views: Telemetría anómala detectada en cuna C-REG-01: ritmo cardíaco inválido (-15)
-ok
 ```
+
+## 7. Causa raíz y corrección aplicada
+La causa era que `telemetria` no validaba todos los campos en la frontera HTTP antes de guardar y que en Python `isinstance(True, int)` evalúa a `True`.
+
+**Corrección en `src/cunas/views.py` (líneas 163–232) y justificación clínica:**
+- Se distinguen **errores físicos/de sensor** (`HTTP 400`, no se guardan) de **anomalías clínicas reales** (`HTTP 200`, sí se guardan y activan alertas en `alertas.py`):
+  - `ritmo_cardiaco`: acepta `1..260 bpm` (valores como `72` o `195` son posibles en neonatos y disparan alerta crítica; `<= 0` o `> 260` se rechazan con `400`).
+  - `spo2`: acepta `0..100 %` (`< 95%` dispara alerta en `alertas.py`; `< 0` o `> 100` es error de lectura y devuelve `400`).
+  - `temperatura`: acepta `25.0..45.0 °C` (`< 36.5` o `> 37.5` dispara alerta; fuera de `25..45 °C` devuelve `400`).
+  - `estado_sueno`: solo `"Dormido"` o `"Despierto"`.
+  - `canula_ok` y `via_iv_activa`: booleanos estrictos (`bool`).
+
+## 8. Verificación del resultado
+Se verificó con las pruebas de telemetría y regresión:
+
+```bash
+uv run poki_koa test cunas.tests.APITelemetriaCunaTestCase cunas.tests.RegresionSuiteTestCase -v 2
+```
+
+Todas las pruebas pasan (`OK`), confirmando que los valores inválidos devuelven `400 Bad Request` y no modifican la cuna ni crean alertas falsas.
