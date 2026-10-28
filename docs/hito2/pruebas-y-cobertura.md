@@ -19,12 +19,12 @@ El proyecto cuenta con **71 pruebas automatizadas** divididas en dos suites:
 
 Las pruebas de regresión están marcadas en el código con comentarios `# [REGRESIÓN #1..#5]` y agrupadas además en la clase `RegresionSuiteTestCase` (`src/cunas/tests.py`):
 
-| # | Prueba de regresión | Ubicación en código | Qué evita que vuelva a ocurrir |
-|---|---|---|---|
-| **1** | `test_telemetria_rechaza_ritmo_cardiaco_invalido_sin_guardar` y `RegresionSuiteTestCase.test_regresion_issue_51_...` | `src/cunas/tests.py` (líneas 350 y 731) | Que lecturas fuera de rango (`-15`, `0`, `261`, `None`) en telemetría modifiquen la cuna o creen alertas falsas (`Issue #51`). |
-| **2** | `test_log_telemetria_no_incluye_lecturas_clinicas` | `src/cunas/tests.py` (línea 386) | Que los logs de telemetría vuelvan a imprimir signos vitales o datos sensibles del bebé. |
-| **3** | `IdentificadorMigrationTest.test_preserva_datos_y_completa_identificadores_sin_colisiones` | `src/cunas/test_migrations.py` (línea 9) | Que la migración `0008` → `0009` falle o pierda pacientes cuando había identificadores vacíos o repetidos (`Issue #54`). |
-| **4** | `test_contrato_respuesta_listado_bebes_para_frontend` | `src/cunas/tests.py` (línea 140) | Que cambios en el backend eliminen alias o campos que consume el frontend React (`Issue #14`). |
+| #           | Prueba de regresión                                                                                                         | Ubicación en código                                                                                 | Qué evita que vuelva a ocurrir                                                                                                                 |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1** | `test_telemetria_rechaza_ritmo_cardiaco_invalido_sin_guardar` y `RegresionSuiteTestCase.test_regresion_issue_51_...`     | `src/cunas/tests.py` (líneas 350 y 731)                                                            | Que lecturas fuera de rango (`-15`, `0`, `261`, `None`) en telemetría modifiquen la cuna o creen alertas falsas (`Issue #51`).       |
+| **2** | `test_log_telemetria_no_incluye_lecturas_clinicas`                                                                         | `src/cunas/tests.py` (línea 386)                                                                   | Que los logs de telemetría vuelvan a imprimir signos vitales o datos sensibles del bebé.                                                      |
+| **3** | `IdentificadorMigrationTest.test_preserva_datos_y_completa_identificadores_sin_colisiones`                                 | `src/cunas/test_migrations.py` (línea 9)                                                           | Que la migración `0008` → `0009` falle o pierda pacientes cuando había identificadores vacíos o repetidos (`Issue #54`).              |
+| **4** | `test_contrato_respuesta_listado_bebes_para_frontend`                                                                      | `src/cunas/tests.py` (línea 140)                                                                   | Que cambios en el backend eliminen alias o campos que consume el frontend React (`Issue #14`).                                                |
 | **5** | `AlertaIntegracionTest.test_endpoint_alerta_ya_resuelta` y `RegresionSuiteTestCase.test_regresion_issue_54_...` / `57` | `src/cunas/test_operacion2_integracion.py` (línea 68) y `src/cunas/tests.py` (líneas 747 y 769) | Que resolver una alerta ya inactiva o administrar un medicamento ya dado responda `200 OK` en vez de `409 Conflict` (`Issues #54 y #57`). |
 
 Comando para ejecutar directamente las pruebas de regresión:
@@ -72,27 +72,10 @@ TOTAL                                 626     34    168     22    92%
 ```
 
 ### Reportes guardados en el repositorio (`qa/hito2/cobertura/`)
+
 - **Reporte HTML navegable:** [`qa/hito2/cobertura/html/index.html`](../../qa/hito2/cobertura/html/index.html)
 - **Reporte XML:** [`qa/hito2/cobertura/coverage.xml`](../../qa/hito2/cobertura/coverage.xml)
 - **Reporte JSON:** [`qa/hito2/cobertura/coverage.json`](../../qa/hito2/cobertura/coverage.json)
 - **Resumen en texto:** [`qa/hito2/cobertura/reporte-cobertura.txt`](../../qa/hito2/cobertura/reporte-cobertura.txt)
 
 **Exclusiones (`omit` en `pyproject.toml`):** se excluyen `migrations/*`, `management/*`, `admin.py`, `apps.py` y `test*.py` para medir únicamente el código de negocio de la aplicación.
-
----
-
-## 4. Referencia cruzada entre la matriz de casos (Bruno) y las pruebas automatizadas
-
-Los casos de borde y error definidos en la matriz de pruebas de API ([`docs/entrega2/MATRIZ_CASOS.md`](../entrega2/MATRIZ_CASOS.md)) también están respaldados por pruebas automatizadas en Python:
-
-| Casos de la matriz (`MATRIZ_CASOS.md`) | Regla o escenario verificado | Clase y método en las pruebas automatizadas |
-|---|---|---|
-| **B01, B11–B14, B18, B21** | Creación válida de paciente, pesos/fechas válidas y contrato de respuesta con relaciones | `APIBebeValidacionTestCase.test_bebe_valido_se_crea_correctamente` y `test_contrato_respuesta_listado_bebes_para_frontend` (`src/cunas/tests.py`) |
-| **B02–B03** | Identificador obligatorio y único sin colisiones | `IdentificadorMigrationTest.test_preserva_datos_y_completa_identificadores_sin_colisiones` (`src/cunas/test_migrations.py`) |
-| **B08–B10** | Rechazo de peso `0` o negativo (`<= 0`) con HTTP 400 | `APIBebeValidacionTestCase.test_peso_cero_retorna_400` y `test_peso_negativo_retorna_400` (`src/cunas/tests.py`) |
-| **B15** | Rechazo de fecha de nacimiento futura (`mañana`) con HTTP 400 | `APIBebeValidacionTestCase.test_fecha_nacimiento_futura_retorna_400` (`src/cunas/tests.py`) |
-| **M01, M17, M18, M21** | Creación, consulta, `PATCH` y `PUT` en `/api/catalogo-medicamentos/` | `CatalogoAPITest.test_create_retrieve_update` (`src/cunas/test_catalogo.py`) |
-| **M04, M06, M10, M13** | Valores límite válidos: largo `150`, `dosis_mg = 0.01`, `stock = 1` y máximos | `CatalogoAPITest.test_inclusive_limits` (`src/cunas/test_catalogo.py`) |
-| **M02, M03, M05, M07–M09, M11, M12, M14–M16** | Campos vacíos, largo `151`, dosis `0`/`-0.01`/`0.001`/no numérica, stock `0`/`-1`/decimal/booleano | `CatalogoAPITest.test_invalid_creation_does_not_persist` y `test_database_rejects_nonpositive_values` (`src/cunas/test_catalogo.py`) |
-| **M19, M22** | Edición inválida (`PATCH`/`PUT`) es atómica y no guarda cambios parciales | `CatalogoAPITest.test_invalid_update_is_atomic` (`src/cunas/test_catalogo.py`) |
-| **M20 + bloqueo DELETE** | Producto inexistente (`404`) y prohibición de borrado (`405`) | `CatalogoAPITest.test_missing_product_and_unsupported_delete` (`src/cunas/test_catalogo.py`) |
