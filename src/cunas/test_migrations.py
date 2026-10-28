@@ -6,7 +6,9 @@ from django.test import TransactionTestCase
 
 
 class IdentificadorMigrationTest(TransactionTestCase):
+    # [REGRESIÓN #3 — Migración de Identificadores Issue #54]
     def test_preserva_datos_y_completa_identificadores_sin_colisiones(self):
+        """PRUEBA DE REGRESIÓN (#3): Verifica que la migración 0008 -> 0009 preserve datos y resuelva colisiones de ID."""
         anterior = [("cunas", "0008_medicamentocatalogo")]
         actual = [("cunas", "0009_bebe_identificador_obligatorio")]
         executor = MigrationExecutor(connection)

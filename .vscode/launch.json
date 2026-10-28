@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Django: Servidor de Desarrollo (Poki Koa)",
+      "name": "Django: Servidor de Desarrollo",
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/src/manage.py",
@@ -15,24 +15,7 @@
       "justMyCode": true
     },
     {
-      "name": "Django: Servidor Entregable 2 (Datos Demo Aislados)",
-      "type": "debugpy",
-      "request": "launch",
-      "program": "${workspaceFolder}/src/manage.py",
-      "args": [
-        "runserver",
-        "127.0.0.1:8000",
-        "--settings=poki_koa.settings_entregable",
-        "--noreload"
-      ],
-      "env": {
-        "PYTHONPATH": "${workspaceFolder}/src"
-      },
-      "django": true,
-      "justMyCode": true
-    },
-    {
-      "name": "Django: Depurar Suite de Pruebas (cunas)",
+      "name": "Django: Depurar Pruebas (cunas)",
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/src/manage.py",
