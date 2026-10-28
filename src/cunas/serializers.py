@@ -245,6 +245,8 @@ class PlanCuidadoSerializer(serializers.ModelSerializer):
 
 
 class MedicamentoCatalogoSerializer(serializers.ModelSerializer):
+    """Serializa los productos del catálogo de medicamentos validando stock y dosis."""
+
     class Meta:
         model = MedicamentoCatalogo
         fields = ["id", "nombre", "principio_activo", "dosis_mg", "stock"]

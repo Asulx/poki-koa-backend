@@ -22,6 +22,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from .alertas_service import AlertaOperacionError, AlertaService
 from .medicamentos import MedicamentoService, OperacionError
 from .models import (
     Alerta,
@@ -33,6 +34,7 @@ from .models import (
     PlanCuidado,
 )
 from .repositories import DjangoMedicamentoRepository
+from .repositories_alertas import DjangoAlertaRepository
 from .serializers import (
     AlertaSerializer,
     BebeSerializer,
@@ -158,20 +160,85 @@ class CunaViewSet(viewsets.ModelViewSet):
         # Registrar solo el identificador evita copiar datos clínicos al log.
         logger.info("Recibida telemetría para cuna %s", cuna.identificador)
 
-        # Validación de telemetría clínica (Corrección Issue #51)
+        # Validación defensiva sistemática de telemetría clínica en la frontera HTTP (Issue #51).
+        # Justificación clínica de rangos:
+        # - Valores físicamente imposibles o por falla de sensor (FC <= 0 o > 260 bpm,
+        #   SpO2 < 0 o > 100%, Temp < 25.0 o > 45.0 °C) se rechazan con HTTP 400 sin guardar.
+        # - Valores fisiológicamente posibles pero clínicamente anormales (ej. FC = 72 bpm,
+        #   SpO2 = 88%, Temp = 38.9 °C) se aceptan con HTTP 200 para que el motor de alertas
+        #   (alertas.py) dispare las alertas críticas o de advertencia correspondientes.
         if "ritmo_cardiaco" in data:
             ritmo = data.get("ritmo_cardiaco")
-            # Falla si es nulo, no numérico, menor o igual a cero o fuera de rango neonatal
-            if ritmo is None or not isinstance(ritmo, (int, float)) or ritmo <= 0 or ritmo > 260:
-                # LOG 2 (Nivel WARNING): Registra el valor anómalo rechazado
+            if type(ritmo) not in (int, float) or not (1 <= ritmo <= 260):
                 logger.warning(
                     "Telemetría anómala detectada en cuna %s: ritmo cardíaco inválido (%s)",
                     cuna.identificador,
-                    ritmo
+                    ritmo,
                 )
                 return Response(
                     {
                         "error": "El ritmo cardíaco debe ser un valor numérico positivo válido dentro del rango neonatal (1-260 bpm)."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        if "spo2" in data:
+            spo2 = data.get("spo2")
+            if type(spo2) not in (int, float) or not (0 <= spo2 <= 100):
+                logger.warning(
+                    "Telemetría anómala detectada en cuna %s: SpO2 inválido (%s)",
+                    cuna.identificador,
+                    spo2,
+                )
+                return Response(
+                    {
+                        "error": "La saturación de oxígeno (SpO2) debe ser un porcentaje numérico válido entre 0 y 100%."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        if "temperatura" in data:
+            temperatura = data.get("temperatura")
+            if type(temperatura) not in (int, float) or not (25.0 <= float(temperatura) <= 45.0):
+                logger.warning(
+                    "Telemetría anómala detectada en cuna %s: temperatura inválida (%s)",
+                    cuna.identificador,
+                    temperatura,
+                )
+                return Response(
+                    {
+                        "error": "La temperatura corporal debe ser un valor numérico válido dentro del rango fisiológico (25.0-45.0 °C)."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        if "estado_sueno" in data:
+            estado_sueno = data.get("estado_sueno")
+            estados_validos = {opcion[0] for opcion in Cuna.ESTADO_SUENO_CHOICES}
+            if estado_sueno not in estados_validos:
+                logger.warning(
+                    "Telemetría anómala detectada en cuna %s: estado_sueno inválido (%s)",
+                    cuna.identificador,
+                    estado_sueno,
+                )
+                return Response(
+                    {
+                        "error": "El estado de sueño debe ser 'Dormido' o 'Despierto'."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        for campo_bool in ("canula_ok", "via_iv_activa"):
+            if campo_bool in data and not isinstance(data.get(campo_bool), bool):
+                logger.warning(
+                    "Telemetría anómala detectada en cuna %s: %s no booleano (%s)",
+                    cuna.identificador,
+                    campo_bool,
+                    data.get(campo_bool),
+                )
+                return Response(
+                    {
+                        "error": f"El campo '{campo_bool}' debe ser un valor booleano (true/false)."
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
@@ -303,10 +370,21 @@ class AlertaViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="resolver")
     def resolver(self, request, pk=None):
-        """Marca una alerta activa como resuelta."""
+        """Resuelve una alerta mediante el servicio de negocio."""
+        # Conserva la búsqueda, filtros y permisos del endpoint original.
         alerta = self.get_object()
-        alerta.activa = False
-        alerta.save(update_fields=["activa"])
+        servicio = AlertaService(DjangoAlertaRepository())
+
+        try:
+            servicio.resolver_alerta(alerta.pk)
+        except AlertaOperacionError as error:
+            return Response(
+                {"error": str(error)},
+                status=error.status_code,
+            )
+
+        # Refresca el objeto para conservar el serializador y formato original.
+        alerta.refresh_from_db()
         serializer = self.get_serializer(alerta)
         return Response(
             {"mensaje": "Alerta resuelta con éxito", "alerta": serializer.data},
