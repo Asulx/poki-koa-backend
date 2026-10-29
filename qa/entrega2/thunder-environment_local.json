@@ -1,7 +1,7 @@
 {
   "client": "Thunder Client",
   "environmentName": "Poki Koa — Demo local",
-  "dateExported": "2026-10-15T04:46:45.686312+00:00",
+  "dateExported": "2026-10-26T12:57:31.165171+00:00",
   "version": "1.0",
   "variables": [
     {
@@ -10,15 +10,15 @@
     },
     {
       "name": "ayer",
-      "value": "2026-10-14"
+      "value": "2026-10-25"
     },
     {
       "name": "hoy",
-      "value": "2026-10-15"
+      "value": "2026-10-26"
     },
     {
       "name": "manana",
-      "value": "2026-10-16"
+      "value": "2026-10-27"
     }
   ]
 }

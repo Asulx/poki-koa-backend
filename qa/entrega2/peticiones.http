@@ -1,7 +1,7 @@
 @base_url = http://127.0.0.1:8000
-@ayer = 2026-10-14
-@hoy = 2026-10-15
-@manana = 2026-10-16
+@ayer = 2026-10-25
+@hoy = 2026-10-26
+@manana = 2026-10-27
 
 ### B01 paso 1: Registro válido con médico existente
 # Esperado: HTTP 201; {"equals": {"identificador": "QA-B01", "nombre_completo": "Paciente ficticio QA", "edad_meses": 0, "sexo": "F", "peso": 3.2, "fecha_nacimiento": "{{ayer}}", "medico_a_cargo": 910001}}

@@ -1,21 +1,21 @@
 {
   "client": "Thunder Client",
   "collectionName": "Poki Koa — Entrega 2 — 44 casos",
-  "dateExported": "2026-10-15T04:46:45.686312+00:00",
+  "dateExported": "2026-10-26T12:57:31.165171+00:00",
   "version": "1.1",
   "folders": [
     {
       "_id": "79891f8b-8300-5755-8dea-bb2e967c31bc",
       "name": "US-01",
       "containerId": "",
-      "created": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
       "sortNum": 10000
     },
     {
       "_id": "b5967aa1-818c-591f-b2b2-9ad83d684ff7",
       "name": "US-02",
       "containerId": "",
-      "created": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
       "sortNum": 20000
     }
   ],
@@ -28,8 +28,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "POST",
       "sortNum": 10000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -102,8 +102,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "GET",
       "sortNum": 20000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -135,8 +135,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "POST",
       "sortNum": 30000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -173,8 +173,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "GET",
       "sortNum": 40000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -206,8 +206,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "POST",
       "sortNum": 50000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -244,8 +244,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "GET",
       "sortNum": 60000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -277,8 +277,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "POST",
       "sortNum": 70000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -315,8 +315,8 @@
       "url": "{{base_url}}/api/bebes/?identificador=QA-B04",
       "method": "GET",
       "sortNum": 80000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -348,8 +348,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "GET",
       "sortNum": 90000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -381,8 +381,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "POST",
       "sortNum": 100000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -455,8 +455,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "GET",
       "sortNum": 110000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -488,8 +488,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "POST",
       "sortNum": 120000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -562,8 +562,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "GET",
       "sortNum": 130000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -595,8 +595,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "POST",
       "sortNum": 140000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -633,8 +633,8 @@
       "url": "{{base_url}}/api/bebes/?identificador=QA-B07",
       "method": "GET",
       "sortNum": 150000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -666,8 +666,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "GET",
       "sortNum": 160000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -699,8 +699,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "POST",
       "sortNum": 170000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -737,8 +737,8 @@
       "url": "{{base_url}}/api/bebes/?identificador=QA-B08",
       "method": "GET",
       "sortNum": 180000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -770,8 +770,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "GET",
       "sortNum": 190000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -803,8 +803,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "POST",
       "sortNum": 200000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -841,8 +841,8 @@
       "url": "{{base_url}}/api/bebes/?identificador=QA-B09",
       "method": "GET",
       "sortNum": 210000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -874,8 +874,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "GET",
       "sortNum": 220000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -907,8 +907,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "POST",
       "sortNum": 230000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -945,8 +945,8 @@
       "url": "{{base_url}}/api/bebes/?identificador=QA-B10",
       "method": "GET",
       "sortNum": 240000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -978,8 +978,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "GET",
       "sortNum": 250000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1011,8 +1011,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "POST",
       "sortNum": 260000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1085,8 +1085,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "GET",
       "sortNum": 270000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1118,8 +1118,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "POST",
       "sortNum": 280000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1192,8 +1192,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "GET",
       "sortNum": 290000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1225,8 +1225,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "POST",
       "sortNum": 300000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1299,8 +1299,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "GET",
       "sortNum": 310000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1332,8 +1332,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "POST",
       "sortNum": 320000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1406,8 +1406,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "GET",
       "sortNum": 330000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1439,8 +1439,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "POST",
       "sortNum": 340000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1477,8 +1477,8 @@
       "url": "{{base_url}}/api/bebes/?identificador=QA-B15",
       "method": "GET",
       "sortNum": 350000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1510,8 +1510,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "GET",
       "sortNum": 360000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1543,8 +1543,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "POST",
       "sortNum": 370000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1581,8 +1581,8 @@
       "url": "{{base_url}}/api/bebes/?identificador=QA-B16",
       "method": "GET",
       "sortNum": 380000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1614,8 +1614,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "GET",
       "sortNum": 390000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1647,8 +1647,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "POST",
       "sortNum": 400000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1685,8 +1685,8 @@
       "url": "{{base_url}}/api/bebes/?identificador=QA-B17",
       "method": "GET",
       "sortNum": 410000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1718,8 +1718,8 @@
       "url": "{{base_url}}/api/bebes/",
       "method": "GET",
       "sortNum": 420000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1751,8 +1751,8 @@
       "url": "{{base_url}}/api/bebes/910001/",
       "method": "PATCH",
       "sortNum": 430000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1807,8 +1807,8 @@
       "url": "{{base_url}}/api/bebes/910001/",
       "method": "GET",
       "sortNum": 440000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1852,8 +1852,8 @@
       "url": "{{base_url}}/api/bebes/910001/",
       "method": "PATCH",
       "sortNum": 450000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1890,8 +1890,8 @@
       "url": "{{base_url}}/api/bebes/910001/",
       "method": "GET",
       "sortNum": 460000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1929,8 +1929,8 @@
       "url": "{{base_url}}/api/bebes/999999/",
       "method": "GET",
       "sortNum": 470000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -1962,8 +1962,8 @@
       "url": "{{base_url}}/api/bebes/910001/",
       "method": "GET",
       "sortNum": 480000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2013,8 +2013,8 @@
       "url": "{{base_url}}/api/bebes/910003/",
       "method": "DELETE",
       "sortNum": 490000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2040,8 +2040,8 @@
       "url": "{{base_url}}/api/bebes/910003/",
       "method": "GET",
       "sortNum": 500000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2073,8 +2073,8 @@
       "url": "{{base_url}}/api/medicamentos/910003/",
       "method": "GET",
       "sortNum": 510000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2106,8 +2106,8 @@
       "url": "{{base_url}}/api/cunas/910002/",
       "method": "GET",
       "sortNum": 520000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2139,8 +2139,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "POST",
       "sortNum": 530000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2195,8 +2195,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "GET",
       "sortNum": 540000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2228,8 +2228,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "POST",
       "sortNum": 550000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2266,8 +2266,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "GET",
       "sortNum": 560000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2299,8 +2299,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "POST",
       "sortNum": 570000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2337,8 +2337,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "GET",
       "sortNum": 580000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2370,8 +2370,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "POST",
       "sortNum": 590000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2426,8 +2426,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "GET",
       "sortNum": 600000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2459,8 +2459,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "POST",
       "sortNum": 610000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2497,8 +2497,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "GET",
       "sortNum": 620000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2530,8 +2530,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "POST",
       "sortNum": 630000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2586,8 +2586,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "GET",
       "sortNum": 640000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2619,8 +2619,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "POST",
       "sortNum": 650000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2657,8 +2657,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "GET",
       "sortNum": 660000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2690,8 +2690,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "POST",
       "sortNum": 670000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2728,8 +2728,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "GET",
       "sortNum": 680000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2761,8 +2761,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "POST",
       "sortNum": 690000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2799,8 +2799,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "GET",
       "sortNum": 700000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2832,8 +2832,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "POST",
       "sortNum": 710000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2888,8 +2888,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "GET",
       "sortNum": 720000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2921,8 +2921,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "POST",
       "sortNum": 730000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2959,8 +2959,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "GET",
       "sortNum": 740000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -2992,8 +2992,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "POST",
       "sortNum": 750000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3030,8 +3030,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "GET",
       "sortNum": 760000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3063,8 +3063,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "POST",
       "sortNum": 770000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3119,8 +3119,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "GET",
       "sortNum": 780000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3152,8 +3152,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "POST",
       "sortNum": 790000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3190,8 +3190,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "GET",
       "sortNum": 800000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3223,8 +3223,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "POST",
       "sortNum": 810000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3261,8 +3261,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "GET",
       "sortNum": 820000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3294,8 +3294,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "POST",
       "sortNum": 830000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3332,8 +3332,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/",
       "method": "GET",
       "sortNum": 840000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3365,8 +3365,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/910001/",
       "method": "GET",
       "sortNum": 850000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3416,8 +3416,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/910001/",
       "method": "PATCH",
       "sortNum": 860000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3460,8 +3460,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/910001/",
       "method": "GET",
       "sortNum": 870000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3499,8 +3499,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/910001/",
       "method": "PATCH",
       "sortNum": 880000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3537,8 +3537,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/910001/",
       "method": "GET",
       "sortNum": 890000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3576,8 +3576,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/999999/",
       "method": "GET",
       "sortNum": 900000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3609,8 +3609,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/910001/",
       "method": "PUT",
       "sortNum": 910000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3641,8 +3641,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/910001/",
       "method": "GET",
       "sortNum": 920000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3692,8 +3692,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/910001/",
       "method": "PUT",
       "sortNum": 930000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",
@@ -3742,8 +3742,8 @@
       "url": "{{base_url}}/api/catalogo-medicamentos/910001/",
       "method": "GET",
       "sortNum": 940000,
-      "created": "2026-10-15T04:46:45.686312+00:00",
-      "modified": "2026-10-15T04:46:45.686312+00:00",
+      "created": "2026-10-26T12:57:31.165171+00:00",
+      "modified": "2026-10-26T12:57:31.165171+00:00",
       "headers": [
         {
           "name": "Content-Type",

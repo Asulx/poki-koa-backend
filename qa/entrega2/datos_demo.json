@@ -17,8 +17,8 @@
       "sexo": "F",
       "peso": 3.2,
       "medico_a_cargo": 910001,
-      "fecha_nacimiento": "2026-10-14",
-      "fecha_ingreso": "2026-10-15T04:46:45.686312+00:00"
+      "fecha_nacimiento": "2026-10-25",
+      "fecha_ingreso": "2026-10-26T12:57:31.165171+00:00"
     }
   },
   {
@@ -43,8 +43,8 @@
       "sexo": "F",
       "peso": 3.2,
       "medico_a_cargo": 910001,
-      "fecha_nacimiento": "2026-10-14",
-      "fecha_ingreso": "2026-10-15T04:46:45.686312+00:00"
+      "fecha_nacimiento": "2026-10-25",
+      "fecha_ingreso": "2026-10-26T12:57:31.165171+00:00"
     }
   },
   {
@@ -69,8 +69,8 @@
       "sexo": "F",
       "peso": 3.2,
       "medico_a_cargo": 910001,
-      "fecha_nacimiento": "2026-10-14",
-      "fecha_ingreso": "2026-10-15T04:46:45.686312+00:00"
+      "fecha_nacimiento": "2026-10-25",
+      "fecha_ingreso": "2026-10-26T12:57:31.165171+00:00"
     }
   },
   {
@@ -97,7 +97,7 @@
       "estado_sueno": "Dormido",
       "canula_ok": true,
       "via_iv_activa": false,
-      "ultima_actualizacion": "2026-10-15T04:46:45.686312+00:00"
+      "ultima_actualizacion": "2026-10-26T12:57:31.165171+00:00"
     }
   },
   {
@@ -112,7 +112,7 @@
       "estado_sueno": "Dormido",
       "canula_ok": true,
       "via_iv_activa": false,
-      "ultima_actualizacion": "2026-10-15T04:46:45.686312+00:00"
+      "ultima_actualizacion": "2026-10-26T12:57:31.165171+00:00"
     }
   },
   {
