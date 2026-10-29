@@ -10,9 +10,20 @@ from .models import MedicamentoCatalogo
 
 
 class CatalogoAPITest(TestCase):
+    """Pruebas de integración y contrato para la API REST del catálogo farmacéutico (Issue #17).
+
+    Verifica la correcta creación, recuperación, actualización parcial y total,
+    gestión de límites inclusivos, atomicidad ante errores y restricciones a nivel de base de datos.
+    """
+
     url = "/api/catalogo-medicamentos/"
 
-    def setUp(self):
+    """Configura el cliente de pruebas de la API y los datos base para las solicitudes.
+
+    @returns None
+    """
+
+    def setUp(self) -> None:
         self.client = APIClient()
         self.data = {
             "nombre": "Producto QA",
@@ -21,7 +32,12 @@ class CatalogoAPITest(TestCase):
             "stock": 10,
         }
 
-    def test_create_retrieve_update(self):
+    """Verifica el flujo completo de creación, consulta por ID, actualización parcial (PATCH) y total (PUT).
+
+    @returns None
+    """
+
+    def test_create_retrieve_update(self) -> None:
         response = self.client.post(self.url, self.data, format="json")
         self.assertEqual(response.status_code, 201)
         detail = f"{self.url}{response.data['id']}/"
@@ -40,7 +56,12 @@ class CatalogoAPITest(TestCase):
         self.assertEqual(item.nombre, "Actualizado")
         self.assertEqual(item.dosis_mg, Decimal("2.50"))
 
-    def test_invalid_creation_does_not_persist(self):
+    """Valida que los datos inválidos o incompletos rechacen la petición (HTTP 400) sin alterar la persistencia.
+
+    @returns None
+    """
+
+    def test_invalid_creation_does_not_persist(self) -> None:
         for field, values in {
             "nombre": ["", " ", None, "N" * 151],
             "principio_activo": ["", None, "P" * 151],
@@ -74,7 +95,12 @@ class CatalogoAPITest(TestCase):
                 self.assertEqual(response.status_code, 400)
                 self.assertIn(field, response.data)
 
-    def test_inclusive_limits(self):
+    """Valida que se acepten correctamente los valores límite inclusivos permitidos por el modelo.
+
+    @returns None
+    """
+
+    def test_inclusive_limits(self) -> None:
         for dose, stock in [("0.01", 1), ("99999999.99", 2147483647)]:
             response = self.client.post(
                 self.url,
@@ -89,7 +115,12 @@ class CatalogoAPITest(TestCase):
             )
             self.assertEqual(response.status_code, 201)
 
-    def test_invalid_update_is_atomic(self):
+    """Comprueba que las actualizaciones fallidas mantengan la atomicidad sin modificar el registro previo.
+
+    @returns None
+    """
+
+    def test_invalid_update_is_atomic(self) -> None:
         item = MedicamentoCatalogo.objects.create(**self.data)
         detail = f"{self.url}{item.pk}/"
         response = self.client.patch(
@@ -108,13 +139,23 @@ class CatalogoAPITest(TestCase):
         item.refresh_from_db()
         self.assertEqual(item.nombre, self.data["nombre"])
 
-    def test_missing_product_and_unsupported_delete(self):
+    """Verifica el manejo de recursos inexistentes (404) y la no soporte para borrados físicos (405).
+
+    @returns None
+    """
+
+    def test_missing_product_and_unsupported_delete(self) -> None:
         self.assertEqual(self.client.get(self.url + "999999/").status_code, 404)
         item = MedicamentoCatalogo.objects.create(**self.data)
         self.assertEqual(self.client.delete(f"{self.url}{item.pk}/").status_code, 405)
         self.assertTrue(MedicamentoCatalogo.objects.filter(pk=item.pk).exists())
 
-    def test_database_rejects_nonpositive_values(self):
+    """Comprueba que la base de datos rechace estrictamente valores no positivos a nivel de restricciones SQL.
+
+    @returns None
+    """
+
+    def test_database_rejects_nonpositive_values(self) -> None:
         for change in [
             {"stock": 0},
             {"stock": -1},

@@ -1,10 +1,7 @@
-"""
-Vistas (controladores) de la API REST para la aplicación 'cunas'.
-
+"""Vistas (controladores) de la API REST para la aplicación 'cunas' en Poki Koa.
 
 Cada ViewSet expone automáticamente los endpoints CRUD completos
 para su modelo correspondiente gracias a Django REST Framework:
-
 
     GET    /api/medicos/         → lista todos los médicos
     POST   /api/medicos/         → crea un nuevo médico
@@ -12,9 +9,9 @@ para su modelo correspondiente gracias a Django REST Framework:
     PUT    /api/medicos/{id}/    → actualiza un médico
     DELETE /api/medicos/{id}/    → elimina un médico
 
-
 (Las mismas operaciones aplican para /api/bebes/, /api/cunas/ y /api/medicamentos/)
 """
+
 import logging
 
 from django.db.models import Q
@@ -49,8 +46,8 @@ logger = logging.getLogger(__name__)
 
 
 class MedicoViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet para el modelo Medico.
+    """ViewSet para el modelo Medico.
+
     Proporciona operaciones CRUD completas sobre los médicos del sistema.
     """
 
@@ -59,8 +56,8 @@ class MedicoViewSet(viewsets.ModelViewSet):
 
 
 class BebeViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet para el modelo Bebe.
+    """ViewSet para el modelo Bebe.
+
     Proporciona operaciones CRUD completas sobre los pacientes (bebés),
     optimizando la carga de relaciones y permitiendo búsqueda y filtros
     mediante parámetros de consulta (?search=, ?identificador=, ?sexo=, etc.).
@@ -73,6 +70,11 @@ class BebeViewSet(viewsets.ModelViewSet):
         .order_by("-fecha_ingreso")
     )
     serializer_class = BebeSerializer
+
+    """Filtra y optimiza el queryset de bebés según los parámetros de consulta HTTP provistos.
+
+    @returns django.db.models.QuerySet - QuerySet filtrado de instancias de Bebe.
+    """
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -139,8 +141,8 @@ class BebeViewSet(viewsets.ModelViewSet):
 
 
 class CunaViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet para el modelo Cuna.
+    """ViewSet para el modelo Cuna.
+
     Proporciona operaciones CRUD completas sobre las cunas de monitoreo.
     Las respuestas incluyen datos anidados del bebé asignado (ver CunaSerializer).
     """
@@ -148,12 +150,17 @@ class CunaViewSet(viewsets.ModelViewSet):
     queryset = Cuna.objects.all()
     serializer_class = CunaSerializer
 
+    """Endpoint para recibir datos de telemetría de sensores IoT o simuladores.
+
+    Actualiza los signos vitales de la cuna y procesa automáticamente las alertas.
+
+    @param request - Objeto HttpRequest con los datos de telemetría en el cuerpo.
+    @param pk - Clave primaria de la cuna a actualizar.
+    @returns rest_framework.response.Response - Respuesta HTTP con el estado actual y alertas activas.
+    """
+
     @action(detail=True, methods=["post"], url_path="telemetria")
     def telemetria(self, request, pk=None):
-        """
-        Endpoint para recibir datos de telemetría de sensores IoT o simuladores.
-        Actualiza los signos vitales de la cuna y procesa automáticamente las alertas.
-        """
         cuna = self.get_object()
         data = request.data
 
@@ -199,7 +206,9 @@ class CunaViewSet(viewsets.ModelViewSet):
 
         if "temperatura" in data:
             temperatura = data.get("temperatura")
-            if type(temperatura) not in (int, float) or not (25.0 <= float(temperatura) <= 45.0):
+            if type(temperatura) not in (int, float) or not (
+                25.0 <= float(temperatura) <= 45.0
+            ):
                 logger.warning(
                     "Telemetría anómala detectada en cuna %s: temperatura inválida (%s)",
                     cuna.identificador,
@@ -222,9 +231,7 @@ class CunaViewSet(viewsets.ModelViewSet):
                     estado_sueno,
                 )
                 return Response(
-                    {
-                        "error": "El estado de sueño debe ser 'Dormido' o 'Despierto'."
-                    },
+                    {"error": "El estado de sueño debe ser 'Dormido' o 'Despierto'."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
@@ -286,8 +293,8 @@ class CunaViewSet(viewsets.ModelViewSet):
 
 
 class MedicamentoViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet para el modelo Medicamento.
+    """ViewSet para el modelo Medicamento.
+
     Proporciona operaciones CRUD completas sobre el control y
     administración de fármacos a los pacientes.
     """
@@ -297,9 +304,15 @@ class MedicamentoViewSet(viewsets.ModelViewSet):
     queryset = Medicamento.objects.all()
     serializer_class = MedicamentoSerializer
 
+    """POST /api/medicamentos/{id}/administrar/ (sin cuerpo requerido).
+
+    @param request - Objeto HttpRequest de la solicitud.
+    @param pk - Clave primaria del medicamento a administrar.
+    @returns rest_framework.response.Response - Respuesta HTTP con el resultado o código de error.
+    """
+
     @action(detail=True, methods=["post"])
     def administrar(self, request, pk=None):
-        """POST /api/medicamentos/{id}/administrar/ (sin cuerpo requerido)."""
         servicio = MedicamentoService(DjangoMedicamentoRepository())
         try:
             resultado = servicio.administrar(pk)
@@ -315,8 +328,8 @@ class MedicamentoViewSet(viewsets.ModelViewSet):
 
 
 class PlanCuidadoViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet para el modelo PlanCuidado.
+    """ViewSet para el modelo PlanCuidado.
+
     Proporciona operaciones CRUD completas sobre los protocolos
     de atención asignados a los pacientes.
     """
@@ -326,13 +339,18 @@ class PlanCuidadoViewSet(viewsets.ModelViewSet):
 
 
 class AlertaViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet para el modelo Alerta.
+    """ViewSet para el modelo Alerta.
+
     Proporciona operaciones CRUD y acciones para listar alertas activas y resolverlas.
     """
 
     queryset = Alerta.objects.all().order_by("-fecha_hora")
     serializer_class = AlertaSerializer
+
+    """Filtra y ordena el queryset de alertas según los parámetros de consulta HTTP.
+
+    @returns django.db.models.QuerySet - QuerySet filtrado de instancias de Alerta.
+    """
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -361,16 +379,27 @@ class AlertaViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+    """Lista todas las alertas que se encuentran activas en el sistema.
+
+    @param request - Objeto HttpRequest recibido.
+    @returns rest_framework.response.Response - Respuesta HTTP con la lista serializada de alertas activas.
+    """
+
     @action(detail=False, methods=["get"], url_path="activas")
     def activas(self, request):
-        """Lista todas las alertas que se encuentran activas en el sistema."""
         alertas = self.get_queryset().filter(activa=True)
         serializer = self.get_serializer(alertas, many=True)
         return Response(serializer.data)
 
+    """Resuelve una alerta mediante el servicio de negocio.
+
+    @param request - Objeto HttpRequest recibido.
+    @param pk - Clave primaria de la alerta a resolver.
+    @returns rest_framework.response.Response - Respuesta HTTP con la confirmación de éxito o error correspondiente.
+    """
+
     @action(detail=True, methods=["post"], url_path="resolver")
     def resolver(self, request, pk=None):
-        """Resuelve una alerta mediante el servicio de negocio."""
         # Conserva la búsqueda, filtros y permisos del endpoint original.
         alerta = self.get_object()
         servicio = AlertaService(DjangoAlertaRepository())
@@ -390,7 +419,6 @@ class AlertaViewSet(viewsets.ModelViewSet):
             {"mensaje": "Alerta resuelta con éxito", "alerta": serializer.data},
             status=status.HTTP_200_OK,
         )
-
 
 
 class MedicamentoCatalogoViewSet(viewsets.ModelViewSet):

@@ -1,5 +1,4 @@
-"""
-Motor de Detección y Evaluación de Alertas Clínicas Neonatales.
+"""Motor de Detección y Evaluación de Alertas Clínicas Neonatales.
 
 Este módulo centraliza la lógica de negocio para:
 1. Evaluar signos vitales contra umbrales fisiológicos neonatales estándar.
@@ -31,15 +30,47 @@ TEMP_FIEBRE_ALTA = 38.5
 _PROCESAMIENTO_HABILITADO = True
 
 
+"""Permite pausar o reactivar temporalmente la evaluación automática de alertas.
+
+@param habilitado - Booleano que indica si el procesamiento debe activarse (True) o pausarse (False).
+@returns None
+"""
+
+
 def habilitar_procesamiento(habilitado: bool = True):
-    """Permite pausar o reactivar temporalmente la evaluación automática."""
     global _PROCESAMIENTO_HABILITADO
     _PROCESAMIENTO_HABILITADO = habilitado
 
 
+"""Verifica si el procesamiento automático de alertas se encuentra activo.
+
+@returns bool - True si el procesamiento está habilitado, False en caso contrario.
+"""
+
+
 def esta_procesamiento_habilitado() -> bool:
-    """Verifica si el procesamiento de alertas está activo."""
     return _PROCESAMIENTO_HABILITADO
+
+
+"""Función pura para evaluar un conjunto de lecturas clínicas contra los umbrales fisiológicos neonatales.
+
+Retorna una lista de diccionarios con las anomalías detectadas:
+[
+    {
+        "tipo": "ritmo_cardiaco" | "spo2" | "temperatura" | "canula",
+        "nivel": "Advertencia" | "Critica",
+        "mensaje": str,
+        "valor_leido": float | None
+    },
+    ...
+]
+
+@param ritmo_cardiaco - Frecuencia cardíaca opcional en latidos por minuto (bpm).
+@param spo2 - Saturación de oxígeno opcional en porcentaje (%).
+@param temperatura - Temperatura corporal opcional en grados Celsius (°C).
+@param canula_ok - Estado booleano opcional del funcionamiento de la cánula de oxígeno.
+@returns list[dict[str, Any]] - Lista con las anomalías detectadas según los umbrales clínicos.
+"""
 
 
 def evaluar_signos_vitales(
@@ -48,21 +79,6 @@ def evaluar_signos_vitales(
     temperatura: float | None = None,
     canula_ok: bool | None = None,
 ) -> list[dict[str, Any]]:
-    """
-    Función pura para evaluar un conjunto de lecturas clínicas contra los
-    umbrales fisiológicos neonatales.
-
-    Retorna una lista de diccionarios con las anomalías detectadas:
-    [
-        {
-            "tipo": "ritmo_cardiaco" | "spo2" | "temperatura" | "canula",
-            "nivel": "Advertencia" | "Critica",
-            "mensaje": str,
-            "valor_leido": float | None
-        },
-        ...
-    ]
-    """
     anomalias: list[dict[str, Any]] = []
 
     # 1. Evaluación de Frecuencia Cardíaca (ritmo_cardiaco)
@@ -208,12 +224,14 @@ def evaluar_signos_vitales(
     return anomalias
 
 
+"""Evalúa los signos vitales actuales de una Cuna, gestiona el ciclo de vida de las alertas en la base de datos (creación, deduplicación y autorresolución) y retorna la lista de instancias de Alerta activas/nuevas generadas.
+
+@param cuna - Instancia del modelo Cuna cuyos signos vitales serán procesados.
+@returns list[Any] - Lista de instancias del modelo Alerta activas o recién procesadas.
+"""
+
+
 def procesar_alertas_cuna(cuna) -> list[Any]:
-    """
-    Evalúa los signos vitales actuales de una Cuna, gestiona el ciclo de vida
-    de las alertas en la base de datos (creación, deduplicación y autorresolución)
-    y retorna la lista de instancias de Alerta activas/nuevas generadas.
-    """
     if not esta_procesamiento_habilitado():
         return []
 
@@ -291,7 +309,8 @@ def procesar_alertas_cuna(cuna) -> list[Any]:
     for tipo in tipos_evaluados:
         if tipo not in tipos_con_anomalia:
             # Los signos para este tipo están normales: desactivar alertas activas
-            Alerta.objects.filter(cuna=cuna, tipo=tipo, activa=True).update(activa=False)
+            Alerta.objects.filter(cuna=cuna, tipo=tipo, activa=True).update(
+                activa=False
+            )
 
     return alertas_procesadas
-

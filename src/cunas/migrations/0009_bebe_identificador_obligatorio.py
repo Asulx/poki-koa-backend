@@ -1,4 +1,17 @@
+"""Migración de datos para completar identificadores de pacientes en Poki Koa.
+
+Asegura que todos los registros existentes del modelo Bebe posean un identificador
+único antes de aplicar la restricción de unicidad y obligatoriedad en el campo.
+"""
+
 from django.db import migrations, models
+
+"""Rellena de forma iterativa y segura los identificadores vacíos en la tabla Bebe.
+
+@param apps - Registro de modelos históricos de Django para acceso seguro a versiones previas.
+@param schema_editor - Gestor de esquema de la base de datos para operaciones de conexión y transacciones.
+@returns None - La función opera por efectos secundarios actualizando el registro de base de datos.
+"""
 
 
 def completar_identificadores(apps, schema_editor):
@@ -18,6 +31,12 @@ def completar_identificadores(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+    """Ejecuta la migración de datos y ajusta la restricción del campo identificador.
+
+    Ejecuta la función auxiliar para poblar identificadores faltantes en pacientes
+    y posteriormente modifica el campo para establecerlo como único en el esquema.
+    """
+
     dependencies = [("cunas", "0008_medicamentocatalogo")]
 
     operations = [

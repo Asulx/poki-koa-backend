@@ -18,91 +18,158 @@ from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-ROOT = Path(__file__).resolve().parents[1]
-QA = ROOT / "qa" / "entrega2"
+# Directorios raíz y de QA base para la verificación
+DIRECTORIO_RAIZ = Path(__file__).resolve().parents[1]
+DIRECTORIO_QA = DIRECTORIO_RAIZ / "qa" / "entrega2"
 
 
-def read(name):
-    return json.loads((QA / name).read_text(encoding="utf-8"))
+"""
+Lee y deserializa un archivo en formato JSON desde la carpeta de QA.
+
+@param nombre_archivo - Nombre o ruta relativa del archivo JSON a leer.
+@returns dict | list - El contenido estructurado parseado del archivo.
+"""
 
 
-def substitute(value, variables):
-    if isinstance(value, str):
-        for key, replacement in variables.items():
-            value = value.replace("{{" + key + "}}", replacement)
-        if "{{" in value:
-            raise ValueError(f"Variable no resuelta: {value}")
-        return value
-    if isinstance(value, dict):
-        return {key: substitute(item, variables) for key, item in value.items()}
-    if isinstance(value, list):
-        return [substitute(item, variables) for item in value]
-    return value
+def leer_archivo_json(nombre_archivo: str) -> dict | list:
+    return json.loads((DIRECTORIO_QA / nombre_archivo).read_text(encoding="utf-8"))
 
 
-def lookup(body, path):
-    for part in path.split("."):
-        body = body[int(part)] if isinstance(body, list) else body[part]
-    return body
+"""
+Sustituye de forma recursiva las variables de plantilla por sus valores reales.
+
+@param valor - Valor, cadena, diccionario o lista a procesar.
+@param variables - Diccionario con los pares clave-valor de sustitución.
+@returns any - La estructura con las variables resueltas.
+"""
 
 
-def check(status, body, expected):
-    if status != expected["status"]:
+def sustituir_variables(valor: any, variables: dict) -> any:
+    if isinstance(valor, str):
+        for clave, reemplazo in variables.items():
+            valor = valor.replace("{{" + clave + "}}", reemplazo)
+        if "{{" in valor:
+            raise ValueError(f"Variable no resuelta: {valor}")
+        return valor
+    if isinstance(valor, dict):
+        return {
+            clave: sustituir_variables(item, variables) for clave, item in valor.items()
+        }
+    if isinstance(valor, list):
+        return [sustituir_variables(item, variables) for item in valor]
+    return valor
+
+
+"""
+Busca de forma anidada un valor dentro de un objeto JSON usando notación de puntos.
+
+@param cuerpo - Objeto de datos (diccionario o lista) sobre el cual buscar.
+@param ruta - Ruta de claves separadas por puntos (ej. 'usuario.nombre').
+@returns any - El valor encontrado en la ruta especificada.
+"""
+
+
+def buscar_en_json(cuerpo: any, ruta: str) -> any:
+    for parte in ruta.split("."):
+        cuerpo = cuerpo[int(parte)] if isinstance(cuerpo, list) else cuerpo[parte]
+    return cuerpo
+
+
+"""
+Valida una respuesta HTTP contra las expectativas definidas en el caso de prueba.
+
+@param codigo_estado - Código de estado HTTP obtenido en la respuesta.
+@param cuerpo_respuesta - Cuerpo de la respuesta JSON o texto decodificado.
+@param esperado - Diccionario con las reglas y aserciones esperadas.
+@returns None - Lanza AssertionError si alguna regla de validación falla.
+"""
+
+
+def verificar_expectativa(
+    codigo_estado: int, cuerpo_respuesta: any, esperado: dict
+) -> None:
+    if codigo_estado != esperado["status"]:
         raise AssertionError(
-            f"HTTP esperado {expected['status']}; obtenido {status}: {body}"
+            f"HTTP esperado {esperado['status']}; obtenido {codigo_estado}: {cuerpo_respuesta}"
         )
-    for path, value in expected.get("equals", {}).items():
-        actual = lookup(body, path)
-        if actual != value or (isinstance(value, bool) and type(actual) is not bool):
-            raise AssertionError(f"{path}: esperado {value!r}; obtenido {actual!r}")
-    for key in expected.get("keys", []):
-        if not isinstance(body, dict) or key not in body or not body[key]:
-            raise AssertionError(f"Falta error no vacío en {key}: {body}")
-    if "length" in expected and (
-        not isinstance(body, list) or len(body) != expected["length"]
+    for ruta, valor in esperado.get("equals", {}).items():
+        actual = buscar_en_json(cuerpo_respuesta, ruta)
+        if actual != valor or (isinstance(valor, bool) and type(actual) is not bool):
+            raise AssertionError(f"{ruta}: esperado {valor!r}; obtenido {actual!r}")
+    for llave in esperado.get("keys", []):
+        if (
+            not isinstance(cuerpo_respuesta, dict)
+            or llave not in cuerpo_respuesta
+            or not cuerpo_respuesta[llave]
+        ):
+            raise AssertionError(f"Falta error no vacío en {llave}: {cuerpo_respuesta}")
+    if "length" in esperado and (
+        not isinstance(cuerpo_respuesta, list)
+        or len(cuerpo_respuesta) != esperado["length"]
     ):
         raise AssertionError(
-            f"Lista esperada de {expected['length']} elementos; obtenido {body}"
+            f"Lista esperada de {esperado['length']} elementos; obtenido {cuerpo_respuesta}"
         )
-    if status == 204 and body is not None:
+    if codigo_estado == 204 and cuerpo_respuesta is not None:
         raise AssertionError("DELETE 204 debe responder sin cuerpo")
 
 
-def http(base, item):
-    payload = json.dumps(item["body"]).encode() if "body" in item else None
-    request = Request(
-        base + item["path"],
-        data=payload,
+"""
+Realiza una petición HTTP real utilizando la librería estándar de Python.
+
+@param url_base - URL base del servidor de pruebas.
+@param item - Diccionario con los detalles de la solicitud (método, ruta, cuerpo).
+@returns tuple - Una tupla conteniendo el código de estado HTTP y el cuerpo JSON deserializado.
+"""
+
+
+def realizar_peticion_http(url_base: str, item: dict) -> tuple[int, any]:
+    carga_util = json.dumps(item["body"]).encode() if "body" in item else None
+    solicitud = Request(
+        url_base + item["path"],
+        data=carga_util,
         method=item["method"],
         headers={"Content-Type": "application/json"},
     )
     try:
-        response = urlopen(request, timeout=10)
+        respuesta = urlopen(solicitud, timeout=10)
     except HTTPError as error:
-        response = error
-    with response:
-        raw = response.read().decode()
-        return response.status, json.loads(raw) if raw else None
+        respuesta = error
+    with respuesta:
+        crudo = respuesta.read().decode()
+        return respuesta.status, json.loads(crudo) if crudo else None
 
 
-def validate():
-    cases = read("casos.json")["cases"]
-    collection = read("thunder-collection_entrega2.json")
-    env = {
+"""
+Ejecuta la validación estática de todos los artefactos generados de la Entrega 2.
+
+@param - No recibe parámetros directos.
+@returns tuple - Una tupla con la lista de casos de prueba y el diccionario de entorno.
+"""
+
+
+def validate() -> tuple[list, dict]:
+    casos = leer_archivo_json("casos.json")["cases"]
+    coleccion = leer_archivo_json("thunder-collection_entrega2.json")
+    entorno = {
         item["name"]: item["value"]
-        for item in read("thunder-environment_local.json")["variables"]
+        for item in leer_archivo_json("thunder-environment_local.json")["variables"]
     }
-    assert len(cases) == 44
-    assert len({case["id"] for case in cases}) == len(cases)
-    assert sum(case["hu"] == "US-01" for case in cases) == 22
-    assert sum(case["hu"] == "US-02" for case in cases) == 22
-    steps = [step for case in cases for step in case["steps"]]
-    assert len(steps) == len(collection["requests"])
-    ids = [request["_id"] for request in collection["requests"]]
-    assert len(ids) == len(set(ids))
-    folders = {folder["_id"] for folder in collection["folders"]}
-    for item, request in zip(steps, collection["requests"]):
-        assert request["containerId"] in folders
+
+    assert len(casos) == 44
+    assert len({case["id"] for case in casos}) == len(casos)
+    assert sum(case["hu"] == "US-01" for case in casos) == 22
+    assert sum(case["hu"] == "US-02" for case in casos) == 22
+
+    pasos = [paso for case in casos for paso in case["steps"]]
+    assert len(pasos) == len(coleccion["requests"])
+
+    identificadores = [request["_id"] for request in coleccion["requests"]]
+    assert len(identificadores) == len(set(identificadores))
+
+    carpetas = {folder["_id"] for folder in coleccion["folders"]}
+    for item, request in zip(pasos, coleccion["requests"]):
+        assert request["containerId"] in carpetas
         assert request["method"] == item["method"]
         assert request["url"] == "{{base_url}}" + item["path"]
         assert request["tests"][0]["value"] == str(item["status"])
@@ -111,108 +178,144 @@ def validate():
         assert len(request["tests"]) == 1 + len(item.get("equals", {})) + len(
             item.get("keys", [])
         ) + int("length" in item)
-        substitute(item, env)
-    fixtures = read("datos_demo.json")
-    keys = {(record["model"], record["pk"]) for record in fixtures}
-    assert len(keys) == len(fixtures) == 10
+        sustituir_variables(item, entorno)
+
+    fixtures = leer_archivo_json("datos_demo.json")
+    llaves_fixtures = {(record["model"], record["pk"]) for record in fixtures}
+    assert len(llaves_fixtures) == len(fixtures) == 10
+
     for record in fixtures:
-        fields = record["fields"]
-        if "paciente" in fields:
-            assert ("cunas.bebe", fields["paciente"]) in keys
-        if "medico_a_cargo" in fields:
-            assert ("cunas.medico", fields["medico_a_cargo"]) in keys
+        campos = record["fields"]
+        if "paciente" in campos:
+            assert ("cunas.bebe", campos["paciente"]) in llaves_fixtures
+        if "medico_a_cargo" in campos:
+            assert ("cunas.medico", campos["medico_a_cargo"]) in llaves_fixtures
+
     # Verifica que el evaluador detecte errores HTTP, de contenido y de persistencia.
-    check(200, {"peso": 3.2}, {"status": 200, "equals": {"peso": 3.2}})
-    for status, body, expected in [
+    verificar_expectativa(200, {"peso": 3.2}, {"status": 200, "equals": {"peso": 3.2}})
+    for status, cuerpo, esperado in [
         (201, {}, {"status": 400}),
         (200, {"peso": 0}, {"status": 200, "equals": {"peso": 3.2}}),
         (200, [{}], {"status": 200, "length": 0}),
         (400, {}, {"status": 400, "keys": ["peso"]}),
     ]:
         try:
-            check(status, body, expected)
+            verificar_expectativa(status, cuerpo, esperado)
         except AssertionError:
             pass
         else:
             raise AssertionError("El evaluador aceptó una respuesta incorrecta")
+
     print(
-        f"Validación estática OK: {len(cases)} casos, {len(steps)} peticiones y {len(fixtures)} registros ficticios."
+        f"Validación estática OK: {len(casos)} casos, {len(pasos)} peticiones y {len(fixtures)} registros ficticios."
     )
-    return cases, env
+    return casos, entorno
 
 
-def run():
+"""
+Prepara el entorno, levanta un servidor de pruebas aislado y ejecuta todos los casos de QA.
+
+@param - No recibe parámetros directos.
+@returns int - Código de salida (0 si todo pasa, distinto de cero si hay fallos).
+"""
+
+
+def run() -> int:
     # Regenerar fechas antes de preparar el escenario evita fechas futuras obsoletas.
     subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / "preparar_pruebas_entrega2.py")],
+        [
+            sys.executable,
+            str(DIRECTORIO_RAIZ / "scripts" / "preparar_pruebas_entrega2.py"),
+        ],
         check=True,
     )
-    cases, env = validate()
-    manage = [sys.executable, str(ROOT / "src" / "manage.py")]
-    settings = "--settings=poki_koa.settings_entregable"
-    subprocess.run(manage + ["migrate", settings, "--noinput"], check=True)
-    subprocess.run(manage + ["preparar_entregable", settings, "--reset"], check=True)
-    with socket.socket() as probe:
-        probe.bind(("127.0.0.1", 0))
-        port = probe.getsockname()[1]
-    base = f"http://127.0.0.1:{port}"
-    report = {
+    casos, entorno = validate()
+
+    comando_manage = [sys.executable, str(DIRECTORIO_RAIZ / "src" / "manage.py")]
+    opciones_settings = "--settings=poki_koa.settings_entregable"
+
+    subprocess.run(
+        comando_manage + ["migrate", opciones_settings, "--noinput"], check=True
+    )
+    subprocess.run(
+        comando_manage + ["preparar_entregable", opciones_settings, "--reset"],
+        check=True,
+    )
+
+    with socket.socket() as sonda:
+        sonda.bind(("127.0.0.1", 0))
+        puerto = sonda.getsockname()[1]
+
+    url_base = f"http://127.0.0.1:{puerto}"
+    reporte = {
         "started_at": datetime.now(timezone.utc).isoformat(),
         "mode": "HTTP real; NO Thunder Client",
         "python": sys.version,
-        "manifest_sha256": hashlib.sha256((QA / "casos.json").read_bytes()).hexdigest(),
+        "manifest_sha256": hashlib.sha256(
+            (DIRECTORIO_QA / "casos.json").read_bytes()
+        ).hexdigest(),
         "cases": [],
     }
-    log_path = QA / "servidor-local.log"
-    with log_path.open("w", encoding="utf-8") as log:
-        server = subprocess.Popen(
-            manage + ["runserver", f"127.0.0.1:{port}", settings, "--noreload"],
-            stdout=log,
-            stderr=log,
+
+    ruta_log = DIRECTORIO_QA / "servidor-local.log"
+    with ruta_log.open("w", encoding="utf-8") as archivo_log:
+        servidor = subprocess.Popen(
+            comando_manage
+            + ["runserver", f"127.0.0.1:{puerto}", opciones_settings, "--noreload"],
+            stdout=archivo_log,
+            stderr=archivo_log,
             env=os.environ.copy(),
         )
         try:
             for _ in range(100):
-                if server.poll() is not None:
-                    raise RuntimeError(f"El servidor terminó; revisar {log_path}")
+                if servidor.poll() is not None:
+                    raise RuntimeError(f"El servidor terminó; revisar {ruta_log}")
                 try:
-                    status, body = http(base, {"path": "/api/bebes/", "method": "GET"})
+                    status, cuerpo = realizar_peticion_http(
+                        url_base, {"path": "/api/bebes/", "method": "GET"}
+                    )
                     if status == 200:
                         break
                 except (URLError, OSError):
                     time.sleep(0.1)
             else:
                 raise RuntimeError("El servidor no respondió dentro de 10 segundos")
-            for case in cases:
-                result = {
+
+            for case in casos:
+                resultado_caso = {
                     "id": case["id"],
                     "title": case["title"],
                     "status": "PASS",
                     "steps": [],
                 }
-                for template in case["steps"]:
-                    item = substitute(template, env)
-                    detail = {
+                for plantilla in case["steps"]:
+                    item = sustituir_variables(plantilla, entorno)
+                    detalle = {
                         "method": item["method"],
                         "path": item["path"],
                         "expected_status": item["status"],
                     }
                     try:
-                        status, body = http(base, item)
-                        detail.update({"actual_status": status, "response": body})
-                        check(status, body, item)
+                        status, cuerpo = realizar_peticion_http(url_base, item)
+                        detalle.update({"actual_status": status, "response": cuerpo})
+                        verificar_expectativa(status, cuerpo, item)
+
                         # Cada alta válida se vuelve a consultar para verificar persistencia.
                         if item["method"] == "POST" and status == 201:
-                            persisted = {
+                            persistido = {
                                 **item,
                                 "method": "GET",
-                                "path": item["path"] + str(body["id"]) + "/",
+                                "path": item["path"] + str(cuerpo["id"]) + "/",
                                 "status": 200,
                             }
-                            persisted.pop("body", None)
-                            read_status, read_body = http(base, persisted)
-                            check(read_status, read_body, persisted)
-                            detail["persisted_id"] = body["id"]
+                            persistido.pop("body", None)
+                            estado_lectura, cuerpo_lectura = realizar_peticion_http(
+                                url_base, persistido
+                            )
+                            verificar_expectativa(
+                                estado_lectura, cuerpo_lectura, persistido
+                            )
+                            detalle["persisted_id"] = cuerpo["id"]
                     except (
                         AssertionError,
                         KeyError,
@@ -221,36 +324,39 @@ def run():
                         ValueError,
                         OSError,
                     ) as error:
-                        result["status"] = "FAIL"
-                        detail["error"] = str(error)
-                    result["steps"].append(detail)
-                report["cases"].append(result)
-                print(case["id"], result["status"])
+                        resultado_caso["status"] = "FAIL"
+                        detalle["error"] = str(error)
+                    resultado_caso["steps"].append(detalle)
+                reporte["cases"].append(resultado_caso)
+                print(case["id"], resultado_caso["status"])
         finally:
-            server.terminate()
+            servidor.terminate()
             try:
-                server.wait(timeout=5)
+                servidor.wait(timeout=5)
             except subprocess.TimeoutExpired:
-                server.kill()
-                server.wait()
-    report["passed"] = sum(case["status"] == "PASS" for case in report["cases"])
-    report["failed"] = sum(case["status"] == "FAIL" for case in report["cases"])
-    (QA / "resultado-http-local.json").write_text(
-        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+                servidor.kill()
+                servidor.wait()
+
+    reporte["passed"] = sum(case["status"] == "PASS" for case in reporte["cases"])
+    reporte["failed"] = sum(case["status"] == "FAIL" for case in reporte["cases"])
+
+    (DIRECTORIO_QA / "resultado-http-local.json").write_text(
+        json.dumps(reporte, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
     print(
-        f"HTTP: {report['passed']} PASS / {report['failed']} FAIL. No acredita ejecución en Thunder Client."
+        f"HTTP: {reporte['passed']} PASS / {reporte['failed']} FAIL. No acredita ejecución en Thunder Client."
     )
-    return int(report["failed"] != 0)
+    return int(reporte["failed"] != 0)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description=__doc__)
-    mode = parser.add_mutually_exclusive_group(required=True)
-    mode.add_argument("--static", action="store_true")
-    mode.add_argument("--run", action="store_true")
-    args = parser.parse_args()
-    if args.static:
+    analizador_argumentos = argparse.ArgumentParser(description=__doc__)
+    grupo_modo = analizador_argumentos.add_mutually_exclusive_group(required=True)
+    grupo_modo.add_argument("--static", action="store_true")
+    grupo_modo.add_argument("--run", action="store_true")
+    argumentos = analizador_argumentos.parse_args()
+
+    if argumentos.static:
         validate()
     else:
         sys.exit(run())

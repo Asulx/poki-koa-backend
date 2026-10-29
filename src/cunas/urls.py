@@ -1,5 +1,4 @@
-"""
-Configuración de URLs de la aplicación 'cunas'.
+"""Configuración de URLs de la aplicación 'cunas' en Poki Koa.
 
 Usa el DefaultRouter de Django REST Framework para registrar los ViewSets
 y generar automáticamente todas las rutas CRUD.
@@ -14,8 +13,10 @@ Rutas generadas bajo el prefijo /api/ (definido en poki_koa/urls.py):
     /api/cunas/{id}/        GET (detalle), PUT (actualizar), DELETE (borrar)
     /api/medicamentos/      GET (lista), POST (crear)
     /api/medicamentos/{id}/ GET (detalle), PUT (actualizar), DELETE (borrar)
+    /api/catalogo-medicamentos/ GET (lista), POST (crear)
     /api/planes-cuidado/    GET (lista), POST (crear)
     /api/planes-cuidado/{id}/ GET (detalle), PUT (actualizar), DELETE (borrar)
+    /api/alertas/           GET (lista), POST (crear)
 """
 
 from django.urls import include, path

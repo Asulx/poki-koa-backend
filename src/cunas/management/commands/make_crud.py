@@ -1,3 +1,9 @@
+"""Generador automatizado de Model, Serializer, ViewSet y URL para un nuevo recurso CRUD.
+
+Este script define un comando personalizado de Django que automatiza la creación
+de componentes backend estándar a partir de un nombre de modelo en PascalCase.
+"""
+
 import os
 import re
 import sys
@@ -5,9 +11,15 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
 
+"""
+Retorna el slug plural y el identificador snake_case en español para rutas de API.
+
+@param name - Nombre del modelo en formato PascalCase o texto base.
+@returns tuple[str, str] - Una tupla con (plural_slug, plural_snake).
+"""
+
 
 def spanish_plural(name: str) -> tuple[str, str]:
-    """Retorna (plural_slug, plural_snake) para rutas e identificadores."""
     s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
     snake = re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
@@ -25,8 +37,17 @@ def spanish_plural(name: str) -> tuple[str, str]:
     return plural_slug, plural_snake
 
 
+"""
+Añade un nuevo elemento a una sentencia de importación en el contenido de un archivo.
+
+@param content - Contenido de texto actual del archivo de código fuente.
+@param import_prefix - Prefijo de la importación (ej. 'from .models import').
+@param new_item - Nombre del elemento o clase a importar.
+@returns str - El contenido actualizado con la importación añadida.
+"""
+
+
 def add_to_import(content: str, import_prefix: str, new_item: str) -> str:
-    """Añade `new_item` a la sentencia `from ... import ...` si no está presente."""
     if re.search(r"\b" + re.escape(new_item) + r"\b", content):
         return content
 
@@ -52,12 +73,21 @@ def add_to_import(content: str, import_prefix: str, new_item: str) -> str:
             + content[match_single.end() :]
         )
 
-    # Si no existe la sentencia, agregamos la importación
+    # Si no existe la sentencia, agregamos la importación al inicio
     return f"{import_prefix} {new_item}\n" + content
 
 
 class Command(BaseCommand):
+    """Comando de gestión de Django para generar la estructura CRUD de un recurso."""
+
     help = "Genera automáticamente el Model, Serializer, ViewSet y la URL para un nuevo recurso CRUD."
+
+    """
+    Configura los argumentos requeridos y opcionales para la ejecución del comando CLI.
+
+    @param parser - Instancia del analizador de argumentos de Django.
+    @returns None - Registra los argumentos en el parser.
+    """
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -71,6 +101,14 @@ class Command(BaseCommand):
             default="cunas",
             help="Nombre de la aplicación Django (por defecto: cunas)",
         )
+
+    """
+    Función de ejecución principal del comando CRUD.
+
+    @param args - Argumentos posicionales adicionales.
+    @param options - Opciones y parámetros de la línea de comandos.
+    @returns None - Escribe archivos de código y notificaciones en consola.
+    """
 
     def handle(self, *args, **options):
         raw_name = options["model_name"].strip()
@@ -115,12 +153,20 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(
                 f"✅ ¡CRUD completado con éxito!\n"
-                f"   - Modelo: {model_name}\n"
-                f"   - Serializer: {model_name}Serializer\n"
-                f"   - ViewSet: {model_name}ViewSet\n"
-                f"   - Ruta API: /api/{plural_slug}/"
+                f"    - Modelo: {model_name}\n"
+                f"    - Serializer: {model_name}Serializer\n"
+                f"    - ViewSet: {model_name}ViewSet\n"
+                f"    - Ruta API: /api/{plural_slug}/"
             )
         )
+
+    """
+    Procesa y añade el modelo de datos correspondiente a models.py si no existe.
+
+    @param file_path - Ruta al archivo models.py de la aplicación.
+    @param model_name - Nombre del modelo en PascalCase.
+    @returns None - Modifica y guarda el archivo en disco.
+    """
 
     def _process_models(self, file_path: Path, model_name: str):
         content = file_path.read_text(encoding="utf-8")
@@ -163,6 +209,14 @@ class {model_name}(models.Model):
             self.style.SUCCESS(f"  [models.py] Modelo '{model_name}' añadido.")
         )
 
+    """
+    Procesa y añade el serializer correspondiente a serializers.py.
+
+    @param file_path - Ruta al archivo serializers.py de la aplicación.
+    @param model_name - Nombre del modelo asociado.
+    @returns None - Modifica y guarda el archivo en disco.
+    """
+
     def _process_serializers(self, file_path: Path, model_name: str):
         content = file_path.read_text(encoding="utf-8")
         serializer_name = f"{model_name}Serializer"
@@ -187,6 +241,14 @@ class {serializer_name}(serializers.ModelSerializer):
             self.stdout.write(f"  [serializers.py] '{serializer_name}' ya existe.")
 
         file_path.write_text(content, encoding="utf-8")
+
+    """
+    Procesa y añade el ViewSet correspondiente a views.py.
+
+    @param file_path - Ruta al archivo views.py de la aplicación.
+    @param model_name - Nombre del modelo asociado.
+    @returns None - Modifica y guarda el archivo en disco.
+    """
 
     def _process_views(self, file_path: Path, model_name: str):
         content = file_path.read_text(encoding="utf-8")
@@ -216,6 +278,15 @@ class {viewset_name}(viewsets.ModelViewSet):
 
         file_path.write_text(content, encoding="utf-8")
 
+    """
+    Registra la ruta del ViewSet en el enrutador dentro de urls.py.
+
+    @param file_path - Ruta al archivo urls.py de la aplicación.
+    @param model_name - Nombre del modelo asociado.
+    @param plural_slug - Ruta URL en formato slug plural.
+    @returns None - Modifica y guarda el archivo en disco.
+    """
+
     def _process_urls(self, file_path: Path, model_name: str, plural_slug: str):
         content = file_path.read_text(encoding="utf-8")
         viewset_name = f"{model_name}ViewSet"
@@ -225,7 +296,6 @@ class {viewset_name}(viewsets.ModelViewSet):
         route_register = f"router.register(r'{plural_slug}', {viewset_name})"
 
         if route_register not in content:
-            # Buscar donde insertar el registro del router antes de urlpatterns
             pattern = r"(router\.register\([^\n]+\)\n)"
             matches = list(re.finditer(pattern, content))
             if matches:
@@ -235,7 +305,6 @@ class {viewset_name}(viewsets.ModelViewSet):
                     content[:insert_pos] + f"{route_register}\n" + content[insert_pos:]
                 )
             else:
-                # Si no encuentra router.register previo, insertar antes de urlpatterns
                 if "urlpatterns = [" in content:
                     content = content.replace(
                         "urlpatterns = [", f"{route_register}\n\nurlpatterns = ["
@@ -253,9 +322,15 @@ class {viewset_name}(viewsets.ModelViewSet):
         file_path.write_text(content, encoding="utf-8")
 
 
+"""
+Punto de entrada ejecutable desde CLI para invocar el comando make_crud.
+
+@param - No recibe parámetros directos.
+@returns None - Configura el entorno de Django y ejecuta el comando.
+"""
+
+
 def main():
-    """Punto de entrada ejecutable desde CLI con `uv run make-crud`."""
-    # Asegura PYTHONPATH para incluir src
     src_dir = Path(__file__).resolve().parent.parent.parent.parent
     if str(src_dir) not in sys.path:
         sys.path.insert(0, str(src_dir))

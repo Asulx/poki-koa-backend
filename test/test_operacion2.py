@@ -1,5 +1,4 @@
-
-"""Pruebas unitarias de la Operación 2: gestión de alertas."""
+"""Pruebas unitarias de la Operación 2: gestión de alertas en Poki Koa."""
 
 import unittest
 from dataclasses import replace
@@ -15,9 +14,15 @@ from cunas.alertas_service import (
 
 
 class RepositorioFake:
-    """Simula el repositorio sin utilizar una base de datos."""
+    """Simula el repositorio de alertas sin utilizar una base de datos real para pruebas unitarias."""
 
-    def __init__(self, activa=True):
+    """Inicializa el repositorio fake con un registro de alerta de prueba configurable en estado activo o inactivo.
+
+    @param activa - Booleano que indica si la alerta inicia activa (por defecto True).
+    @returns None
+    """
+
+    def __init__(self, activa: bool = True) -> None:
         self.registro = RegistroAlerta(
             id=1,
             paciente_id=10,
@@ -32,9 +37,21 @@ class RepositorioFake:
         self.lecturas = 0
         self.escrituras = 0
 
+    """Obtiene un registro de alerta simulado por su identificador único.
+
+    @param alerta_id - Identificador de la alerta solicitada.
+    @returns RegistroAlerta o None - La alerta encontrada o None si no existe.
+    """
+
     def obtener(self, alerta_id):
         self.lecturas += 1
         return self.registro if alerta_id == self.registro.id else None
+
+    """Confirma y persiste de forma simulada el paso de la alerta a estado inactivo.
+
+    @param alerta - Instancia de RegistroAlerta a actualizar.
+    @returns RegistroAlerta - El registro actualizado con activa=False.
+    """
 
     def confirmar_activa(self, alerta):
         self.escrituras += 1
@@ -43,8 +60,14 @@ class RepositorioFake:
 
 
 class Operacion2Test(unittest.TestCase):
+    """Suite de pruebas unitarias para validar las reglas de negocio y restricciones del servicio de resolución de alertas."""
 
-    def test_caso_valido(self):
+    """Verifica que un caso válido resuelva correctamente la alerta activa y actualice las escrituras.
+
+    @returns None
+    """
+
+    def test_caso_valido(self) -> None:
         # PREPARAR
         repo = RepositorioFake()
         anterior = repo.registro
@@ -57,11 +80,13 @@ class Operacion2Test(unittest.TestCase):
         self.assertEqual(repo.registro, resultado)
         self.assertEqual(repo.escrituras, 1)
 
-    def test_entrada_invalida_1_id_mal_formado(self):
-        for valor in (
-            None, "", " ", "abc", "01", "1.0",
-            0, -1, True, 1.5, [], 2**63
-        ):
+    """Verifica que identificadores mal formados o inválidos lancen AlertaOperacionError sin realizar lecturas ni escrituras.
+
+    @returns None
+    """
+
+    def test_entrada_invalida_1_id_mal_formado(self) -> None:
+        for valor in (None, "", " ", "abc", "01", "1.0", 0, -1, True, 1.5, [], 2**63):
             with self.subTest(valor=valor):
                 repo = RepositorioFake()
 
@@ -73,7 +98,12 @@ class Operacion2Test(unittest.TestCase):
                     (0, 0),
                 )
 
-    def test_entrada_invalida_2_ya_resuelta(self):
+    """Verifica que intentar resolver una alerta que ya se encuentra inactiva lance AlertaEstadoNoPermitido.
+
+    @returns None
+    """
+
+    def test_entrada_invalida_2_ya_resuelta(self) -> None:
         repo = RepositorioFake(activa=False)
         anterior = repo.registro
 
@@ -83,7 +113,12 @@ class Operacion2Test(unittest.TestCase):
         self.assertEqual(repo.escrituras, 0)
         self.assertEqual(repo.registro, anterior)
 
-    def test_alerta_no_existe(self):
+    """Verifica que buscar una alerta con un ID inexistente lance AlertaNoEncontrada.
+
+    @returns None
+    """
+
+    def test_alerta_no_existe(self) -> None:
         repo = RepositorioFake()
 
         with self.assertRaises(AlertaNoEncontrada):
@@ -91,7 +126,12 @@ class Operacion2Test(unittest.TestCase):
 
         self.assertEqual(repo.escrituras, 0)
 
-    def test_cambio_concurrente(self):
+    """Verifica el comportamiento ante un cambio concurrente donde la confirmación falla o se anula.
+
+    @returns None
+    """
+
+    def test_cambio_concurrente(self) -> None:
         repo = RepositorioFake()
         repo.confirmar_activa = lambda alerta: None
 
@@ -100,7 +140,12 @@ class Operacion2Test(unittest.TestCase):
 
         self.assertTrue(repo.registro.activa)
 
-    def test_detecta_invariante_rota(self):
+    """Verifica que se detecte una violación de invariantes si el repositorio altera campos no permitidos durante la confirmación.
+
+    @returns None
+    """
+
+    def test_detecta_invariante_rota(self) -> None:
         repo = RepositorioFake()
 
         repo.confirmar_activa = lambda alerta: replace(
@@ -115,7 +160,12 @@ class Operacion2Test(unittest.TestCase):
         ):
             AlertaService(repo).resolver_alerta(1)
 
-    def test_propaga_fallo_de_dependencia(self):
+    """Verifica que las excepciones y fallos de infraestructura del repositorio se propaguen adecuadamente.
+
+    @returns None
+    """
+
+    def test_propaga_fallo_de_dependencia(self) -> None:
         repo = RepositorioFake()
 
         def fallar(alerta):

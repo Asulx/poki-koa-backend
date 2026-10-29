@@ -1,5 +1,4 @@
-
-"""Repositorio Django para la resolución de alertas."""
+"""Repositorio Django para la resolución de alertas en Poki Koa."""
 
 from dataclasses import replace
 
@@ -8,6 +7,12 @@ from .models import Alerta
 
 
 class DjangoAlertaRepository:
+    """Implementación de persistencia basada en ORM de Django para el servicio de alertas.
+
+    Proporciona métodos de consulta y actualización condicional (compare-and-set)
+    para sincronizar el dominio con la base de datos de forma concurrente y segura.
+    """
+
     CAMPOS = (
         "id",
         "paciente_id",
@@ -20,22 +25,24 @@ class DjangoAlertaRepository:
         "valor_leido",
     )
 
-    def obtener(self, alerta_id: int) -> RegistroAlerta | None:
-        """Busca una alerta por su identificador."""
+    """Busca una alerta por su identificador único en la base de datos y la mapea a un registro inmutable.
 
-        datos = (
-            Alerta.objects.filter(pk=alerta_id)
-            .values(*self.CAMPOS)
-            .first()
-        )
+    @param alerta_id - Identificador entero de la alerta a consultar.
+    @returns RegistroAlerta | None - Instancia de proyección inmutable o None si no se encuentra.
+    """
+
+    def obtener(self, alerta_id: int) -> RegistroAlerta | None:
+        datos = Alerta.objects.filter(pk=alerta_id).values(*self.CAMPOS).first()
 
         return RegistroAlerta(**datos) if datos else None
 
-    def confirmar_activa(
-        self, alerta: RegistroAlerta
-    ) -> RegistroAlerta | None:
-        """Resuelve la alerta únicamente si continúa activa."""
+    """Resuelve la alerta únicamente si continúa activa mediante una actualización atómica condicional.
 
+    @param alerta - Registro inmutable actual de la alerta a confirmar como inactiva.
+    @returns RegistroAlerta | None - Alerta actualizada con activa=False o None en caso de conflicto por concurrencia.
+    """
+
+    def confirmar_activa(self, alerta: RegistroAlerta) -> RegistroAlerta | None:
         # Actualización condicional (compare-and-set).
         # Evita que dos solicitudes resuelvan la misma alerta.
         filas = Alerta.objects.filter(

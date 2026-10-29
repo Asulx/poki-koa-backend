@@ -1,4 +1,9 @@
-"""Datos ficticios reproducibles, restringidos a la base de demostración."""
+"""Datos ficticios reproducibles, restringidos a la base de demostración.
+
+python scripts/verificar_entrega2.py --static
+uv run python scripts/verificar_entrega2.py --run
+No acepta servidores externos: siempre utiliza settings_entregable y datos ficticios.
+"""
 
 from pathlib import Path
 
@@ -7,7 +12,16 @@ from django.core.management import BaseCommand, CommandError, call_command
 
 
 class Command(BaseCommand):
+    """Comando personalizado de Django para cargar el escenario de pruebas aislado."""
+
     help = "Carga el escenario de pruebas de APIs en db_entregable.sqlite3."
+
+    """
+    Configura los argumentos permitidos para el comando de gestión.
+
+    @param parser - Instancia del analizador de argumentos de Django.
+    @returns None - Registra los argumentos permitidos en el parser.
+    """
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -15,6 +29,14 @@ class Command(BaseCommand):
             action="store_true",
             help="Vacía únicamente la base de demostración antes de cargar los datos.",
         )
+
+    """
+    Ejecuta las validaciones de seguridad de base de datos y carga el fixture demo.
+
+    @param args - Argumentos posicionales adicionales.
+    @param options - Diccionario de opciones CLI (incluyendo --reset).
+    @returns None - Carga los datos o lanza CommandError si no se cumple el entorno seguro.
+    """
 
     def handle(self, *args, **options):
         expected = Path(settings.BASE_DIR) / "db_entregable.sqlite3"
