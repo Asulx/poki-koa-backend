@@ -1,5 +1,4 @@
-"""
-Contratos de negocio para la administración de medicación neonatal.
+"""Contratos de negocio para la administración de medicación neonatal.
 
 Este módulo es independiente de Django y del motor de base de datos,
 aplicando Diseño por Contrato (Precondiciones, Postcondiciones e Invariantes)
@@ -40,41 +39,56 @@ class RegistroMedicamento:
 class MedicamentoRepository(Protocol):
     """Contrato de persistencia requerido por `MedicamentoService`."""
 
-    def obtener(self, medicamento_id: int) -> RegistroMedicamento | None:
-        """Recupera un medicamento por su ID primario o retorna None si no existe."""
-        ...
+    """Recupera un medicamento por su ID primario o retorna None si no existe.
+
+    @param medicamento_id - Identificador único del registro de medicamento.
+    @returns RegistroMedicamento | None - Instancia encontrada o None si no existe.
+    """
+
+    def obtener(self, medicamento_id: int) -> RegistroMedicamento | None: ...
+
+    """Actualiza solo si sigue pendiente y conserva paciente e ID.
+
+    Retorna None si otro proceso cambió o eliminó el registro.
+
+    @param medicamento - Instancia actual del registro de medicamento a confirmar.
+    @returns RegistroMedicamento | None - Registro actualizado o None en caso de conflicto.
+    """
 
     def confirmar_pendiente(
         self, medicamento: RegistroMedicamento
-    ) -> RegistroMedicamento | None:
-        """Actualiza solo si sigue pendiente y conserva paciente e ID.
-
-        Retorna None si otro proceso cambió o eliminó el registro.
-        """
-        ...
+    ) -> RegistroMedicamento | None: ...
 
 
 class MedicamentoService:
     """Servicio de dominio que gobierna la transición de medicación `Pendiente` -> `Administrado`."""
 
-    def __init__(self, repositorio: MedicamentoRepository):
-        """Recibe explícitamente el repositorio para permitir pruebas aisladas con Fakes."""
+    """Recibe explícitamente el repositorio para permitir pruebas aisladas con Fakes.
+
+    @param repositorio - Instancia que cumple con el protocolo MedicamentoRepository.
+    @returns None
+    """
+
+    def __init__(self, repositorio: MedicamentoRepository) -> None:
         self._repositorio = repositorio
 
+    """Confirma la administración de un medicamento pendiente.
+
+    Precondiciones:
+    - `medicamento_id` debe ser un entero positivo (1..2**63 - 1) o cadena decimal canónica.
+    - El medicamento debe existir y encontrarse en estado 'Pendiente'.
+
+    Postcondición:
+    - El estado persiste como 'Administrado' y se retorna el `RegistroMedicamento` actualizado.
+
+    Invariantes:
+    - Se conserva el `id` del medicamento y su `paciente_id` entero positivo.
+
+    @param medicamento_id - Identificador del medicamento en formato entero o cadena numérica.
+    @returns RegistroMedicamento - El registro actualizado con el estado 'Administrado'.
+    """
+
     def administrar(self, medicamento_id: int | str) -> RegistroMedicamento:
-        """
-        Confirma la administración de un medicamento pendiente.
-
-        Precondiciones:
-        - `medicamento_id` debe ser un entero positivo (1..2**63 - 1) o cadena decimal canónica.
-        - El medicamento debe existir y encontrarse en estado 'Pendiente'.
-
-        Postcondición:
-        - El estado persiste como 'Administrado' y se retorna el `RegistroMedicamento` actualizado.
-
-        Invariantes:
-        - Se conserva el `id` del medicamento y su `paciente_id` entero positivo.
-        """
         # PRE: ID entero positivo (o cadena decimal canónica), hasta 2**63 - 1.
         # Validación externa: no usar assert; bool tampoco es un ID válido.
         if isinstance(medicamento_id, str):

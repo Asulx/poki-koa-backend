@@ -1,5 +1,4 @@
-"""
-Comando de gestión de Django para simular lecturas de signos vitales
+"""Comando de gestión de Django para simular lecturas de signos vitales
 y probar el sistema de alertas neonatal en Poki Koa.
 
 Uso:
@@ -135,7 +134,18 @@ CASOS_PRUEBA: dict[str, dict[str, Any]] = {
 
 
 class Command(BaseCommand):
-    help = "Simulador de signos vitales y evaluador de pruebas para el motor de alertas."
+    """Comando de gestión de Django para simular signos vitales y evaluar alertas."""
+
+    help = (
+        "Simulador de signos vitales y evaluador de pruebas para el motor de alertas."
+    )
+
+    """
+    Configura los argumentos requeridos y opcionales permitidos por el comando CLI.
+
+    @param parser - Instancia del analizador de argumentos de Django.
+    @returns None - Registra las opciones disponibles en el parser.
+    """
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -187,8 +197,14 @@ class Command(BaseCommand):
             help="Estado de la cánula: true o false (para modo --custom).",
         )
 
+    """
+    Obtiene una cuna existente basada en su identificador o crea una predeterminada para pruebas.
+
+    @param identificador - Cadena opcional que representa el ID o identificador de la cuna.
+    @returns Cuna - Instancia de la cuna recuperada o creada en la base de datos.
+    """
+
     def _obtener_o_crear_cuna(self, identificador: str | None) -> Cuna:
-        """Obtiene una cuna existente o crea una para pruebas."""
         if identificador:
             cuna = Cuna.objects.filter(identificador=identificador).first()
             if not cuna:
@@ -237,16 +253,28 @@ class Command(BaseCommand):
             )
         return cuna
 
+    """
+    Función de ejecución principal del comando de gestión.
+
+    @param args - Argumentos posicionales adicionales.
+    @param options - Diccionario de opciones CLI procesadas.
+    @returns None - Ejecuta la acción correspondiente (listar, simular o probar batería).
+    """
+
     def handle(self, *args, **options):
         # 1. Listar casos
         if options["listar_casos"]:
-            self.stdout.write(self.style.MIGRATE_HEADING("\n=== Casos de Prueba Clínicos Predefinidos ==="))
+            self.stdout.write(
+                self.style.MIGRATE_HEADING(
+                    "\n=== Casos de Prueba Clínicos Predefinidos ==="
+                )
+            )
             for nombre, datos in CASOS_PRUEBA.items():
                 self.stdout.write(
                     f"  • {self.style.SUCCESS(nombre.ljust(22))}: {datos['descripcion']}"
                 )
                 self.stdout.write(
-                    f"    FC: {datos['ritmo_cardiaco']} bpm | SpO2: {datos['spo2']}% | "
+                    f"   FC: {datos['ritmo_cardiaco']} bpm | SpO2: {datos['spo2']}% | "
                     f"Temp: {datos['temperatura']} °C | Cánula: {'OK' if datos['canula_ok'] else 'Falla/Desconectada'}"
                 )
             self.stdout.write("")
@@ -297,6 +325,19 @@ class Command(BaseCommand):
             canula_ok=caso["canula_ok"],
         )
 
+    """
+    Aplica los signos vitales a la cuna, procesa las alertas asociadas e imprime el reporte de estado.
+
+    @param cuna - Instancia de la cuna a modificar.
+    @param nombre_caso - Identificador o nombre descriptivo del caso simulado.
+    @param descripcion - Detalle textual del escenario clínico.
+    @param fc - Frecuencia cardíaca en pulsaciones por minuto.
+    @param spo2 - Porcentaje de saturación de oxígeno.
+    @param temp - Temperatura corporal en grados Celsius.
+    @param canula_ok - Estado de conectividad de la cánula de oxígeno.
+    @returns None - Guarda los cambios en base de datos y muestra los resultados por consola.
+    """
+
     def _aplicar_y_mostrar(
         self,
         cuna: Cuna,
@@ -307,7 +348,6 @@ class Command(BaseCommand):
         temp: float | None,
         canula_ok: bool | None,
     ):
-        """Aplica los signos a la cuna, procesa las alertas y muestra el reporte."""
         cuna.ritmo_cardiaco = fc
         cuna.spo2 = spo2
         cuna.temperatura = temp
@@ -319,27 +359,57 @@ class Command(BaseCommand):
             "-fecha_hora"
         )
 
-        paciente_nombre = cuna.paciente.nombre_completo if cuna.paciente else "Sin paciente asignado"
+        paciente_nombre = (
+            cuna.paciente.nombre_completo if cuna.paciente else "Sin paciente asignado"
+        )
 
-        self.stdout.write(self.style.MIGRATE_HEADING(f"\n[+] Simulación en Cuna '{cuna.identificador}' ({paciente_nombre})"))
-        self.stdout.write(f"    Caso: {self.style.SUCCESS(nombre_caso)} — {descripcion}")
+        self.stdout.write(
+            self.style.MIGRATE_HEADING(
+                f"\n[+] Simulación en Cuna '{cuna.identificador}' ({paciente_nombre})"
+            )
+        )
+        self.stdout.write(
+            f"    Caso: {self.style.SUCCESS(nombre_caso)} — {descripcion}"
+        )
         self.stdout.write(
             f"    Valores inyectados: FC={fc} bpm, SpO2={spo2}%, Temp={temp} °C, Cánula={'OK' if canula_ok else 'DESCONECTADA'}"
         )
 
         if not alertas_activas.exists():
-            self.stdout.write(self.style.SUCCESS("    [✓] Estado normal: No hay alertas activas en esta cuna."))
+            self.stdout.write(
+                self.style.SUCCESS(
+                    "    [✓] Estado normal: No hay alertas activas en esta cuna."
+                )
+            )
         else:
-            self.stdout.write(self.style.WARNING(f"    [!] Alertas activas ({alertas_activas.count()}):"))
+            self.stdout.write(
+                self.style.WARNING(
+                    f"    [!] Alertas activas ({alertas_activas.count()}):"
+                )
+            )
             for al in alertas_activas:
-                estilo = self.style.ERROR if al.nivel == "Critica" else self.style.WARNING
-                self.stdout.write(f"        {estilo(f'[{al.nivel.upper()}]')} ({al.tipo}): {al.mensaje}")
+                estilo = (
+                    self.style.ERROR if al.nivel == "Critica" else self.style.WARNING
+                )
+                self.stdout.write(
+                    f"        {estilo(f'[{al.nivel.upper()}]')} ({al.tipo}): {al.mensaje}"
+                )
 
         self.stdout.write("")
 
+    """
+    Ejecuta una batería diagnóstica completa probando cada caso predefinido contra el motor de alertas.
+
+    @param - No recibe parámetros directos.
+    @returns None - Imprime un reporte resumen de pruebas unitarias/clínicas superadas.
+    """
+
     def _ejecutar_bateria_completa(self):
-        """Ejecuta una batería diagnóstica completa probando cada caso contra el motor de alertas."""
-        self.stdout.write(self.style.MIGRATE_HEADING("\n=== Ejecutando Batería de Pruebas del Motor de Alertas ==="))
+        self.stdout.write(
+            self.style.MIGRATE_HEADING(
+                "\n=== Ejecutando Batería de Pruebas del Motor de Alertas ==="
+            )
+        )
         total_casos = len(CASOS_PRUEBA)
         exitos = 0
 
@@ -368,11 +438,21 @@ class Command(BaseCommand):
                 estilo = self.style.ERROR if nivel == "Critica" else self.style.WARNING
                 etiqueta = estilo(f"[{nivel}]")
                 mensaje = a["mensaje"]
-                self.stdout.write(f"         └─ {etiqueta} {mensaje}")
+                self.stdout.write(f"        └─ {etiqueta} {mensaje}")
 
-        self.stdout.write(self.style.MIGRATE_HEADING("---------------------------------------------------------"))
+        self.stdout.write(
+            self.style.MIGRATE_HEADING(
+                "---------------------------------------------------------"
+            )
+        )
         resumen = f"Resultado: {exitos}/{total_casos} casos pasaron exitosamente."
         if exitos == total_casos:
-            self.stdout.write(self.style.SUCCESS(f"[✓] {resumen} Todas las pruebas fueron satisfactorias!\n"))
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"[✓] {resumen} Todas las pruebas fueron satisfactorias!\n"
+                )
+            )
         else:
-            self.stdout.write(self.style.ERROR(f"[x] {resumen} Se detectaron discrepancias.\n"))
+            self.stdout.write(
+                self.style.ERROR(f"[x] {resumen} Se detectaron discrepancias.\n")
+            )

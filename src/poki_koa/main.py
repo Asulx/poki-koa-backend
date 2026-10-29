@@ -1,5 +1,4 @@
-"""
-Punto de entrada principal del proyecto Mamoru / Poki Koa.
+"""Punto de entrada principal del proyecto Mamoru / Poki Koa.
 
 Este módulo define la función `main()` que actúa como punto de entrada del
 comando `mamoru` registrado en pyproject.toml. Permite ejecutar cualquier
@@ -15,17 +14,18 @@ import sys
 
 from django.core.management import execute_from_command_line
 
+"""Función principal que configura el entorno Django y delega la ejecución al sistema de gestión de comandos de Django.
 
-def main():
-    """
-    Función principal que configura el entorno Django y delega la ejecución
-    al sistema de gestión de comandos de Django.
+Comportamiento especial:
+- Sin argumentos: ejecuta 'runserver' por defecto.
+- Con argumento 'test' (sin app específica): cambia al directorio src/
+  para que el descubridor automático de tests encuentre los módulos.
 
-    Comportamiento especial:
-    - Sin argumentos: ejecuta 'runserver' por defecto.
-    - Con argumento 'test' (sin app específica): cambia al directorio src/
-      para que el descubridor automático de tests encuentre los módulos.
-    """
+@returns None
+"""
+
+
+def main() -> None:
     # Configura el módulo de ajustes de Django si no está ya definido
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "poki_koa.settings")
 

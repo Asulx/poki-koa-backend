@@ -1,5 +1,4 @@
-"""
-Modelos de base de datos para la aplicación 'cunas'.
+"""Modelos de base de datos para la aplicación 'cunas'.
 
 Define las entidades principales del sistema de monitoreo neonatal:
 - Medico: el profesional de salud a cargo de uno o más bebés.
@@ -17,10 +16,7 @@ from django.utils import timezone
 
 
 class Medico(models.Model):
-    """
-    Representa a un médico o profesional de salud que puede tener
-    bebés asignados a su cargo.
-    """
+    """Representa a un médico o profesional de salud que puede tener bebés asignados a su cargo."""
 
     nombre_completo = models.CharField(max_length=150, help_text="Ej: Dra. María López")
     turno = models.CharField(
@@ -30,7 +26,12 @@ class Medico(models.Model):
         help_text="Turno de trabajo del médico (ej: Mañana, Tarde, Noche)",
     )
 
-    def __str__(self):
+    """Retorna la representación en cadena del médico (su nombre completo).
+
+    @returns str - Nombre completo del profesional de salud.
+    """
+
+    def __str__(self) -> str:
         return self.nombre_completo
 
     class Meta:
@@ -39,17 +40,13 @@ class Medico(models.Model):
 
 
 class Bebe(models.Model):
-    """
-    Representa al paciente recién nacido. Está vinculado con un médico
-    a cargo y, a través de la relación inversa con Cuna, a su unidad
-    de monitoreo.
-    """
+    """Representa al paciente recién nacido. Está vinculado con un médico a cargo y, a través de la relación inversa con Cuna, a su unidad de monitoreo."""
 
     SEXO_CHOICES: ClassVar = [
         ("F", "Femenino"),
         ("M", "Masculino"),
     ]
- 
+
     identificador = models.CharField(
         max_length=30,
         unique=True,
@@ -81,7 +78,12 @@ class Bebe(models.Model):
         related_name="pacientes",
     )
 
-    def __str__(self):
+    """Retorna la representación en cadena del paciente (su nombre completo).
+
+    @returns str - Nombre completo del bebé.
+    """
+
+    def __str__(self) -> str:
         return self.nombre_completo
 
     class Meta:
@@ -90,8 +92,8 @@ class Bebe(models.Model):
 
 
 class Cuna(models.Model):
-    """
-    Representa la cuna física y sus datos de monitoreo en tiempo real.
+    """Representa la cuna física y sus datos de monitoreo en tiempo real.
+
     Contiene los signos vitales del bebé y el estado de los dispositivos
     conectados (cánula, vía IV).
 
@@ -152,7 +154,12 @@ class Cuna(models.Model):
         auto_now=True, help_text="Fecha y hora de la última actualización de datos"
     )
 
-    def __str__(self):
+    """Retorna la representación descriptiva de la cuna, incluyendo el estado del paciente o si está vacía.
+
+    @returns str - Identificador de la cuna y el nombre del bebé o 'Vacía'.
+    """
+
+    def __str__(self) -> str:
         # Muestra "C01 - Sofía García" si hay bebé, o "C01 - Vacía"
         nombre_bebe = self.paciente.nombre_completo if self.paciente else "Vacía"
         return f"{self.identificador} - {nombre_bebe}"
@@ -163,9 +170,7 @@ class Cuna(models.Model):
 
 
 class Medicamento(models.Model):
-    """
-    Representa el control de administración de fármacos para un paciente específico.
-    """
+    """Representa el control de administración de fármacos para un paciente específico."""
 
     ESTADO_CHOICES: ClassVar = [
         ("Administrado", "Administrado"),
@@ -208,7 +213,12 @@ class Medicamento(models.Model):
         help_text="Estado actual de la administración",
     )
 
-    def __str__(self):
+    """Retorna la representación en cadena del registro de medicamento, mostrando fármaco, paciente y estado.
+
+    @returns str - Resumen textual del medicamento y su estado actual.
+    """
+
+    def __str__(self) -> str:
         return f"{self.nombre} - {self.paciente.nombre_completo} ({self.estado})"
 
     class Meta:
@@ -217,9 +227,7 @@ class Medicamento(models.Model):
 
 
 class PlanCuidado(models.Model):
-    """
-    Representa los protocolos de atención y cuidado específicos asignados a un bebé.
-    """
+    """Representa los protocolos de atención y cuidado específicos asignados a un bebé."""
 
     ESTADO_CHOICES: ClassVar = [
         ("Activo", "Activo"),
@@ -252,7 +260,12 @@ class PlanCuidado(models.Model):
         help_text="Estado actual de este plan",
     )
 
-    def __str__(self):
+    """Retorna la representación descriptiva del plan de cuidado para el paciente.
+
+    @returns str - Área de cuidado, nombre del paciente y estado del plan.
+    """
+
+    def __str__(self) -> str:
         return f"Plan {self.area_cuidado} - {self.bebe.nombre_completo} ({self.estado})"
 
     class Meta:
@@ -261,10 +274,7 @@ class PlanCuidado(models.Model):
 
 
 class Alerta(models.Model):
-    """
-    Representa una alerta o evento registrado en el historial de monitoreo
-    de los signos vitales de un recién nacido.
-    """
+    """Representa una alerta o evento registrado en el historial de monitoreo de los signos vitales de un recién nacido."""
 
     NIVEL_CHOICES: ClassVar = [
         ("Info", "Información"),
@@ -324,7 +334,12 @@ class Alerta(models.Model):
         help_text="Valor numérico del signo vital al momento de la alerta",
     )
 
-    def __str__(self):
+    """Retorna la representación formateada de la alerta con su nivel, sujeto y mensaje.
+
+    @returns str - Severidad, paciente/cuna y descripción del evento.
+    """
+
+    def __str__(self) -> str:
         nombre_sujeto = (
             self.paciente.nombre_completo
             if self.paciente
@@ -337,11 +352,8 @@ class Alerta(models.Model):
         verbose_name_plural = "Alertas"
 
 
-
 class MedicamentoCatalogo(models.Model):
-    """
-    Producto del catálogo farmacéutico neonatal, independiente de las
-    prescripciones individuales por paciente (`Medicamento`).
+    """Producto del catálogo farmacéutico neonatal, independiente de las prescripciones individuales por paciente (`Medicamento`).
 
     Protege sus invariantes de negocio tanto en la capa de validación de Django
     como a nivel de motor SQL mediante `CheckConstraint` (`dosis_mg > 0` y
@@ -351,19 +363,30 @@ class MedicamentoCatalogo(models.Model):
     nombre = models.CharField(max_length=150)
     principio_activo = models.CharField(max_length=150)
     dosis_mg = models.DecimalField(
-        max_digits=10, decimal_places=2,
+        max_digits=10,
+        decimal_places=2,
         validators=[MinValueValidator(Decimal("0.01"))],
     )
     stock = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(2147483647)],
     )
 
+    """Retorna la representación en cadena del medicamento de catálogo con su nombre y dosis.
+
+    @returns str - Nombre comercial y dosis en miligramos del producto farmacéutico.
+    """
+
+    def __str__(self) -> str:
+        return f"{self.nombre} ({self.dosis_mg} mg)"
+
     class Meta:
         ordering = ["id"]
         constraints = [
-            models.CheckConstraint(condition=models.Q(dosis_mg__gt=0), name="catalogo_dosis_positiva"),
-            models.CheckConstraint(condition=models.Q(stock__gte=1, stock__lte=2147483647), name="catalogo_stock_positivo"),
+            models.CheckConstraint(
+                condition=models.Q(dosis_mg__gt=0), name="catalogo_dosis_positiva"
+            ),
+            models.CheckConstraint(
+                condition=models.Q(stock__gte=1, stock__lte=2147483647),
+                name="catalogo_stock_positivo",
+            ),
         ]
-
-    def __str__(self):
-        return f"{self.nombre} ({self.dosis_mg} mg)"

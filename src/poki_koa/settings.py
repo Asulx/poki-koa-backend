@@ -1,5 +1,4 @@
-"""
-Configuración del proyecto Django para Poki Koa (Mamoru).
+"""Configuración del proyecto Django para Poki Koa (Mamoru).
 
 Este archivo centraliza todos los ajustes del proyecto:
 - Base de datos (SQLite para desarrollo)

@@ -1,4 +1,9 @@
-"""Convierte el manifiesto de QA a una colección Bruno con aserciones."""
+"""Convierte el manifiesto de QA a una colección Bruno con aserciones.
+
+Este script lee los casos de prueba y las variables de entorno locales desde la
+carpeta de QA y genera una estructura completa de archivos de colección y aserciones
+compatibles con Bruno.
+"""
 
 import json
 from pathlib import Path
@@ -6,7 +11,16 @@ from pathlib import Path
 QA = Path(__file__).resolve().parents[1] / "qa" / "entrega2"
 
 
-def block(name, content):
+"""
+Construye un bloque de configuración formateado para los archivos de Bruno.
+
+@param name - Nombre del bloque (ej. 'meta', 'vars', 'get', 'tests').
+@param content - Texto interno que irá dentro del bloque.
+@returns El bloque completo formateado en formato de texto estructurado.
+"""
+
+
+def block(name: str, content: str) -> str:
     return (
         name
         + " {\n"
@@ -15,9 +29,19 @@ def block(name, content):
     )
 
 
-def main():
-    cases = json.loads((QA / "casos.json").read_text())["cases"]
-    env = json.loads((QA / "thunder-environment_local.json").read_text())["variables"]
+"""
+Función principal para la generación de la colección Bruno.
+
+@param - No recibe parámetros de entrada directos.
+@returns None - No retorna valores, genera archivos físicos en el disco.
+"""
+
+
+def main() -> None:
+    cases = json.loads((QA / "casos.json").read_text(encoding="utf-8"))["cases"]
+    env = json.loads(
+        (QA / "thunder-environment_local.json").read_text(encoding="utf-8")
+    )["variables"]
     root = QA / "bruno"
     (root / "environments").mkdir(parents=True, exist_ok=True)
     (root / "bruno.json").write_text(
@@ -30,10 +54,12 @@ def main():
             },
             indent=2,
         )
-        + "\n"
+        + "\n",
+        encoding="utf-8",
     )
     (root / "environments" / "Local.bru").write_text(
-        block("vars", "\n".join(f"{v['name']}: {v['value']}" for v in env))
+        block("vars", "\n".join(f"{v['name']}: {v['value']}" for v in env)),
+        encoding="utf-8",
     )
     count = 0
     for case in cases:
@@ -41,7 +67,7 @@ def main():
             count += 1
             label = case["id"] + (f".v{index}" if index else "")
             text = block(
-                "meta", f"name: {label} - {case['title']}\ntype: http\nseq: {count}"
+                "meta", f"name: {label}\n{case['title']}\ntype: http\nseq: {count}"
             )
             text += "\n" + block(
                 item["method"].lower(),
@@ -82,7 +108,7 @@ def main():
                 "docs",
                 f"{case['hu']} / {case['ca']}\n{case['technique']}\nCaso {case['id']}, paso {index + 1}. Ejecutar toda la colección en orden sobre la base restablecida.",
             )
-            (root / f"{count:03}-{label}.bru").write_text(text)
+            (root / f"{count:03}-{label}.bru").write_text(text, encoding="utf-8")
     print(f"Bruno: {len(cases)} casos, {count} solicitudes con aserciones.")
 
 

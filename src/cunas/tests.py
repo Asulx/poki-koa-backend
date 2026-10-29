@@ -1,5 +1,4 @@
-"""
-Pruebas unitarias para los modelos, la API REST y los contratos de la aplicación 'cunas'.
+"""Pruebas unitarias para los modelos, la API REST y los contratos de la aplicación 'cunas' en Poki Koa.
 
 Incluye:
 - CunasModelsTestCase: verifica el comportamiento de los modelos (str, relaciones, nuevos campos).
@@ -28,8 +27,12 @@ from cunas.services import CunaService
 class CunasModelsTestCase(TestCase):
     """Suite de pruebas para los modelos del sistema de monitoreo de cunas."""
 
-    def setUp(self):
-        """Crea los objetos de prueba que se reutilizan en cada test."""
+    """Crea los objetos de prueba que se reutilizan en cada test.
+
+    @returns None
+    """
+
+    def setUp(self) -> None:
         self.medico = Medico.objects.create(
             nombre_completo="Dra. María López", turno="Mañana"
         )
@@ -60,32 +63,47 @@ class CunasModelsTestCase(TestCase):
             nivel="Critica",
         )
 
-    def test_representacion_texto_modelos(self):
-        """Verifica que __str__ retorne el texto esperado para cada modelo."""
+    """Verifica que __str__ retorne el texto esperado para cada modelo.
+
+    @returns None
+    """
+
+    def test_representacion_texto_modelos(self) -> None:
         self.assertEqual(str(self.medico), "Dra. María López")
         self.assertEqual(str(self.bebe), "Sofía García")
         self.assertEqual(str(self.cuna), "Cuna 01 - Sofía García")
         self.assertIn("Sofía García", str(self.alerta))
         self.assertIn("Critica", str(self.alerta))
 
-    def test_cuna_vacia_muestra_vacia(self):
-        """Verifica que una cuna sin bebé asignado se represente como 'Vacía'."""
+    """Verifica que una cuna sin bebé asignado se represente como 'Vacía'.
+
+    @returns None
+    """
+
+    def test_cuna_vacia_muestra_vacia(self) -> None:
         cuna_vacia = Cuna.objects.create(identificador="Cuna 02")
         self.assertEqual(str(cuna_vacia), "Cuna 02 - Vacía")
 
-    def test_nuevos_campos_bebe_y_cuna(self):
-        """Verifica que los nuevos campos requeridos almacenen datos correctamente."""
+    """Verifica que los nuevos campos requeridos almacenen datos correctamente.
+
+    @returns None
+    """
+
+    def test_nuevos_campos_bebe_y_cuna(self) -> None:
         self.assertEqual(self.bebe.diagnostico, "Dificultad respiratoria leve")
         self.assertEqual(self.bebe.plan_cuidados, "Monitoreo continuo de SPO2")
         self.assertEqual(self.cuna.temperatura, 36.7)
 
 
 class APIBebeValidacionTestCase(TestCase):
-    """
-    Pruebas de integración para el endpoint /api/bebes/.
+    """Pruebas de integración para el endpoint /api/bebes/."""
+
+    """Configura el cliente de pruebas de la API y los datos base para bebés.
+
+    @returns None
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.client = APIClient()
         self.url = reverse("bebe-list")
 
@@ -105,7 +123,12 @@ class APIBebeValidacionTestCase(TestCase):
             "medico_a_cargo": self.medico.pk,
         }
 
-    def test_peso_negativo_retorna_400(self):
+    """Verifica que un peso negativo rechace la solicitud con HTTP 400.
+
+    @returns None
+    """
+
+    def test_peso_negativo_retorna_400(self) -> None:
         payload = {**self.payload_valido, "peso": -1.0}
         respuesta = self.client.post(self.url, payload, format="json")
 
@@ -113,14 +136,24 @@ class APIBebeValidacionTestCase(TestCase):
         self.assertIn("peso", respuesta.data)
         self.assertIn("El peso debe ser mayor a 0.", str(respuesta.data["peso"]))
 
-    def test_peso_cero_retorna_400(self):
+    """Verifica que un peso igual a cero rechace la solicitud con HTTP 400.
+
+    @returns None
+    """
+
+    def test_peso_cero_retorna_400(self) -> None:
         payload = {**self.payload_valido, "peso": 0}
         respuesta = self.client.post(self.url, payload, format="json")
 
         self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("peso", respuesta.data)
 
-    def test_fecha_nacimiento_futura_retorna_400(self):
+    """Verifica que una fecha de nacimiento futura rechace la solicitud con HTTP 400.
+
+    @returns None
+    """
+
+    def test_fecha_nacimiento_futura_retorna_400(self) -> None:
         fecha_futura = (timezone.now().date() + timezone.timedelta(days=1)).isoformat()
         payload = {**self.payload_valido, "fecha_nacimiento": fecha_futura}
         respuesta = self.client.post(self.url, payload, format="json")
@@ -128,7 +161,12 @@ class APIBebeValidacionTestCase(TestCase):
         self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("fecha_nacimiento", respuesta.data)
 
-    def test_bebe_valido_se_crea_correctamente(self):
+    """Verifica la creación exitosa de un registro de bebé válido (HTTP 201).
+
+    @returns None
+    """
+
+    def test_bebe_valido_se_crea_correctamente(self) -> None:
         respuesta = self.client.post(self.url, self.payload_valido, format="json")
 
         self.assertEqual(respuesta.status_code, status.HTTP_201_CREATED)
@@ -138,8 +176,12 @@ class APIBebeValidacionTestCase(TestCase):
         self.assertEqual(float(respuesta.data["peso"]), 3.5)
 
     # [REGRESIÓN #4 — Contrato Frontend Issue #14]
-    def test_contrato_respuesta_listado_bebes_para_frontend(self):
-        """PRUEBA DE REGRESIÓN (#4): Verifica que GET /api/bebes/ entregue todos los campos requeridos por el frontend (Issue #14)."""
+    """PRUEBA DE REGRESIÓN (#4): Verifica que GET /api/bebes/ entregue todos los campos requeridos por el frontend (Issue #14).
+
+    @returns None
+    """
+
+    def test_contrato_respuesta_listado_bebes_para_frontend(self) -> None:
         bebe = Bebe.objects.create(
             identificador="BEBE-002",
             nombre_completo="Lucas Silva",
@@ -192,8 +234,12 @@ class APIBebeValidacionTestCase(TestCase):
         self.assertEqual(datos["via_intravenosa"], True)
         self.assertEqual(datos["via_iv_activa"], True)
 
-    def test_busqueda_y_filtros_bebes(self):
-        """Verifica búsqueda por texto (nombre e identificador) y combinación con filtros."""
+    """Verifica búsqueda por texto (nombre e identificador) y combinación con filtros de consulta.
+
+    @returns None
+    """
+
+    def test_busqueda_y_filtros_bebes(self) -> None:
         b1 = Bebe.objects.create(
             identificador="BEBE-SOFIA",
             nombre_completo="Sofía García",
@@ -238,7 +284,12 @@ class APIBebeValidacionTestCase(TestCase):
 class APIAlertaTestCase(TestCase):
     """Pruebas para el endpoint CRUD /api/alertas/ generado con make-crud."""
 
-    def setUp(self):
+    """Configura el cliente de pruebas API y un paciente de prueba para las alertas.
+
+    @returns None
+    """
+
+    def setUp(self) -> None:
         self.client = APIClient()
         self.bebe = Bebe.objects.create(
             identificador="BEBE-LUCAS",
@@ -248,7 +299,12 @@ class APIAlertaTestCase(TestCase):
         )
         self.url = reverse("alerta-list")
 
-    def test_crear_y_listar_alerta(self):
+    """Verifica la creación y listado correcto de registros de alerta a través de la API.
+
+    @returns None
+    """
+
+    def test_crear_y_listar_alerta(self) -> None:
         payload = {
             "paciente": self.bebe.pk,
             "tipo": "temperatura",
@@ -264,8 +320,12 @@ class APIAlertaTestCase(TestCase):
         self.assertEqual(res_get.data[0]["mensaje"], "Fiebre detectada (38.5 °C)")
         self.assertEqual(res_get.data[0]["paciente_nombre"], "Lucas Silva")
 
-    def test_listar_alertas_activas_endpoint(self):
-        """Verifica que el endpoint /api/alertas/activas/ solo devuelva alertas activas."""
+    """Verifica que el endpoint /api/alertas/activas/ solo devuelva alertas activas.
+
+    @returns None
+    """
+
+    def test_listar_alertas_activas_endpoint(self) -> None:
         Alerta.objects.create(
             paciente=self.bebe,
             tipo="temperatura",
@@ -286,8 +346,12 @@ class APIAlertaTestCase(TestCase):
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0]["mensaje"], "Alerta activa")
 
-    def test_resolver_alerta_endpoint(self):
-        """Verifica que el endpoint POST /api/alertas/{id}/resolver/ desactive la alerta."""
+    """Verifica que el endpoint POST /api/alertas/{id}/resolver/ desactive la alerta.
+
+    @returns None
+    """
+
+    def test_resolver_alerta_endpoint(self) -> None:
         alerta = Alerta.objects.create(
             paciente=self.bebe,
             tipo="ritmo_cardiaco",
@@ -305,7 +369,12 @@ class APIAlertaTestCase(TestCase):
 class APITelemetriaCunaTestCase(TestCase):
     """Pruebas para el endpoint POST /api/cunas/{id}/telemetria/."""
 
-    def setUp(self):
+    """Configura el cliente API y una cuna con paciente asociado para la telemetría.
+
+    @returns None
+    """
+
+    def setUp(self) -> None:
         self.client = APIClient()
         self.bebe = Bebe.objects.create(
             identificador="BEBE-CAMILA",
@@ -323,7 +392,12 @@ class APITelemetriaCunaTestCase(TestCase):
         )
         self.url = reverse("cuna-telemetria", args=[self.cuna.pk])
 
-    def test_telemetria_con_valores_anomalos_genera_alertas(self):
+    """Verifica que la telemetría con valores anómalos genere las alertas correspondientes.
+
+    @returns None
+    """
+
+    def test_telemetria_con_valores_anomalos_genera_alertas(self) -> None:
         payload = {
             "ritmo_cardiaco": 72,
             "spo2": 88,
@@ -338,7 +412,12 @@ class APITelemetriaCunaTestCase(TestCase):
         self.assertEqual(self.cuna.spo2, 88)
         self.assertFalse(self.cuna.canula_ok)
 
-    def test_telemetria_con_valores_normales_autorresuelve(self):
+    """Verifica que el restablecimiento de signos normales autorresuelva las alertas activas.
+
+    @returns None
+    """
+
+    def test_telemetria_con_valores_normales_autorresuelve(self) -> None:
         self.client.post(self.url, {"ritmo_cardiaco": 70}, format="json")
         self.assertEqual(Alerta.objects.filter(cuna=self.cuna, activa=True).count(), 1)
 
@@ -348,8 +427,12 @@ class APITelemetriaCunaTestCase(TestCase):
         self.assertEqual(Alerta.objects.filter(cuna=self.cuna, activa=True).count(), 0)
 
     # [REGRESIÓN #1 — Validación Telemetría Issue #51]
-    def test_telemetria_rechaza_ritmo_cardiaco_invalido_sin_guardar(self):
-        """PRUEBA DE REGRESIÓN (#1): Verifica que valores inválidos de ritmo cardíaco no se guarden (Issue #51)."""
+    """PRUEBA DE REGRESIÓN (#1): Verifica que valores inválidos de ritmo cardíaco no se guarden (Issue #51).
+
+    @returns None
+    """
+
+    def test_telemetria_rechaza_ritmo_cardiaco_invalido_sin_guardar(self) -> None:
         for valor in (None, "inválido", 0, 261):
             with self.subTest(valor=valor):
                 respuesta = self.client.post(
@@ -359,8 +442,14 @@ class APITelemetriaCunaTestCase(TestCase):
                 self.cuna.refresh_from_db()
                 self.assertEqual(self.cuna.ritmo_cardiaco, 125)
 
-    def test_telemetria_rechaza_spo2_temperatura_estado_y_booleanos_invalidos_sin_guardar(self):
-        """Verifica que la validación defensiva rechace otros campos de telemetría inválidos."""
+    """Verifica que la validación defensiva rechace otros campos de telemetría inválidos.
+
+    @returns None
+    """
+
+    def test_telemetria_rechaza_spo2_temperatura_estado_y_booleanos_invalidos_sin_guardar(
+        self,
+    ) -> None:
         casos_invalidos = [
             {"spo2": 140},
             {"spo2": -5},
@@ -383,9 +472,14 @@ class APITelemetriaCunaTestCase(TestCase):
                 self.assertTrue(self.cuna.canula_ok)
 
     # [REGRESIÓN #2 — Privacidad de Logs en Telemetría]
+    """PRUEBA DE REGRESIÓN (#2): Verifica que el log de telemetría no exponga datos clínicos del paciente.
+
+    @param registrar_info - Mock para interceptar las llamadas al registrador info.
+    @returns None
+    """
+
     @patch("cunas.views.logger.info")
-    def test_log_telemetria_no_incluye_lecturas_clinicas(self, registrar_info):
-        """PRUEBA DE REGRESIÓN (#2): Verifica que el log de telemetría no exponga datos clínicos del paciente."""
+    def test_log_telemetria_no_incluye_lecturas_clinicas(self, registrar_info) -> None:
         self.client.post(self.url, {"ritmo_cardiaco": 123}, format="json")
 
         registrar_info.assert_called_once_with(
@@ -394,7 +488,14 @@ class APITelemetriaCunaTestCase(TestCase):
 
 
 class APIFiltrosAlertaCaracterizacionTestCase(TestCase):
-    def setUp(self):
+    """Pruebas de caracterización para los filtros combinados de alertas en la API REST."""
+
+    """Configura el cliente y alertas de prueba para la caracterización de filtros.
+
+    @returns None
+    """
+
+    def setUp(self) -> None:
         self.client = APIClient()
         self.url = reverse("alerta-list")
         self.alerta = Alerta.objects.create(
@@ -410,16 +511,28 @@ class APIFiltrosAlertaCaracterizacionTestCase(TestCase):
             activa=False,
         )
 
-    def test_filtros_alerta_se_combinan_y_activa_acepta_booleanos(self):
+    """Verifica la correcta combinación de filtros por estado activo, nivel y tipo de alerta.
+
+    @returns None
+    """
+
+    def test_filtros_alerta_se_combinan_y_activa_acepta_booleanos(self) -> None:
         for valor in ("true", "1", "TRUE"):
             with self.subTest(activa=valor):
                 respuesta = self.client.get(
                     self.url, {"activa": valor, "nivel": "Advertencia", "tipo": "spo2"}
                 )
                 self.assertEqual(respuesta.status_code, status.HTTP_200_OK)
-                self.assertEqual([item["id"] for item in respuesta.data], [self.alerta.id])
+                self.assertEqual(
+                    [item["id"] for item in respuesta.data], [self.alerta.id]
+                )
 
-    def test_filtro_activa_desconocido_no_filtra(self):
+    """Verifica que un valor de filtro 'activa' desconocido no restrinja los resultados de búsqueda.
+
+    @returns None
+    """
+
+    def test_filtro_activa_desconocido_no_filtra(self) -> None:
         respuesta = self.client.get(self.url, {"activa": "desconocido"})
 
         self.assertEqual(respuesta.status_code, status.HTTP_200_OK)
@@ -429,83 +542,143 @@ class APIFiltrosAlertaCaracterizacionTestCase(TestCase):
 class EvaluacionSignosVitalesTestCase(TestCase):
     """Pruebas unitarias para la función pura de evaluación de umbrales clínicos neonatales."""
 
-    def test_signos_vitales_normales_no_generan_alertas(self):
+    """Verifica que signos vitales dentro del rango normal no generen anomalías.
+
+    @returns None
+    """
+
+    def test_signos_vitales_normales_no_generan_alertas(self) -> None:
         anomalias = evaluar_signos_vitales(
             ritmo_cardiaco=130, spo2=98, temperatura=36.8, canula_ok=True
         )
         self.assertEqual(len(anomalias), 0)
 
-    def test_bradicardia_critica(self):
+    """Verifica la detección de bradicardia severa o crítica.
+
+    @returns None
+    """
+
+    def test_bradicardia_critica(self) -> None:
         anomalias = evaluar_signos_vitales(ritmo_cardiaco=75)
         self.assertEqual(len(anomalias), 1)
         self.assertEqual(anomalias[0]["tipo"], "ritmo_cardiaco")
         self.assertEqual(anomalias[0]["nivel"], "Critica")
         self.assertIn("Bradicardia severa", anomalias[0]["mensaje"])
 
-    def test_bradicardia_moderada(self):
+    """Verifica la detección de bradicardia moderada.
+
+    @returns None
+    """
+
+    def test_bradicardia_moderada(self) -> None:
         anomalias = evaluar_signos_vitales(ritmo_cardiaco=92)
         self.assertEqual(len(anomalias), 1)
         self.assertEqual(anomalias[0]["tipo"], "ritmo_cardiaco")
         self.assertEqual(anomalias[0]["nivel"], "Advertencia")
         self.assertIn("Bradicardia moderada", anomalias[0]["mensaje"])
 
-    def test_taquicardia_moderada(self):
+    """Verifica la detección de taquicardia moderada.
+
+    @returns None
+    """
+
+    def test_taquicardia_moderada(self) -> None:
         anomalias = evaluar_signos_vitales(ritmo_cardiaco=170)
         self.assertEqual(len(anomalias), 1)
         self.assertEqual(anomalias[0]["tipo"], "ritmo_cardiaco")
         self.assertEqual(anomalias[0]["nivel"], "Advertencia")
         self.assertIn("Taquicardia moderada", anomalias[0]["mensaje"])
 
-    def test_taquicardia_critica(self):
+    """Verifica la detección de taquicardia severa o crítica.
+
+    @returns None
+    """
+
+    def test_taquicardia_critica(self) -> None:
         anomalias = evaluar_signos_vitales(ritmo_cardiaco=195)
         self.assertEqual(len(anomalias), 1)
         self.assertEqual(anomalias[0]["tipo"], "ritmo_cardiaco")
         self.assertEqual(anomalias[0]["nivel"], "Critica")
         self.assertIn("Taquicardia severa", anomalias[0]["mensaje"])
 
-    def test_desaturacion_critica(self):
+    """Verifica la detección de desaturación crítica de oxígeno.
+
+    @returns None
+    """
+
+    def test_desaturacion_critica(self) -> None:
         anomalias = evaluar_signos_vitales(spo2=86)
         self.assertEqual(len(anomalias), 1)
         self.assertEqual(anomalias[0]["tipo"], "spo2")
         self.assertEqual(anomalias[0]["nivel"], "Critica")
         self.assertIn("Desaturación de oxígeno crítica", anomalias[0]["mensaje"])
 
-    def test_hipoxemia_moderada(self):
+    """Verifica la detección de hipoxemia o saturación baja moderada.
+
+    @returns None
+    """
+
+    def test_hipoxemia_moderada(self) -> None:
         anomalias = evaluar_signos_vitales(spo2=92)
         self.assertEqual(len(anomalias), 1)
         self.assertEqual(anomalias[0]["tipo"], "spo2")
         self.assertEqual(anomalias[0]["nivel"], "Advertencia")
         self.assertIn("Saturación de oxígeno baja", anomalias[0]["mensaje"])
 
-    def test_hipotermia_critica(self):
+    """Verifica la detección de hipotermia severa.
+
+    @returns None
+    """
+
+    def test_hipotermia_critica(self) -> None:
         anomalias = evaluar_signos_vitales(temperatura=35.5)
         self.assertEqual(len(anomalias), 1)
         self.assertEqual(anomalias[0]["tipo"], "temperatura")
         self.assertEqual(anomalias[0]["nivel"], "Critica")
         self.assertIn("Hipotermia severa", anomalias[0]["mensaje"])
 
-    def test_hipotermia_moderada(self):
+    """Verifica la detección de hipotermia leve o moderada.
+
+    @returns None
+    """
+
+    def test_hipotermia_moderada(self) -> None:
         anomalias = evaluar_signos_vitales(temperatura=36.2)
         self.assertEqual(len(anomalias), 1)
         self.assertEqual(anomalias[0]["tipo"], "temperatura")
         self.assertEqual(anomalias[0]["nivel"], "Advertencia")
         self.assertIn("Hipotermia leve", anomalias[0]["mensaje"])
 
-    def test_fiebre_advertencia(self):
+    """Verifica la detección de fiebre en nivel de advertencia.
+
+    @returns None
+    """
+
+    def test_fiebre_advertencia(self) -> None:
         anomalias = evaluar_signos_vitales(temperatura=38.0)
         self.assertEqual(len(anomalias), 1)
         self.assertEqual(anomalias[0]["tipo"], "temperatura")
         self.assertEqual(anomalias[0]["nivel"], "Advertencia")
         self.assertIn("Fiebre detectada", anomalias[0]["mensaje"])
 
-    def test_hipertermia_critica(self):
+    """Verifica la detección de hipertermia crítica.
+
+    @returns None
+    """
+
+    def test_hipertermia_critica(self) -> None:
         anomalias = evaluar_signos_vitales(temperatura=39.2)
         self.assertEqual(len(anomalias), 1)
         self.assertEqual(anomalias[0]["tipo"], "temperatura")
         self.assertEqual(anomalias[0]["nivel"], "Critica")
         self.assertIn("Hipertermia crítica", anomalias[0]["mensaje"])
 
-    def test_canula_desconectada_critica(self):
+    """Verifica la detección de desconexión crítica de la cánula de oxígeno.
+
+    @returns None
+    """
+
+    def test_canula_desconectada_critica(self) -> None:
         anomalias = evaluar_signos_vitales(canula_ok=False)
         self.assertEqual(len(anomalias), 1)
         self.assertEqual(anomalias[0]["tipo"], "canula")
@@ -516,7 +689,12 @@ class EvaluacionSignosVitalesTestCase(TestCase):
 class MotorAlertasIntegrationTestCase(TestCase):
     """Pruebas de integración del motor de alertas activado por cambios en el modelo Cuna."""
 
-    def setUp(self):
+    """Configura el entorno de pruebas inicial para el motor de alertas.
+
+    @returns None
+    """
+
+    def setUp(self) -> None:
         self.medico = Medico.objects.create(nombre_completo="Dra. Vega", turno="Mañana")
         self.bebe = Bebe.objects.create(
             identificador="BEBE-IGNACIO",
@@ -534,7 +712,12 @@ class MotorAlertasIntegrationTestCase(TestCase):
             canula_ok=True,
         )
 
-    def test_actualizacion_cuna_crea_alerta_automaticamente(self):
+    """Verifica que la modificación de la cuna cree automáticamente una alerta en base de datos.
+
+    @returns None
+    """
+
+    def test_actualizacion_cuna_crea_alerta_automaticamente(self) -> None:
         self.cuna.ritmo_cardiaco = 72
         self.cuna.save()
 
@@ -546,7 +729,12 @@ class MotorAlertasIntegrationTestCase(TestCase):
         self.assertEqual(alerta.paciente, self.bebe)
         self.assertEqual(alerta.valor_leido, 72.0)
 
-    def test_normalizacion_de_signos_autorresuelve_alerta(self):
+    """Verifica que la normalización de los signos vitales autorresuelva la alerta activa previa.
+
+    @returns None
+    """
+
+    def test_normalizacion_de_signos_autorresuelve_alerta(self) -> None:
         self.cuna.temperatura = 38.2
         self.cuna.save()
         self.assertEqual(
@@ -570,7 +758,12 @@ class MotorAlertasIntegrationTestCase(TestCase):
         ).first()
         self.assertFalse(alerta_resuelta.activa)
 
-    def test_deduplicacion_evita_spam(self):
+    """Verifica que la deduplicación evite la creación repetida de alertas idénticas ante guardados sucesivos.
+
+    @returns None
+    """
+
+    def test_deduplicacion_evita_spam(self) -> None:
         self.cuna.spo2 = 87
         self.cuna.save()
         self.cuna.save()
@@ -580,17 +773,18 @@ class MotorAlertasIntegrationTestCase(TestCase):
 
 
 class CunaServiceContractTestCase(TestCase):
-    """
-    Pruebas de verificación de contrato para CunaService (Unidad 2.2).
+    """Pruebas de verificación de contrato para CunaService (Unidad 2.2).
+
     Comprueba el cumplimiento de precondiciones, postcondiciones,
     invariantes y la capacidad de sustituir dependencias.
     """
 
-    def test_caso_valido_actualizacion_exitosa(self):
-        """
-        Caso Válido: telemetría dentro de rangos normales actualiza la cuna
-        y preserva las invariantes del objeto.
-        """
+    """Caso Válido: telemetría dentro de rangos normales actualiza la cuna y preserva las invariantes del objeto.
+
+    @returns None
+    """
+
+    def test_caso_valido_actualizacion_exitosa(self) -> None:
         mock_model = Mock()
         mock_cuna = Mock(
             id=1,
@@ -609,33 +803,36 @@ class CunaServiceContractTestCase(TestCase):
         self.assertEqual(resultado.temperatura, 36.8)
         mock_cuna.save.assert_called_once()
 
-    def test_caso_invalido_spo2_fuera_de_rango(self):
-        """
-        Caso Inválido 1: SpO2 superior al 100% debe ser rechazado en la frontera
-        por violación de precondición biológica.
-        """
+    """Caso Inválido 1: SpO2 superior al 100% debe ser rechazado en la frontera por violación de precondición biológica.
+
+    @returns None
+    """
+
+    def test_caso_invalido_spo2_fuera_de_rango(self) -> None:
         service = CunaService(cuna_model=Mock())
         with self.assertRaises(ValueError) as context:
             service.actualizar_telemetria("Cuna 01", 130, 110, 36.8)
 
         self.assertIn("SpO2 inválido", str(context.exception))
 
-    def test_caso_invalido_cuna_id_vacio(self):
-        """
-        Caso Inválido 2: identificador de cuna vacío debe ser rechazado
-        inmediatamente por validación defensiva.
-        """
+    """Caso Inválido 2: identificador de cuna vacío debe ser rechazado inmediatamente por validación defensiva.
+
+    @returns None
+    """
+
+    def test_caso_invalido_cuna_id_vacio(self) -> None:
         service = CunaService(cuna_model=Mock())
         with self.assertRaises(ValueError) as context:
             service.actualizar_telemetria("", 130, 98, 36.8)
 
         self.assertIn("cuna_id es obligatorio", str(context.exception))
 
-    def test_caso_invalido_ritmo_cardiaco_y_temperatura_fuera_de_rango(self):
-        """
-        Casos Inválidos adicionales: ritmo cardíaco (<30 o >250) y temperatura
-        (<30.0 o >45.0) fuera de rango fisiológico son rechazados en la frontera.
-        """
+    """Casos Inválidos adicionales: ritmo cardíaco (<30 o >250) y temperatura (<30.0 o >45.0) fuera de rango son rechazados.
+
+    @returns None
+    """
+
+    def test_caso_invalido_ritmo_cardiaco_y_temperatura_fuera_de_rango(self) -> None:
         service = CunaService(cuna_model=Mock())
         with self.assertRaisesRegex(ValueError, "Ritmo cardíaco inválido"):
             service.actualizar_telemetria("Cuna 01", 20, 98, 36.8)
@@ -643,11 +840,12 @@ class CunaServiceContractTestCase(TestCase):
         with self.assertRaisesRegex(ValueError, "Temperatura inválida"):
             service.actualizar_telemetria("Cuna 01", 130, 98, 48.0)
 
-    def test_cuna_inexistente_lanza_lookup_error(self):
-        """
-        Si la cuna solicitada no existe en el repositorio inyectado,
-        se traduce DoesNotExist a LookupError del dominio.
-        """
+    """Si la cuna solicitada no existe en el repositorio inyectado, se traduce DoesNotExist a LookupError del dominio.
+
+    @returns None
+    """
+
+    def test_cuna_inexistente_lanza_lookup_error(self) -> None:
         mock_model = Mock()
         mock_model.DoesNotExist = Cuna.DoesNotExist
         mock_model.objects.get.side_effect = Cuna.DoesNotExist
@@ -658,7 +856,14 @@ class CunaServiceContractTestCase(TestCase):
 
 
 class APIAdministrarMedicamentoTestCase(TestCase):
-    def setUp(self):
+    """Pruebas de integración para la administración y control de medicamentos vía API REST."""
+
+    """Configura el cliente y registros de prueba para la medicación.
+
+    @returns None
+    """
+
+    def setUp(self) -> None:
         self.client = APIClient()
         bebe = Bebe.objects.create(
             identificador="BEBE-MEDICACION",
@@ -676,7 +881,12 @@ class APIAdministrarMedicamentoTestCase(TestCase):
         )
         self.url = reverse("medicamento-administrar", args=[self.medicamento.pk])
 
-    def test_administra_y_rechaza_repeticion(self):
+    """Verifica que se administre correctamente un fármaco pendiente y se rechacen peticiones repetidas (HTTP 409).
+
+    @returns None
+    """
+
+    def test_administra_y_rechaza_repeticion(self) -> None:
         respuesta = self.client.post(self.url)
         self.assertEqual(respuesta.status_code, 200)
         self.assertEqual(respuesta.data["estado"], "Administrado")
@@ -688,13 +898,23 @@ class APIAdministrarMedicamentoTestCase(TestCase):
         self.medicamento.refresh_from_db()
         self.assertEqual(self.medicamento.estado, "Administrado")
 
-    def test_id_invalido(self):
+    """Verifica que un identificador de medicamento no válido retorne un error HTTP 400.
+
+    @returns None
+    """
+
+    def test_id_invalido(self) -> None:
         url = reverse("medicamento-administrar", args=["abc"])
         self.assertEqual(self.client.post(url).status_code, 400)
         self.medicamento.refresh_from_db()
         self.assertEqual(self.medicamento.estado, "Pendiente")
 
-    def test_id_inexistente(self):
+    """Verifica que un identificador de medicamento inexistente retorne HTTP 404.
+
+    @returns None
+    """
+
+    def test_id_inexistente(self) -> None:
         url = reverse("medicamento-administrar", args=[self.medicamento.pk + 1])
         self.assertEqual(self.client.post(url).status_code, 404)
         self.medicamento.refresh_from_db()
@@ -702,14 +922,18 @@ class APIAdministrarMedicamentoTestCase(TestCase):
 
 
 class RegresionSuiteTestCase(TestCase):
-    """
-    Suite explícita de Pruebas de Regresión (Criterio 6 — Hito 2).
+    """Suite explícita de Pruebas de Regresión (Criterio 6 — Hito 2).
 
     Cada prueba verifica que un defecto histórico corregido en el proyecto
     no vuelva a reintroducirse tras refactorizaciones o nuevos desarrollos.
     """
 
-    def setUp(self):
+    """Configura el entorno de prueba para la suite de regresión.
+
+    @returns None
+    """
+
+    def setUp(self) -> None:
         self.client = APIClient()
         self.bebe = Bebe.objects.create(
             identificador="BEB-REG-01",
@@ -726,11 +950,16 @@ class RegresionSuiteTestCase(TestCase):
             canula_ok=True,
         )
 
+    """PRUEBA DE REGRESIÓN (Issue #51): Verifica que la telemetría anómala rechace valores inválidos sin corromper el estado.
+
+    @returns None
+    """
+
     def test_regresion_issue_51_telemetria_anomala_no_corrompe_estado_ni_crea_alerta(
         self,
-    ):
-        """
-        PRUEBA DE REGRESIÓN (Issue #51):
+    ) -> None:
+        """PRUEBA DE REGRESIÓN (Issue #51):
+
         Antes de la corrección, enviar `ritmo_cardiaco` nulo, negativo o >260 bpm
         sobrescribía el registro de la cuna y disparaba una alerta falsa de bradicardia/taquicardia.
         """
@@ -742,9 +971,16 @@ class RegresionSuiteTestCase(TestCase):
         self.assertEqual(self.cuna.ritmo_cardiaco, 130)
         self.assertEqual(Alerta.objects.filter(cuna=self.cuna).count(), 0)
 
-    def test_regresion_issue_54_doble_resolucion_alerta_retorna_409_conflict(self):
-        """
-        PRUEBA DE REGRESIÓN (Issue #54 — Operación 2):
+    """PRUEBA DE REGRESIÓN (Issue #54 — Operación 2): Verifica que la doble resolución de una alerta retorne HTTP 409 Conflict.
+
+    @returns None
+    """
+
+    def test_regresion_issue_54_doble_resolucion_alerta_retorna_409_conflict(
+        self,
+    ) -> None:
+        """PRUEBA DE REGRESIÓN (Issue #54 — Operación 2):
+
         Anteriormente, resolver una alerta ya inactiva respondía HTTP 200 OK sin validar
         la precondición de estado activo. Ahora debe retornar HTTP 409 Conflict.
         """
@@ -764,11 +1000,16 @@ class RegresionSuiteTestCase(TestCase):
         segunda = self.client.post(url)
         self.assertEqual(segunda.status_code, status.HTTP_409_CONFLICT)
 
+    """PRUEBA DE REGRESIÓN (Issue #57 — Operación 3): Verifica que la doble administración de un fármaco retorne HTTP 409 Conflict.
+
+    @returns None
+    """
+
     def test_regresion_issue_57_doble_administracion_medicamento_retorna_409_conflict(
         self,
-    ):
-        """
-        PRUEBA DE REGRESIÓN (Issue #57 — Operación 3):
+    ) -> None:
+        """PRUEBA DE REGRESIÓN (Issue #57 — Operación 3):
+
         Verifica que un medicamento ya administrado no pueda volver a confirmarse.
         """
         med = Medicamento.objects.create(
@@ -785,4 +1026,3 @@ class RegresionSuiteTestCase(TestCase):
         self.assertEqual(self.client.post(url).status_code, status.HTTP_409_CONFLICT)
         med.refresh_from_db()
         self.assertEqual(med.estado, "Administrado")
-
