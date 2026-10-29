@@ -73,6 +73,23 @@ class Bebe(models.Model):
     observaciones = models.TextField(null=True, blank=True)
     plan_cuidados = models.TextField(null=True, blank=True)
 
+    activo = models.BooleanField(
+        default=True,
+        db_index=True,
+        help_text="False cuando el paciente recibió el alta y ya no ocupa cuna",
+    )
+    fecha_alta = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Fecha y hora del alta clínica",
+    )
+    motivo_alta = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Motivo o destino del alta (ej: Domicilio, Traslado)",
+    )
+
     medico_a_cargo = models.ForeignKey(
         Medico,
         on_delete=models.SET_NULL,
@@ -145,6 +162,10 @@ class Cuna(models.Model):
     )
     via_iv_activa = models.BooleanField(
         default=False, help_text="True si la vía intravenosa está activa"
+    )
+    en_mantenimiento = models.BooleanField(
+        default=False,
+        help_text="True si la cuna está fuera de servicio por mantenimiento",
     )
 
     # Se actualiza automáticamente cada vez que se guarda un cambio en la cuna

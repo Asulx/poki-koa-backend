@@ -43,6 +43,8 @@ class AlertaSerializer(serializers.ModelSerializer):
 
     paciente_nombre = serializers.SerializerMethodField()
     cuna_identificador = serializers.SerializerMethodField()
+    nivel_display = serializers.CharField(source="get_nivel_display", read_only=True)
+    tipo_display = serializers.CharField(source="get_tipo_display", read_only=True)
 
     class Meta:
         model = Alerta
@@ -203,13 +205,56 @@ class CunaSerializer(serializers.ModelSerializer):
     """
     Serializa todos los campos del modelo Cuna.
     Incluye `paciente_detalle` que embebe la información del bebé.
+
+    Campos derivados de solo lectura:
+
+    - ``estado``: ``ocupada`` si hay paciente, ``mantenimiento`` si está
+      fuera de servicio, ``disponible`` en caso contrario. Se deriva en
+      lugar de almacenarse para que nunca contradiga la asignación real.
+    - ``tiene_alerta_critica``: ``True`` si la cuna tiene al menos una
+      alerta crítica activa (lo usa el mapa de cunas para pintar el pulso
+      rojo).
+    - ``paciente_nombre`` / ``paciente_identificador``: atajos para evitar
+      que el frontend navegue dentro de ``paciente_detalle`` en las tablas.
     """
 
     paciente_detalle = BebeSerializer(source="paciente", read_only=True)
+    estado = serializers.SerializerMethodField()
+    tiene_alerta_critica = serializers.SerializerMethodField()
+    paciente_nombre = serializers.SerializerMethodField()
+    paciente_identificador = serializers.SerializerMethodField()
 
     class Meta:
         model = Cuna
         fields = "__all__"
+
+    def get_estado(self, obj):
+        """Estado operativo derivado de la asignación y el mantenimiento."""
+        if getattr(obj, "paciente_id", None):
+            return "ocupada"
+        if obj.en_mantenimiento:
+            return "mantenimiento"
+        return "disponible"
+
+    def get_tiene_alerta_critica(self, obj):
+        """
+        Indica si hay alertas críticas activas.
+
+        Si el ViewSet anotó el valor con ``Exists`` se usa esa anotación
+        (evita N+1 consultas); si no, se consulta de forma directa.
+        """
+        anotado = getattr(obj, "alerta_critica_anotada", None)
+        if anotado is not None:
+            return bool(anotado)
+        if not obj.pk:
+            return False
+        return obj.alertas.filter(activa=True, nivel="Critica").exists()
+
+    def get_paciente_nombre(self, obj):
+        return obj.paciente.nombre_completo if obj.paciente else None
+
+    def get_paciente_identificador(self, obj):
+        return obj.paciente.identificador if obj.paciente else None
 
 
 class PlanCuidadoSerializer(serializers.ModelSerializer):

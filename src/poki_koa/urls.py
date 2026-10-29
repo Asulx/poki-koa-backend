@@ -12,6 +12,10 @@ from django.urls import include, path
 urlpatterns = [
     # Panel de administración de Django (interfaz web para gestionar la base de datos)
     path("admin/", admin.site.urls),
-    # Rutas de la API REST: delega a cunas/urls.py todo lo que empiece con /api/
+    # Autenticación, personal y perfiles: /api/auth/..., /api/personal/, /api/perfiles/
+    path("api/", include("usuarios.urls")),
+    # Turnos, asignaciones, reportes y auditoría: /api/turnos/, /api/reportes/...
+    path("api/", include("operacion.urls")),
+    # Rutas clínicas de la API REST: delega a cunas/urls.py todo lo que empiece con /api/
     path("api/", include("cunas.urls")),
 ]

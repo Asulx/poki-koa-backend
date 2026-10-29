@@ -41,9 +41,12 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Librerías de terceros
     "rest_framework",  # API REST (Django REST Framework)
+    "rest_framework.authtoken",  # Autenticación por token para el frontend
     "corsheaders",  # Permite conexiones cross-origin desde el frontend
     # Apps del proyecto
     "cunas",  # App principal: modelos, vistas y API del sistema de cunas
+    "usuarios",  # Usuarios, roles clínicos y autenticación
+    "operacion",  # Turnos, asignaciones, auditoría y reportes
 ]
 
 # MIDDLEWARES — Se procesan en orden para cada request/response
@@ -54,6 +57,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "operacion.middleware.UsuarioActualMiddleware",  # Publica request.user para la auditoría
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -63,7 +67,34 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:4173",
 ]
+
+# DJANGO REST FRAMEWORK
+# - Autenticación por token (``Authorization: Token <clave>``) para el SPA.
+# - ``AllowAny`` se mantiene como valor por defecto para no romper los
+#   endpoints históricos ni sus pruebas; los endpoints nuevos declaran
+#   ``IsAuthenticated`` de forma explícita.
+# - El throttle de ``login`` limita los intentos de fuerza bruta sin
+#   afectar al resto de la API.
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "120/min",
+        "user": "3000/hour",
+        "login": "10/min",
+    },
+    "DATETIME_FORMAT": "iso-8601",
+    "DATE_FORMAT": "iso-8601",
+    "TIME_FORMAT": "iso-8601",
+}
 
 ROOT_URLCONF = "poki_koa.urls"
 
@@ -112,8 +143,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # INTERNACIONALIZACIÓN — Idioma y zona horaria del proyecto
-LANGUAGE_CODE = "es-es"
-TIME_ZONE = "America/Santiago"
+LANGUAGE_CODE = "es-pe"
+TIME_ZONE = "America/Lima"
 USE_I18N = True
 USE_TZ = True
 
@@ -142,6 +173,16 @@ LOGGING = {
     },
     "loggers": {
         "cunas": {
+            "handlers": ["consola"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "usuarios": {
+            "handlers": ["consola"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "operacion": {
             "handlers": ["consola"],
             "level": "INFO",
             "propagate": False,
