@@ -104,6 +104,8 @@ El backend quedará accesible en:
 
 > *Nota alternativa:* También es posible utilizar directamente la CLI estándar de Django mediante `python src/manage.py [comando]`.
 
+---
+
 ### Variables de Entorno
 
 El proyecto permite configurar su comportamiento mediante variables de entorno. Para entornos de desarrollo local, puedes crear un archivo `.env` en la raíz del backend basándote en la plantilla `.env.example`:
