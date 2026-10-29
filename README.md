@@ -104,6 +104,16 @@ El backend quedará accesible en:
 
 > *Nota alternativa:* También es posible utilizar directamente la CLI estándar de Django mediante `python src/manage.py [comando]`.
 
+### Variables de Entorno
+
+El proyecto permite configurar su comportamiento mediante variables de entorno. Para entornos de desarrollo local, puedes crear un archivo `.env` en la raíz del backend basándote en la plantilla `.env.example`:
+
+| Variable | Formato / Tipo | Obligatoria | Valor de Ejemplo | Descripción |
+|---|---|---|---|---|
+| `DEBUG` | Booleano (`True` / `False`) | Sí | `True` | Activa o desactiva el modo depuración de Django. |
+| `SECRET_KEY` | String (Clave secreta) | Sí | `django-insecure-...` | Clave criptográfica para firmas y sesiones. |
+| `ALLOWED_HOSTS` | Lista (separada por comas) | Sí | `127.0.0.1,localhost` | Dominios/IPs autorizados para responder peticiones. |
+
 ---
 
 ## Comandos Útiles
